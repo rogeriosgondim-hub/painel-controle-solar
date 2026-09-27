@@ -92,10 +92,11 @@ td.manual{color:var(--red);font-weight:800}
       <button data-view="entries">✎ &nbsp; Lançamentos</button>
       <button data-view="history">▥ &nbsp; Histórico</button>
       <button data-view="parameters">⚙ &nbsp; Parâmetros</button>
+      <button data-view="cloud">☁ &nbsp; Sincronização</button>
       <button data-view="guide">? &nbsp; Guia rápido</button>
       <button data-view="example">✓ &nbsp; Exemplo preenchido</button>
     </div>
-    <div class="side-foot">Dados armazenados localmente neste dispositivo.<br><br><b>App v1.0</b></div>
+    <div class="side-foot">Dados armazenados localmente neste dispositivo.<br><br><b>App v2.0 • Cloud Sync</b></div>
   </aside>
 
   <main class="main">
@@ -178,6 +179,50 @@ td.manual{color:var(--red);font-weight:800}
         </div>
       </section>
 
+      <section class="view" id="cloud">
+        <div class="section-head"><div><h3>Sincronização na nuvem</h3><p>Mantenha os mesmos lançamentos no celular e no computador, com dados criptografados antes do envio.</p></div></div>
+        <div class="grid two">
+          <div class="card">
+            <div class="section-head" style="margin-top:0"><div><h3>Status</h3><p>Comparação entre o dado local e a cópia criptografada na nuvem.</p></div></div>
+            <div class="param-grid" style="grid-template-columns:1fr 1fr">
+              <div class="param"><div class="pname">Situação</div><div class="pval" id="cloudStatus">Não configurado</div></div>
+              <div class="param"><div class="pname">Última sincronização</div><div class="pval" id="cloudLastSync" style="font-size:15px">—</div></div>
+              <div class="param"><div class="pname">Última alteração local</div><div class="pval" id="cloudLocalChange" style="font-size:15px">—</div></div>
+              <div class="param"><div class="pname">Destino</div><div class="pval" id="cloudDestination" style="font-size:14px">—</div></div>
+            </div>
+            <div class="form-actions" style="justify-content:flex-start">
+              <button class="btn primary" type="button" onclick="cloudAutoSync(true)">Sincronizar agora</button>
+              <button class="btn" type="button" onclick="cloudForcePull()">Baixar da nuvem</button>
+              <button class="btn" type="button" onclick="cloudForcePush()">Enviar este aparelho</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="section-head" style="margin-top:0"><div><h3>Como funciona</h3></div></div>
+            <div class="rule">A versão 2.0 usa uma área separada do seu repositório GitHub (<b>branch cloud-sync</b>) como armazenamento. Antes do envio, os dados são criptografados no aparelho com <b>AES-GCM</b>. A senha de criptografia e o token do GitHub não são enviados para o repositório.</div>
+            <div class="notice" style="margin-top:14px"><b>Importante:</b> use um token GitHub <b>fine-grained</b>, restrito somente ao repositório <b>painel-controle-solar</b>, com permissão <b>Contents: Read and write</b>. Não envie esse token pelo chat.</div>
+          </div>
+        </div>
+
+        <div class="section-head"><div><h3>Configuração deste aparelho</h3><p>A configuração fica somente neste navegador/celular e não entra no backup dos dados.</p></div></div>
+        <div class="card">
+          <div class="form-grid">
+            <div class="field"><label>Usuário GitHub</label><input id="cloudOwner" value="rogeriosgondim-hub" autocomplete="off"></div>
+            <div class="field"><label>Repositório</label><input id="cloudRepo" value="painel-controle-solar" autocomplete="off"></div>
+            <div class="field"><label>Branch de dados</label><input id="cloudBranch" value="cloud-sync" autocomplete="off"></div>
+            <div class="field"><label>Arquivo de dados</label><input id="cloudPath" value="cloud-data.enc.json" autocomplete="off"></div>
+            <div class="field"><label>Token GitHub (fine-grained)</label><input type="password" id="cloudToken" autocomplete="off" placeholder="github_pat_..."></div>
+            <div class="field"><label>Senha de criptografia</label><input type="password" id="cloudPassphrase" autocomplete="new-password" placeholder="Use a mesma senha em todos os aparelhos"></div>
+          </div>
+          <label style="display:flex;align-items:center;gap:9px;margin-top:14px;font-size:13px;font-weight:700">
+            <input type="checkbox" id="cloudAuto" checked style="width:auto"> Sincronizar automaticamente após alterações e ao abrir o app
+          </label>
+          <div class="form-actions">
+            <button class="btn primary" type="button" onclick="saveCloudSettings(true)">Salvar e sincronizar</button>
+            <button class="btn danger" type="button" onclick="clearCloudSettings()">Remover configuração deste aparelho</button>
+          </div>
+        </div>
+      </section>
+
       <section class="view" id="guide">
         <div class="section-head"><div><h3>Guia rápido de uso</h3><p>Fluxo recomendado para cada ciclo mensal.</p></div></div>
         <div class="steps" id="guideSteps"></div>
@@ -205,6 +250,10 @@ td.manual{color:var(--red);font-weight:800}
 <script>
 const DEFAULTS = {"parameters": {"installedKwp": 3.75, "declaredKw": 3.8, "moduleCount": 6, "moduleWp": 625, "inverterCount": 2, "inverterKw": 2.4, "voltage": 220, "breakerA": 50, "uc": "7196632", "historicalAverage": 310.8333333333, "invoiceAverage": 321, "referenceConsumption": 220, "prudenceFactor": 0.85, "referenceCip": 48.19, "currentInstallment": 157.44, "currentEnergyBilling": 302.08, "currentTotalBill": 507.71, "recurringCeiling": 350.27, "effectiveKwhCost": 1.3730909091, "creditReserve": 50}, "history": [{"month": "2025-10", "label": "Out/2025", "consumption": 220}, {"month": "2025-11", "label": "Nov/2025", "consumption": 220}, {"month": "2025-12", "label": "Dez/2025", "consumption": 360}, {"month": "2026-01", "label": "Jan/2026", "consumption": 560}, {"month": "2026-02", "label": "Fev/2026", "consumption": 440}, {"month": "2026-03", "label": "Mar/2026", "consumption": 340}, {"month": "2026-04", "label": "Abr/2026", "consumption": 390}, {"month": "2026-05", "label": "Mai/2026", "consumption": 360}, {"month": "2026-06", "label": "Jun/2026", "consumption": 240}, {"month": "2026-07", "label": "Jul/2026", "consumption": 170}, {"month": "2026-08", "label": "Ago/2026", "consumption": 210}, {"month": "2026-09", "label": "Set/2026", "consumption": 220}], "entries": [{"month": "2026-09", "generation": null, "gridImported": 220, "injected": 0, "creditsUsed": 0, "creditBalance": 0, "totalBill": 507.71, "cip": 48.19, "extras": 157.44}, {"month": "2026-10", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2026-11", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2026-12", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-01", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-02", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-03", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-04", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-05", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-06", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-07", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-08", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-09", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-10", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-11", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-12", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2028-01", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2028-02", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2028-03", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2028-04", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2028-05", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2028-06", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2028-07", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2028-08", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}]};
 const STORAGE_KEY = "painelSolarResidencia.v1";
+const CLOUD_CONFIG_KEY = "painelSolarCloud.v2";
+const CLOUD_META_KEY = "painelSolarCloudMeta.v2";
+let cloudTimer = null;
+let cloudBusy = false;
 let state = loadState();
 let editingMonth = null;
 
@@ -213,6 +262,7 @@ const titles = {
  entries:["Lançamentos Mensais","Preenchimento e cálculo automático"],
  history:["Histórico de Consumo","Base pré-solar"],
  parameters:["Parâmetros","Sistema e regras do painel"],
+ cloud:["Sincronização na Nuvem","Celular e computador com os mesmos dados"],
  guide:["Guia Rápido","Como usar o app"],
  example:["Exemplo Preenchido","Simulação orientativa"]
 };
@@ -226,7 +276,34 @@ function loadState(){
   }catch(e){}
   return deepClone(DEFAULTS);
 }
-function saveState(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}
+function loadCloudConfig(){
+  const defaults={owner:"rogeriosgondim-hub",repo:"painel-controle-solar",branch:"cloud-sync",path:"cloud-data.enc.json",token:"",passphrase:"",autoSync:true};
+  try{return Object.assign(defaults,JSON.parse(localStorage.getItem(CLOUD_CONFIG_KEY)||"{}"));}catch(e){return defaults}
+}
+function saveCloudConfig(cfg){localStorage.setItem(CLOUD_CONFIG_KEY,JSON.stringify(cfg))}
+function loadCloudMeta(){
+  const defaults={lastLocalChangeAt:null,lastCloudSyncAt:null,lastCloudStatus:"Não configurado",deviceId:null};
+  try{
+    const m=Object.assign(defaults,JSON.parse(localStorage.getItem(CLOUD_META_KEY)||"{}"));
+    if(!m.deviceId)m.deviceId=(crypto.randomUUID?crypto.randomUUID():"dev-"+Date.now()+"-"+Math.random().toString(36).slice(2));
+    localStorage.setItem(CLOUD_META_KEY,JSON.stringify(m));
+    return m;
+  }catch(e){return defaults}
+}
+function saveCloudMeta(m){localStorage.setItem(CLOUD_META_KEY,JSON.stringify(m))}
+function cloudReady(cfg=loadCloudConfig()){return !!(cfg.owner&&cfg.repo&&cfg.branch&&cfg.path&&cfg.token&&cfg.passphrase)}
+function scheduleCloudPush(){
+  const cfg=loadCloudConfig();
+  if(!cfg.autoSync||!cloudReady(cfg))return;
+  clearTimeout(cloudTimer);
+  cloudTimer=setTimeout(()=>cloudAutoSync(false),1800);
+}
+function saveState(fromCloud=false){
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+  if(!fromCloud){
+    const m=loadCloudMeta();m.lastLocalChangeAt=new Date().toISOString();saveCloudMeta(m);scheduleCloudPush();
+  }
+}
 function n(v){ if(v===null||v===undefined||v==="") return null; const x=Number(v); return Number.isFinite(x)?x:null; }
 function money(v){return v==null?"—":new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(v)}
 function num(v,d=1){return v==null?"—":new Intl.NumberFormat("pt-BR",{maximumFractionDigits:d,minimumFractionDigits:d}).format(v)}
@@ -473,6 +550,174 @@ function renderExample(){
     <div class="rule" style="margin-top:16px">A residência consumiu aproximadamente <b>${num(c.totalConsumption,0)} kWh</b>. O sistema gerou <b>410 kWh</b>, dos quais <b>${num(c.autoconsumption,0)} kWh</b> foram usados diretamente e 250 kWh foram injetados. Pela regra prudente atual, a meta fica em aproximadamente <b>${num(c.target,0)} kWh</b>, deixando cerca de <b>${num(c.margin,0)} kWh</b> de margem.</div>`;
 }
 
+
+function bytesToB64(bytes){
+  let s="";for(let i=0;i<bytes.length;i++)s+=String.fromCharCode(bytes[i]);return btoa(s);
+}
+function b64ToBytes(s){
+  const bin=atob(String(s||"").replace(/\s/g,"")),out=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++)out[i]=bin.charCodeAt(i);return out;
+}
+async function cloudDeriveKey(passphrase,salt,iterations){
+  const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(passphrase),"PBKDF2",false,["deriveKey"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
+}
+async function cloudEncrypt(payload,passphrase,updatedAt){
+  if(!crypto?.subtle)throw new Error("Criptografia segura não está disponível neste navegador.");
+  const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12)),iterations=150000;
+  const key=await cloudDeriveKey(passphrase,salt,iterations);
+  const plain=new TextEncoder().encode(JSON.stringify({format:2,updatedAt,deviceId:loadCloudMeta().deviceId,state:payload}));
+  const enc=new Uint8Array(await crypto.subtle.encrypt({name:"AES-GCM",iv},key,plain));
+  return {version:2,alg:"AES-GCM",kdf:"PBKDF2-SHA256",iterations,salt:bytesToB64(salt),iv:bytesToB64(iv),data:bytesToB64(enc),updatedAt};
+}
+async function cloudDecrypt(envelope,passphrase){
+  if(!envelope||!envelope.salt||!envelope.iv||!envelope.data)throw new Error("Arquivo de nuvem inválido.");
+  try{
+    const key=await cloudDeriveKey(passphrase,b64ToBytes(envelope.salt),Number(envelope.iterations||150000));
+    const dec=await crypto.subtle.decrypt({name:"AES-GCM",iv:b64ToBytes(envelope.iv)},key,b64ToBytes(envelope.data));
+    const obj=JSON.parse(new TextDecoder().decode(dec));
+    if(!obj.state||!obj.updatedAt)throw new Error("Conteúdo inválido.");
+    return obj;
+  }catch(e){throw new Error("Não foi possível descriptografar. Verifique a senha de criptografia.")}
+}
+function cloudApiUrl(cfg){
+  const path=cfg.path.split("/").map(encodeURIComponent).join("/");
+  return "https://api.github.com/repos/"+encodeURIComponent(cfg.owner)+"/"+encodeURIComponent(cfg.repo)+"/contents/"+path;
+}
+function cloudHeaders(cfg){
+  return {"Accept":"application/vnd.github+json","Authorization":"Bearer "+cfg.token,"X-GitHub-Api-Version":"2022-11-28","Content-Type":"application/json"};
+}
+async function cloudFetchFile(cfg){
+  const r=await fetch(cloudApiUrl(cfg)+"?ref="+encodeURIComponent(cfg.branch),{headers:cloudHeaders(cfg),cache:"no-store"});
+  if(r.status===404)return null;
+  if(r.status===401)throw new Error("Token GitHub inválido ou expirado.");
+  if(r.status===403)throw new Error("Token sem permissão. Use Contents: Read and write neste repositório.");
+  if(!r.ok)throw new Error("Falha ao acessar a nuvem (HTTP "+r.status+").");
+  const j=await r.json();
+  const txt=new TextDecoder().decode(b64ToBytes(j.content));
+  return {sha:j.sha,envelope:JSON.parse(txt)};
+}
+async function cloudWriteFile(cfg,envelope,sha){
+  const bytes=new TextEncoder().encode(JSON.stringify(envelope,null,2));
+  const body={message:"Sincroniza dados do Controle Solar v2.0",content:bytesToB64(bytes),branch:cfg.branch};
+  if(sha)body.sha=sha;
+  const r=await fetch(cloudApiUrl(cfg),{method:"PUT",headers:cloudHeaders(cfg),body:JSON.stringify(body)});
+  if(r.status===401)throw new Error("Token GitHub inválido ou expirado.");
+  if(r.status===403)throw new Error("Token sem permissão de escrita no repositório.");
+  if(r.status===409)throw new Error("Conflito de sincronização. Tente novamente.");
+  if(!r.ok)throw new Error("Falha ao gravar na nuvem (HTTP "+r.status+").");
+  return r.json();
+}
+function isoTime(x){
+  if(!x)return"—";
+  try{return new Intl.DateTimeFormat("pt-BR",{dateStyle:"short",timeStyle:"medium"}).format(new Date(x))}catch(e){return x}
+}
+function setCloudStatus(status,ok=true){
+  const m=loadCloudMeta();m.lastCloudStatus=status;saveCloudMeta(m);
+  const el=document.getElementById("cloudStatus");
+  if(el){el.textContent=status;el.style.color=ok?"var(--green)":"var(--danger)"}
+}
+function renderCloud(){
+  const cfg=loadCloudConfig(),m=loadCloudMeta();
+  const ids={cloudOwner:cfg.owner,cloudRepo:cfg.repo,cloudBranch:cfg.branch,cloudPath:cfg.path,cloudToken:cfg.token,cloudPassphrase:cfg.passphrase};
+  for(const [id,val] of Object.entries(ids)){const el=document.getElementById(id);if(el)el.value=val||""}
+  const auto=document.getElementById("cloudAuto");if(auto)auto.checked=cfg.autoSync!==false;
+  const st=document.getElementById("cloudStatus");if(st){st.textContent=cloudReady(cfg)?(m.lastCloudStatus||"Configurado"):"Não configurado";st.style.color=cloudReady(cfg)?"var(--green)":"var(--muted)"}
+  const ls=document.getElementById("cloudLastSync");if(ls)ls.textContent=isoTime(m.lastCloudSyncAt);
+  const lc=document.getElementById("cloudLocalChange");if(lc)lc.textContent=isoTime(m.lastLocalChangeAt);
+  const dst=document.getElementById("cloudDestination");if(dst)dst.textContent=cfg.owner+"/"+cfg.repo+" • "+cfg.branch;
+}
+function readCloudForm(){
+  return {
+    owner:(document.getElementById("cloudOwner")?.value||"").trim(),
+    repo:(document.getElementById("cloudRepo")?.value||"").trim(),
+    branch:(document.getElementById("cloudBranch")?.value||"").trim(),
+    path:(document.getElementById("cloudPath")?.value||"").trim(),
+    token:(document.getElementById("cloudToken")?.value||"").trim(),
+    passphrase:document.getElementById("cloudPassphrase")?.value||"",
+    autoSync:!!document.getElementById("cloudAuto")?.checked
+  };
+}
+async function saveCloudSettings(syncAfter=false){
+  const cfg=readCloudForm();
+  if(!cfg.owner||!cfg.repo||!cfg.branch||!cfg.path||!cfg.token||cfg.passphrase.length<8){
+    alert("Preencha todos os campos. A senha de criptografia deve ter pelo menos 8 caracteres.");
+    return;
+  }
+  saveCloudConfig(cfg);
+  setCloudStatus("Configurado");
+  renderCloud();
+  toast("Configuração de nuvem salva neste aparelho.");
+  if(syncAfter)await cloudAutoSync(true);
+}
+function clearCloudSettings(){
+  if(!confirm("Remover o token e a senha de sincronização somente deste aparelho? Seus dados locais serão mantidos."))return;
+  localStorage.removeItem(CLOUD_CONFIG_KEY);
+  const m=loadCloudMeta();m.lastCloudStatus="Não configurado";m.lastCloudSyncAt=null;saveCloudMeta(m);
+  renderCloud();toast("Configuração de nuvem removida.");
+}
+async function cloudApplyRemote(remote){
+  state=remote.state;
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+  const m=loadCloudMeta();m.lastLocalChangeAt=remote.updatedAt;m.lastCloudSyncAt=new Date().toISOString();m.lastCloudStatus="Sincronizado";saveCloudMeta(m);
+  renderAll();
+  fillForm(latestDashboardEntry()||null);
+}
+async function cloudAutoSync(showMessage=false){
+  const cfg=loadCloudConfig();
+  if(!cloudReady(cfg)){if(showMessage){goTo("cloud");alert("Configure o token GitHub e a senha de criptografia primeiro.")}return}
+  if(cloudBusy)return;
+  if(!navigator.onLine){setCloudStatus("Offline",false);if(showMessage)toast("Sem internet; dados continuam salvos localmente.");return}
+  cloudBusy=true;setCloudStatus("Sincronizando…");
+  try{
+    const remoteFile=await cloudFetchFile(cfg),m=loadCloudMeta();
+    const localAt=m.lastLocalChangeAt||"1970-01-01T00:00:00.000Z";
+    if(!remoteFile){
+      const now=new Date().toISOString();if(!m.lastLocalChangeAt){m.lastLocalChangeAt=now;saveCloudMeta(m)}
+      const envelope=await cloudEncrypt(state,cfg.passphrase,m.lastLocalChangeAt||now);
+      await cloudWriteFile(cfg,envelope,null);
+      m.lastCloudSyncAt=new Date().toISOString();m.lastCloudStatus="Sincronizado";saveCloudMeta(m);
+    }else{
+      const remote=await cloudDecrypt(remoteFile.envelope,cfg.passphrase);
+      const rt=Date.parse(remote.updatedAt)||0,lt=Date.parse(localAt)||0;
+      if(rt>lt){
+        await cloudApplyRemote(remote);
+      }else if(lt>rt){
+        const envelope=await cloudEncrypt(state,cfg.passphrase,localAt);
+        await cloudWriteFile(cfg,envelope,remoteFile.sha);
+        const mm=loadCloudMeta();mm.lastCloudSyncAt=new Date().toISOString();mm.lastCloudStatus="Sincronizado";saveCloudMeta(mm);
+      }else{
+        m.lastCloudSyncAt=new Date().toISOString();m.lastCloudStatus="Sincronizado";saveCloudMeta(m);
+      }
+    }
+    renderCloud();setCloudStatus("Sincronizado");
+    if(showMessage)toast("Dados sincronizados com a nuvem.");
+  }catch(e){
+    setCloudStatus("Erro de sincronização",false);
+    if(showMessage)alert(e.message||String(e));
+  }finally{cloudBusy=false;renderCloud()}
+}
+async function cloudForcePull(){
+  const cfg=loadCloudConfig();if(!cloudReady(cfg)){alert("Configure a sincronização primeiro.");return}
+  if(!confirm("Substituir os dados deste aparelho pelos dados existentes na nuvem?"))return;
+  cloudBusy=true;setCloudStatus("Baixando…");
+  try{
+    const f=await cloudFetchFile(cfg);if(!f)throw new Error("Ainda não existe um arquivo de dados na nuvem.");
+    const remote=await cloudDecrypt(f.envelope,cfg.passphrase);await cloudApplyRemote(remote);toast("Dados baixados da nuvem.");
+  }catch(e){setCloudStatus("Erro de sincronização",false);alert(e.message||String(e))}finally{cloudBusy=false;renderCloud()}
+}
+async function cloudForcePush(){
+  const cfg=loadCloudConfig();if(!cloudReady(cfg)){alert("Configure a sincronização primeiro.");return}
+  if(!confirm("Substituir a cópia da nuvem pelos dados atuais deste aparelho?"))return;
+  cloudBusy=true;setCloudStatus("Enviando…");
+  try{
+    const f=await cloudFetchFile(cfg),m=loadCloudMeta(),now=new Date().toISOString();
+    m.lastLocalChangeAt=now;saveCloudMeta(m);
+    const env=await cloudEncrypt(state,cfg.passphrase,now);await cloudWriteFile(cfg,env,f?.sha||null);
+    m.lastCloudSyncAt=new Date().toISOString();m.lastCloudStatus="Sincronizado";saveCloudMeta(m);toast("Dados enviados para a nuvem.");
+  }catch(e){setCloudStatus("Erro de sincronização",false);alert(e.message||String(e))}finally{cloudBusy=false;renderCloud()}
+}
+
 function exportBackup(){
   const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),a=document.createElement("a");
   a.href=URL.createObjectURL(blob);a.download="backup_painel_solar_"+new Date().toISOString().slice(0,10)+".json";a.click();URL.revokeObjectURL(a.href);
@@ -501,7 +746,7 @@ document.getElementById("entryForm").addEventListener("submit",ev=>{
   saveState();editingMonth=e.month;renderAll();toast("Lançamento salvo.");
 });
 
-function renderAll(){renderDashboard();renderEntries();renderHistory();renderParams();renderGuide();renderExample()}
+function renderAll(){renderDashboard();renderEntries();renderHistory();renderParams();renderCloud();renderGuide();renderExample()}
 function goTo(id){
   document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===id));
   document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===id));
@@ -514,6 +759,9 @@ document.getElementById("menuBtn").onclick=()=>document.getElementById("sidebar"
 function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2200)}
 
 renderAll();fillForm(state.entries.find(e=>e.month==="2026-09")||null);
+window.addEventListener("online",()=>cloudAutoSync(false));
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)cloudAutoSync(false)});
+setTimeout(()=>cloudAutoSync(false),700);
 
 </script>
 </body>
