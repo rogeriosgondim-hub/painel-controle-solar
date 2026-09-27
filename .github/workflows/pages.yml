@@ -1,4 +1,5 @@
 name: Deploy GitHub Pages
+# retrigger after Pages enabled
 
 on:
   push:
