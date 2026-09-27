@@ -679,7 +679,12 @@ async function cloudAutoSync(showMessage=false){
       m.lastCloudSyncAt=new Date().toISOString();m.lastCloudStatus="Sincronizado";saveCloudMeta(m);
     }else{
       const remote=await cloudDecrypt(remoteFile.envelope,cfg.passphrase);
-      const rt=Date.parse(remote.updatedAt)||0,lt=Date.parse(localAt)||0;
+      const rt=Date.parse(remote.updatedAt)||0,lt=Date.parse(localAt)||0,syncAt=Date.parse(m.lastCloudSyncAt||"")||0;
+      if(syncAt&&rt>syncAt&&lt>syncAt&&Math.abs(rt-lt)>1000){
+        m.lastCloudStatus="Conflito — escolha a origem";saveCloudMeta(m);renderCloud();setCloudStatus("Conflito — escolha a origem",false);
+        if(showMessage)alert("Há alterações novas neste aparelho e também na nuvem. Para evitar perda de dados, escolha manualmente “Baixar da nuvem” ou “Enviar este aparelho”.");
+        return;
+      }
       if(rt>lt){
         await cloudApplyRemote(remote);
       }else if(lt>rt){
