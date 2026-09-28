@@ -1,4 +1,5 @@
 name: Build Android APK
+# assinatura permanente habilitada
 
 on:
   workflow_dispatch:
