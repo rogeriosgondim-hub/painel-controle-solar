@@ -20,13 +20,32 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Verificar assinatura permanente
+        id: signing
+        shell: bash
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -n "$ANDROID_KEYSTORE_BASE64" ] && [ -n "$ANDROID_KEYSTORE_PASSWORD" ] && [ -n "$ANDROID_KEY_ALIAS" ] && [ -n "$ANDROID_KEY_PASSWORD" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+            echo "Assinatura permanente configurada."
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "Assinatura permanente ainda não configurada. Cadastre os 4 Repository secrets."
+          fi
+
       - name: Java 17
+        if: steps.signing.outputs.configured == 'true'
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
 
       - name: Preparar Android SDK
+        if: steps.signing.outputs.configured == 'true'
         shell: bash
         run: |
           export ANDROID_HOME=/usr/local/lib/android/sdk
@@ -37,24 +56,47 @@ jobs:
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-35" "build-tools;35.0.0"
 
       - name: Gradle 8.9
+        if: steps.signing.outputs.configured == 'true'
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.9"
 
-      - name: Compilar APK de teste
+      - name: Restaurar chave de assinatura
+        if: steps.signing.outputs.configured == 'true'
+        shell: bash
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/controle-solar-release.jks"
+          chmod 600 "$RUNNER_TEMP/controle-solar-release.jks"
+
+      - name: Compilar APK release assinado
+        if: steps.signing.outputs.configured == 'true'
         working-directory: android-app
         env:
           ANDROID_HOME: /usr/local/lib/android/sdk
           ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
-        run: gradle :app:assembleDebug --no-daemon
+          ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/controle-solar-release.jks
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: gradle :app:assembleRelease --no-daemon
+
+      - name: Verificar assinatura do APK
+        if: steps.signing.outputs.configured == 'true'
+        shell: bash
+        run: |
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs android-app/app/build/outputs/apk/release/app-release.apk
 
       - name: Preparar APK
-        run: cp android-app/app/build/outputs/apk/debug/app-debug.apk android-app/Controle-Solar-v2.1.1.apk
+        if: steps.signing.outputs.configured == 'true'
+        run: cp android-app/app/build/outputs/apk/release/app-release.apk android-app/Controle-Solar-v2.2.apk
 
       - name: Publicar artefato
+        if: steps.signing.outputs.configured == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: Controle-Solar-v2.1.1
-          path: android-app/Controle-Solar-v2.1.1.apk
+          name: Controle-Solar-v2.2-PERMANENTE
+          path: android-app/Controle-Solar-v2.2.apk
           if-no-files-found: error
           retention-days: 30
