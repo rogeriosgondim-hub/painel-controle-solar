@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0F5F8C">
-<title>Controle Solar v2.1</title>
+<title>Controle Solar v2.3</title>
 <style>
 :root{
   --navy:#153955; --navy2:#1f5876; --blue:#dcecf7; --blue2:#c8dfef;
@@ -82,7 +82,7 @@ td.manual{color:var(--red);font-weight:800}
 @media(max-width:450px){.kpis{grid-template-columns:1fr}.hero{padding:18px}}
 @media print{.sidebar,.topbar,.no-print{display:none!important}.main{margin:0}.content{padding:0}.view{display:block!important;page-break-after:always}.card,.hero{box-shadow:none}}
 
-/* ===== v2.1 PREMIUM CLARO — OPTION A ===== */
+/* ===== PREMIUM CLARO — IDENTIDADE OFICIAL ===== */
 :root{
   --navy:#123f67; --navy2:#0f6fbc; --blue:#eaf5ff; --blue2:#dceeff;
   --bg:#f5f9fd; --card:#ffffff; --text:#102b43; --muted:#6e8192; --line:#dfe9f1;
@@ -270,6 +270,58 @@ table{font-size:12px}
   .field input,.field select,.month-year-picker select{font-size:13.5px}
 }
 
+
+/* ===== PRÉVIA — RELATÓRIOS ===== */
+.report-toolbar{display:flex;align-items:end;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.report-filter{display:flex;gap:10px;align-items:end;flex-wrap:wrap}
+.report-filter .field{min-width:190px}
+.report-badge{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border-radius:999px;background:#edf7fd;color:#0F5F8C;font-size:11px;font-weight:900}
+.report-kpis{grid-template-columns:repeat(4,minmax(0,1fr));margin:16px 0}
+.report-kpi{position:relative;overflow:hidden;min-height:116px}
+.report-kpi:before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:#1684D6}
+.report-kpi:nth-child(1):before{background:#22A861}.report-kpi:nth-child(2):before{background:#1684D6}
+.report-kpi:nth-child(3):before{background:#4AA57A}.report-kpi:nth-child(4):before{background:#E98732}
+.report-kpi:nth-child(5):before{background:#5E9FBF}.report-kpi:nth-child(6):before{background:#7762C9}
+.report-kpi:nth-child(7):before{background:#22A861}.report-kpi:nth-child(8):before{background:#E98732}
+.report-kpi .rk-label{font-size:11px;color:var(--muted);font-weight:800}
+.report-kpi .rk-value{font-size:25px;font-weight:900;margin-top:9px}
+.report-kpi .rk-hint{font-size:10.5px;color:var(--muted);margin-top:7px;line-height:1.35}
+.report-layout{grid-template-columns:1.35fr .65fr}
+.report-summary-list{display:grid;gap:0}
+.report-summary-row{display:flex;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid var(--line);font-size:12px}
+.report-summary-row:last-child{border-bottom:0}.report-summary-row span:first-child{color:var(--muted)}.report-summary-row b{text-align:right}
+.report-insights{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.report-insight{border:1px solid var(--line);border-radius:14px;padding:13px;background:#fbfdff}
+.report-insight span{display:block;color:var(--muted);font-size:10.5px;font-weight:800}
+.report-insight b{display:block;font-size:17px;margin-top:6px}
+.report-insight small{display:block;color:var(--muted);font-size:10px;margin-top:4px;line-height:1.35}
+.report-note{font-size:10.5px;color:var(--muted);line-height:1.5}.report-empty{padding:32px;text-align:center;color:var(--muted)}
+.report-table td,.report-table th{white-space:nowrap}.report-period-title{font-size:12px;color:var(--muted);font-weight:700}
+@media(max-width:1050px){.report-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.report-layout{grid-template-columns:1fr}}
+@media(max-width:650px){
+  .report-kpis{grid-template-columns:1fr 1fr;gap:10px}.report-kpi{min-height:104px;padding:14px}
+  .report-kpi .rk-value{font-size:20px}.report-insights{grid-template-columns:1fr}
+  .report-filter{width:100%}.report-filter .field{flex:1;min-width:155px}
+}
+@media print{
+  body.print-reports .sidebar,body.print-reports .topbar,body.print-reports .view:not(#reports),body.print-reports .no-print{display:none!important}
+  body.print-reports .main{margin-left:0!important}body.print-reports .content{max-width:none!important;padding:0!important}
+  body.print-reports #reports{display:block!important}body.print-reports .card{box-shadow:none!important;break-inside:avoid}
+  body.print-reports{background:#fff!important}
+}
+
+
+.report-chart-guide{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:2px 0 12px}
+.report-chart-guide>div{display:grid;grid-template-columns:auto 1fr;column-gap:8px;row-gap:2px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fbfdff}
+.report-chart-guide b{font-size:11.5px}
+.report-chart-guide small{grid-column:2;color:var(--muted);font-size:10px;line-height:1.3}
+.guide-swatch{width:12px;height:12px;border-radius:3px;display:inline-block}
+.guide-swatch.generation{background:#22A861}.guide-swatch.consumption{background:#1684D6}
+.guide-line{width:18px;height:0;border-top:3px dashed #E98732;display:inline-block}
+.report-chart-reading{margin-top:12px;padding:12px 14px;border-radius:12px;background:#f6fafc;border:1px solid var(--line);font-size:11.5px;line-height:1.55;color:var(--text)}
+.report-chart-reading b{font-weight:900}
+@media(max-width:700px){.report-chart-guide{grid-template-columns:1fr}.report-chart-guide>div{padding:9px 10px}}
+
 </style>
 </head>
 <body>
@@ -279,13 +331,14 @@ table{font-size:12px}
     <div class="nav">
       <button data-view="dashboard" class="active">▦ &nbsp; Painel</button>
       <button data-view="entries">✎ &nbsp; Lançamentos</button>
+      <button data-view="reports">▤ &nbsp; Relatórios</button>
       <button data-view="history">▥ &nbsp; Histórico</button>
       <button data-view="parameters">⚙ &nbsp; Parâmetros</button>
       <button data-view="cloud">☁ &nbsp; Sincronização</button>
       <button data-view="guide">? &nbsp; Guia rápido</button>
       <button data-view="example">✓ &nbsp; Exemplo preenchido</button>
     </div>
-    <div class="side-foot">Dados armazenados localmente neste dispositivo.<br><br><b>App v2.1 • Cloud Sync</b></div>
+    <div class="side-foot">Dados armazenados localmente neste dispositivo.<br><br><b>App v2.3 • Cloud Sync</b></div>
   </aside>
 
   <main class="main">
@@ -400,6 +453,59 @@ table{font-size:12px}
         </tr></thead><tbody></tbody></table></div></div>
       </section>
 
+
+      <section class="view" id="reports">
+        <div class="report-toolbar">
+          <div>
+            <div class="report-badge">▤ RELATÓRIOS DO SISTEMA</div>
+            <div class="section-head" style="margin:10px 0 0"><div>
+              <h3>Relatórios do sistema solar</h3>
+              <p>Consolidação de geração, consumo, créditos e impacto financeiro a partir dos seus lançamentos mensais.</p>
+            </div></div>
+          </div>
+          <div class="report-filter no-print">
+            <div class="field"><label>Período</label><select id="reportPeriod">
+              <option value="1">Último mês</option><option value="3">Últimos 3 meses</option>
+              <option value="6">Últimos 6 meses</option><option value="12" selected>Últimos 12 meses</option>
+              <option value="all">Todo o período</option>
+            </select></div>
+            <button class="btn" type="button" onclick="printReports()">Imprimir / Salvar PDF</button>
+          </div>
+        </div>
+        <div class="report-period-title" id="reportPeriodTitle">—</div>
+        <div class="grid report-kpis" id="reportKpis"></div>
+
+        <div class="card chart-feature">
+          <div class="section-head compact">
+            <div><h3>Geração × consumo × meta</h3><p>Evolução mensal do período selecionado</p></div>
+            <span class="soft-chip" id="reportChartChip">—</span>
+          </div>
+          <div class="report-chart-guide">
+            <div><span class="guide-swatch generation"></span><b>Geração solar</b><small>energia produzida pelo sistema</small></div>
+            <div><span class="guide-swatch consumption"></span><b>Consumo da casa</b><small>energia total usada pela residência</small></div>
+            <div><span class="guide-line"></span><b>Meta prudente</b><small>referência de consumo confortável</small></div>
+          </div>
+          <div class="chart-wrap"><svg id="reportChart" class="chart premium-chart"></svg></div>
+          <div class="report-chart-reading" id="reportChartReading"></div>
+        </div>
+
+        <div class="grid report-layout" style="margin-top:16px">
+          <div class="card"><div class="section-head compact"><div><h3>Resumo do período</h3><p>Como a energia foi utilizada e compensada</p></div></div><div class="report-summary-list" id="reportSummary"></div></div>
+          <div class="card"><div class="section-head compact"><div><h3>Leituras inteligentes</h3><p>Indicadores para orientar o uso da residência</p></div></div><div class="report-insights" id="reportInsights"></div></div>
+        </div>
+
+        <div class="section-head"><div><h3>Detalhamento mensal</h3><p>Valores usados para formar o relatório</p></div></div>
+        <div class="card table-card"><div class="table-scroll"><table class="report-table">
+          <thead><tr><th>Mês</th><th>Geração</th><th>Consumo</th><th>Autoconsumo</th><th>Rede</th><th>Injetada</th><th>Créditos usados</th><th>Saldo créditos</th><th>Conta recorrente</th><th>Economia estimada*</th><th>Status</th></tr></thead>
+          <tbody id="reportTableBody"></tbody>
+        </table></div></div>
+        <div class="notice report-note" style="margin-top:14px">
+          <b>*Economia estimada:</b> cálculo gerencial simples usando a geração solar registrada × custo efetivo de referência por kWh.
+          Serve para acompanhamento e comparação interna; a economia financeira real depende da composição tarifária e da fatura da distribuidora.
+          Nesta prévia, indicadores ambientais não foram incluídos até definirmos um fator de conversão oficial.
+        </div>
+      </section>
+
       <section class="view" id="history">
         <div class="section-head"><div><h3>Histórico pré-solar</h3><p>12 meses utilizados como referência de comportamento da residência.</p></div></div>
         <div class="grid two">
@@ -445,7 +551,7 @@ table{font-size:12px}
           </div>
           <div class="card">
             <div class="section-head" style="margin-top:0"><div><h3>Como funciona</h3></div></div>
-            <div class="rule">A versão 2.1 usa uma área separada do seu repositório GitHub (<b>branch cloud-sync</b>) como armazenamento. Antes do envio, os dados são criptografados no aparelho com <b>AES-GCM</b>. A senha de criptografia e o token do GitHub não são enviados para o repositório.</div>
+            <div class="rule">A versão 2.3 usa uma área separada do seu repositório GitHub (<b>branch cloud-sync</b>) como armazenamento. Antes do envio, os dados são criptografados no aparelho com <b>AES-GCM</b>. A senha de criptografia e o token do GitHub não são enviados para o repositório.</div>
             <div class="notice" style="margin-top:14px"><b>Importante:</b> use um token GitHub <b>fine-grained</b>, restrito somente ao repositório <b>painel-controle-solar</b>, com permissão <b>Contents: Read and write</b>. Não envie esse token pelo chat.</div>
           </div>
         </div>
@@ -507,6 +613,7 @@ let editingMonth = null;
 const titles = {
  dashboard:["Painel de Controle Solar","Visão geral da residência"],
  entries:["Lançamentos Mensais","Preenchimento e cálculo automático"],
+ reports:["Relatórios","Geração, consumo, créditos e economia"],
  history:["Histórico de Consumo","Base pré-solar"],
  parameters:["Parâmetros","Sistema e regras do painel"],
  cloud:["Sincronização na Nuvem","Celular e computador com os mesmos dados"],
@@ -903,7 +1010,7 @@ async function cloudFetchFile(cfg){
 }
 async function cloudWriteFile(cfg,envelope,sha){
   const bytes=new TextEncoder().encode(JSON.stringify(envelope,null,2));
-  const body={message:"Sincroniza dados do Controle Solar v2.1",content:bytesToB64(bytes),branch:cfg.branch};
+  const body={message:"Sincroniza dados do Controle Solar v2.3",content:bytesToB64(bytes),branch:cfg.branch};
   if(sha)body.sha=sha;
   const r=await fetch(cloudApiUrl(cfg),{method:"PUT",headers:cloudHeaders(cfg),body:JSON.stringify(body)});
   if(r.status===401)throw new Error("Token GitHub inválido ou expirado.");
@@ -1053,6 +1160,7 @@ document.getElementById("backupInput").addEventListener("change",ev=>{
 
 document.getElementById("fMonthName").addEventListener("change",()=>{syncMonthPicker();updatePreview();});
 document.getElementById("fYear").addEventListener("change",()=>{syncMonthPicker();updatePreview();});
+document.getElementById("reportPeriod").addEventListener("change",renderReports);
 document.getElementById("entryForm").addEventListener("input",updatePreview);
 document.getElementById("entryForm").addEventListener("submit",ev=>{
   ev.preventDefault();const e=formEntry();if(!e.month){alert("Informe o mês.");return}
@@ -1061,7 +1169,170 @@ document.getElementById("entryForm").addEventListener("submit",ev=>{
   saveState();editingMonth=e.month;renderAll();toast("Lançamento salvo.");
 });
 
-function renderAll(){renderDashboard();renderEntries();renderHistory();renderParams();renderCloud();renderGuide();renderExample()}
+
+function reportFilledEntries(){
+  return state.entries.filter(function(e){return n(e.generation)!=null;}).sort(function(a,b){return a.month.localeCompare(b.month);});
+}
+function reportRangeEntries(){
+  const all=reportFilledEntries();
+  const sel=document.getElementById("reportPeriod");
+  const v=sel?sel.value:"12";
+  if(v==="all")return all;
+  const count=Math.max(1,Number(v)||12);
+  return all.slice(-count);
+}
+function reportSavings(e){return (n(e.generation)??0)*(state.parameters.effectiveKwhCost??0);}
+function reportSum(rows,fn){return rows.reduce(function(s,e){return s+(fn(e)??0);},0);}
+function reportAvg(rows,fn){
+  if(!rows.length)return null;
+  const vals=rows.map(fn).filter(function(v){return v!=null&&Number.isFinite(v);});
+  return vals.length?vals.reduce(function(a,b){return a+b;},0)/vals.length:null;
+}
+function renderReports(){
+  const rows=reportRangeEntries();
+  const title=document.getElementById("reportPeriodTitle");
+  const chip=document.getElementById("reportChartChip");
+  if(!rows.length){
+    if(title)title.textContent="Aguardando lançamentos com geração solar.";
+    document.getElementById("reportKpis").innerHTML='<div class="card report-empty" style="grid-column:1/-1">Assim que houver meses com geração solar preenchida, o relatório será montado automaticamente.</div>';
+    document.getElementById("reportSummary").innerHTML="";
+    document.getElementById("reportInsights").innerHTML="";
+    document.getElementById("reportTableBody").innerHTML="";
+    const svg=document.getElementById("reportChart");if(svg)svg.innerHTML="";
+    if(chip)chip.textContent="Sem dados";
+    return;
+  }
+  const first=rows[0],last=rows[rows.length-1];
+  const label=rows.length===1?monthLabel(last.month):monthLabel(first.month)+" — "+monthLabel(last.month);
+  if(title)title.textContent=label+" • "+rows.length+(rows.length===1?" mês":" meses");
+  if(chip)chip.textContent=label;
+
+  const gen=reportSum(rows,function(e){return n(e.generation);});
+  const cons=reportSum(rows,function(e){return calc(e).totalConsumption;});
+  const auto=reportSum(rows,function(e){return calc(e).autoconsumption;});
+  const grid=reportSum(rows,function(e){return n(e.gridImported);});
+  const injected=reportSum(rows,function(e){return n(e.injected);});
+  const used=reportSum(rows,function(e){return n(e.creditsUsed);});
+  const savings=reportSum(rows,function(e){return reportSavings(e);});
+  const recurringAvg=reportAvg(rows,function(e){return calc(e).recurringBill;});
+  const latestBalance=n(last.creditBalance);
+  const directPct=gen>0?auto/gen:null;
+  const solarCoverage=cons>0?auto/cons:null;
+  const gridPct=cons>0?grid/cons:null;
+
+  const kpis=[
+    ["Geração total",num(gen,1)+" kWh","Produção solar acumulada"],
+    ["Consumo total",num(cons,1)+" kWh","Rede + uso solar direto"],
+    ["Autoconsumo",num(auto,1)+" kWh",directPct==null?"—":pct(directPct)+" da geração"],
+    ["Rede importada",num(grid,1)+" kWh",gridPct==null?"—":pct(gridPct)+" do consumo"],
+    ["Energia injetada",num(injected,1)+" kWh","Energia enviada à rede"],
+    ["Saldo de créditos",num(latestBalance,1)+" kWh","Saldo no fim do último mês"],
+    ["Economia estimada",money(savings),"Referência gerencial do período"],
+    ["Conta recorrente média",money(recurringAvg),"Média sem parcelamentos/outros"]
+  ];
+  document.getElementById("reportKpis").innerHTML=kpis.map(function(x){
+    return '<div class="card report-kpi"><div class="rk-label">'+x[0]+'</div><div class="rk-value">'+x[1]+'</div><div class="rk-hint">'+x[2]+'</div></div>';
+  }).join("");
+
+  const latestCalc=calc(last);
+  const avgMargin=reportAvg(rows,function(e){return calc(e).margin;});
+  document.getElementById("reportSummary").innerHTML=[
+    ["Aproveitamento direto da geração",directPct==null?"—":pct(directPct)],
+    ["Cobertura solar direta do consumo",solarCoverage==null?"—":pct(solarCoverage)],
+    ["Energia enviada para compensação",num(injected,1)+" kWh"],
+    ["Créditos utilizados",num(used,1)+" kWh"],
+    ["Margem média até a meta",num(avgMargin,1)+" kWh"],
+    ["Custo efetivo de referência",money(state.parameters.effectiveKwhCost)+"/kWh"],
+    ["Situação do último mês",statusPill(latestCalc.status)]
+  ].map(function(x){return '<div class="report-summary-row"><span>'+x[0]+'</span><b>'+x[1]+'</b></div>';}).join("");
+
+  const best=rows.reduce(function(a,b){return (n(b.generation)??0)>(n(a.generation)??0)?b:a;},rows[0]);
+  const worstGrid=rows.reduce(function(a,b){return (n(b.gridImported)??0)>(n(a.gridImported)??0)?b:a;},rows[0]);
+  const firstBill=calc(first).recurringBill,lastBill=calc(last).recurringBill;
+  let billTrend="—",billHint="Sem comparação suficiente";
+  if(firstBill!=null&&lastBill!=null&&rows.length>1){
+    const delta=lastBill-firstBill;
+    billTrend=(delta>0?"+":"")+money(delta);
+    billHint="Variação entre "+monthLabel(first.month)+" e "+monthLabel(last.month);
+  }
+  document.getElementById("reportInsights").innerHTML=[
+    ["Cobertura solar",solarCoverage==null?"—":pct(solarCoverage),"Parcela do consumo atendida diretamente pelo solar"],
+    ["Melhor geração",num(n(best.generation),1)+" kWh",monthLabel(best.month)],
+    ["Maior uso da rede",num(n(worstGrid.gridImported),1)+" kWh",monthLabel(worstGrid.month)],
+    ["Variação da conta",billTrend,billHint]
+  ].map(function(x){return '<div class="report-insight"><span>'+x[0]+'</span><b>'+x[1]+'</b><small>'+x[2]+'</small></div>';}).join("");
+
+  document.getElementById("reportTableBody").innerHTML=rows.slice().reverse().map(function(e){
+    const c=calc(e);
+    return '<tr><td><b>'+monthLabel(e.month)+'</b></td>'+
+      '<td>'+num(n(e.generation),1)+'</td><td>'+num(c.totalConsumption,1)+'</td><td>'+num(c.autoconsumption,1)+'</td>'+
+      '<td>'+num(n(e.gridImported),1)+'</td><td>'+num(n(e.injected),1)+'</td><td>'+num(n(e.creditsUsed),1)+'</td>'+
+      '<td>'+num(n(e.creditBalance),1)+'</td><td>'+money(c.recurringBill)+'</td><td>'+money(reportSavings(e))+'</td>'+
+      '<td>'+statusPill(c.status)+'</td></tr>';
+  }).join("");
+  renderReportChart(rows);
+}
+function renderReportChart(rows){
+  const svg=document.getElementById("reportChart");if(!svg)return;
+  const W=900,H=300,pad={l:52,r:18,t:34,b:48};
+  svg.setAttribute("viewBox","0 0 "+W+" "+H);svg.innerHTML="";
+  const data=rows.map(function(e){return {e:e,c:calc(e)};});
+  const vals=[];
+  data.forEach(function(d){vals.push(d.c.totalConsumption??0,n(d.e.generation)??0,d.c.target??0);});
+  const max=Math.max(100,...vals)*1.12,iw=W-pad.l-pad.r,ih=H-pad.t-pad.b;
+
+  svg.appendChild(svgEl("text",{x:10,y:18,"font-size":"10",fill:"#657887","font-weight":"700"},"kWh"));
+  for(let i=0;i<=5;i++){
+    const y=pad.t+ih-i*ih/5;
+    svg.appendChild(svgEl("line",{x1:pad.l,y1:y,x2:W-pad.r,y2:y,stroke:"#d9e5ec","stroke-dasharray":"4 4"}));
+    svg.appendChild(svgEl("text",{x:pad.l-8,y:y+4,"text-anchor":"end","font-size":"10",fill:"#6b7c88"},Math.round(max*i/5)));
+  }
+
+  const slot=iw/data.length,bw=Math.min(25,slot*.22),pts=[];
+  data.forEach(function(d,i){
+    const cx=pad.l+i*slot+slot/2;
+    const cons=d.c.totalConsumption??0,gen=n(d.e.generation)??0,tar=d.c.target;
+    const hGen=gen/max*ih,hCons=cons/max*ih;
+
+    const genRect=svgEl("rect",{x:cx-bw-2,y:pad.t+ih-hGen,width:bw,height:hGen,rx:3,fill:"#22A861"});
+    genRect.appendChild(svgEl("title",{},monthLabel(d.e.month)+" — Geração: "+num(gen,1)+" kWh"));
+    svg.appendChild(genRect);
+
+    const consRect=svgEl("rect",{x:cx+2,y:pad.t+ih-hCons,width:bw,height:hCons,rx:3,fill:"#1684D6"});
+    consRect.appendChild(svgEl("title",{},monthLabel(d.e.month)+" — Consumo: "+num(cons,1)+" kWh"));
+    svg.appendChild(consRect);
+
+    if(tar!=null)pts.push(cx+","+(pad.t+ih-tar/max*ih));
+    svg.appendChild(svgEl("text",{x:cx,y:H-27,"text-anchor":"middle","font-size":"9",fill:"#657887"},monthLabel(d.e.month)));
+  });
+
+  if(pts.length>1){
+    svg.appendChild(svgEl("polyline",{points:pts.join(" "),fill:"none",stroke:"#E98732","stroke-width":"3","stroke-dasharray":"7 5"}));
+  }
+
+  const reading=document.getElementById("reportChartReading");
+  if(reading&&rows.length){
+    const last=rows[rows.length-1],c=calc(last),gen=n(last.generation)??0,cons=c.totalConsumption??0,meta=c.target;
+    let txt='<b>Como ler:</b> verde mostra quanto o sistema produziu; azul mostra quanto a casa consumiu; a linha laranja representa a meta prudente.';
+    if(meta!=null){
+      if(cons<=meta){
+        txt+=' Em <b>'+monthLabel(last.month)+'</b>, o consumo ficou <b>dentro da meta</b> por '+num(meta-cons,1)+' kWh.';
+      }else{
+        txt+=' Em <b>'+monthLabel(last.month)+'</b>, o consumo ficou <b>acima da meta</b> em '+num(cons-meta,1)+' kWh.';
+      }
+    }
+    if(gen>cons)txt+=' A geração do mês superou o consumo total em '+num(gen-cons,1)+' kWh.';
+    else if(cons>gen)txt+=' O consumo total superou a geração em '+num(cons-gen,1)+' kWh; rede e/ou créditos completam essa diferença.';
+    reading.innerHTML=txt;
+  }
+}
+function printReports(){
+  document.body.classList.add("print-reports");
+  setTimeout(function(){window.print();},60);
+  setTimeout(function(){document.body.classList.remove("print-reports");},700);
+}
+
+function renderAll(){renderDashboard();renderEntries();renderReports();renderHistory();renderParams();renderCloud();renderGuide();renderExample()}
 function goTo(id){
   document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===id));
   document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===id));
