@@ -161,6 +161,16 @@ body{
 }
 @media(max-width:390px){.kpis.premium-kpis{grid-template-columns:1fr 1fr}.premium-kpis .kpi{min-height:96px}.kpi .value{font-size:19px}}
 
+
+/* Seletor próprio de mês/ano — padroniza capitalização em Android e desktop */
+.month-year-picker{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(92px,.75fr);gap:8px}
+.month-year-picker select{
+  width:100%;min-height:43px;padding:10px 34px 10px 12px;border:1px solid #cbdde7;border-radius:9px;
+  background-color:#fbfdff;color:var(--red);font-weight:800;outline:none;appearance:auto;
+}
+.month-year-picker select:focus{border-color:#5da6be;box-shadow:0 0 0 4px rgba(75,163,190,.13);background:#fff}
+@media(max-width:430px){.month-year-picker{grid-template-columns:minmax(0,1.45fr) minmax(88px,.75fr);gap:6px}}
+
 </style>
 </head>
 <body>
@@ -255,7 +265,21 @@ body{
         <div class="card">
           <form id="entryForm">
             <div class="form-grid">
-              <div class="field"><label>Mês</label><input type="month" id="fMonth" required></div>
+              <div class="field month-field"><label>Mês</label>
+  <input type="hidden" id="fMonth" required>
+  <div class="month-year-picker">
+    <select id="fMonthName" aria-label="Mês">
+      <option value="01">Janeiro</option><option value="02">Fevereiro</option><option value="03">Março</option>
+      <option value="04">Abril</option><option value="05">Maio</option><option value="06">Junho</option>
+      <option value="07">Julho</option><option value="08">Agosto</option><option value="09">Setembro</option>
+      <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
+    </select>
+    <select id="fYear" aria-label="Ano">
+      <option>2025</option><option>2026</option><option>2027</option><option>2028</option><option>2029</option>
+      <option>2030</option><option>2031</option><option>2032</option><option>2033</option><option>2034</option><option>2035</option>
+    </select>
+  </div>
+</div>
               <div class="field"><label>Geração solar (kWh)</label><input type="number" id="fGeneration" step="0.01" min="0"></div>
               <div class="field"><label>Rede importada (kWh)</label><input type="number" id="fGrid" step="0.01" min="0"></div>
               <div class="field"><label>Energia injetada (kWh)</label><input type="number" id="fInjected" step="0.01" min="0"></div>
@@ -562,9 +586,32 @@ function renderMonthlyChart(id){
   legend.forEach((it,i)=>{const x=610+i*88;svg.appendChild(svgEl("rect",{x,y:9,width:11,height:11,rx:2,fill:it[0]}));svg.appendChild(svgEl("text",{x:x+16,y:18,"font-size":"10",fill:"#657887"},it[1]));});
 }
 
+function setMonthPicker(ym){
+  const value=ym||suggestMonth();
+  const parts=String(value).split("-");
+  const year=parts[0]||String(new Date().getFullYear());
+  const month=parts[1]||String(new Date().getMonth()+1).padStart(2,"0");
+  const monthSel=document.getElementById("fMonthName");
+  const yearSel=document.getElementById("fYear");
+  const hidden=document.getElementById("fMonth");
+  if(monthSel)monthSel.value=month;
+  if(yearSel){
+    if(!Array.from(yearSel.options).some(o=>o.value===year)){
+      const opt=document.createElement("option");opt.value=year;opt.textContent=year;yearSel.appendChild(opt);
+    }
+    yearSel.value=year;
+  }
+  if(hidden)hidden.value=year+"-"+month;
+}
+function syncMonthPicker(){
+  const month=document.getElementById("fMonthName")?.value;
+  const year=document.getElementById("fYear")?.value;
+  const hidden=document.getElementById("fMonth");
+  if(hidden&&month&&year)hidden.value=year+"-"+month;
+}
 function fillForm(e){
   editingMonth=e?.month||null;
-  document.getElementById("fMonth").value=e?.month||suggestMonth();
+  setMonthPicker(e?.month||suggestMonth());
   document.getElementById("fGeneration").value=e?.generation??"";
   document.getElementById("fGrid").value=e?.gridImported??"";
   document.getElementById("fInjected").value=e?.injected??"";
@@ -891,6 +938,8 @@ document.getElementById("backupInput").addEventListener("change",ev=>{
   r.readAsText(f);ev.target.value="";
 });
 
+document.getElementById("fMonthName").addEventListener("change",()=>{syncMonthPicker();updatePreview();});
+document.getElementById("fYear").addEventListener("change",()=>{syncMonthPicker();updatePreview();});
 document.getElementById("entryForm").addEventListener("input",updatePreview);
 document.getElementById("entryForm").addEventListener("submit",ev=>{
   ev.preventDefault();const e=formEntry();if(!e.month){alert("Informe o mês.");return}
