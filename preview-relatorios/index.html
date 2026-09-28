@@ -310,6 +310,18 @@ table{font-size:12px}
   body.print-reports{background:#fff!important}
 }
 
+
+.report-chart-guide{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:2px 0 12px}
+.report-chart-guide>div{display:grid;grid-template-columns:auto 1fr;column-gap:8px;row-gap:2px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fbfdff}
+.report-chart-guide b{font-size:11.5px}
+.report-chart-guide small{grid-column:2;color:var(--muted);font-size:10px;line-height:1.3}
+.guide-swatch{width:12px;height:12px;border-radius:3px;display:inline-block}
+.guide-swatch.generation{background:#22A861}.guide-swatch.consumption{background:#1684D6}
+.guide-line{width:18px;height:0;border-top:3px dashed #E98732;display:inline-block}
+.report-chart-reading{margin-top:12px;padding:12px 14px;border-radius:12px;background:#f6fafc;border:1px solid var(--line);font-size:11.5px;line-height:1.55;color:var(--text)}
+.report-chart-reading b{font-weight:900}
+@media(max-width:700px){.report-chart-guide{grid-template-columns:1fr}.report-chart-guide>div{padding:9px 10px}}
+
 </style>
 </head>
 <body>
@@ -468,7 +480,13 @@ table{font-size:12px}
             <div><h3>Geração × consumo × meta</h3><p>Evolução mensal do período selecionado</p></div>
             <span class="soft-chip" id="reportChartChip">—</span>
           </div>
+          <div class="report-chart-guide">
+            <div><span class="guide-swatch generation"></span><b>Geração solar</b><small>energia produzida pelo sistema</small></div>
+            <div><span class="guide-swatch consumption"></span><b>Consumo da casa</b><small>energia total usada pela residência</small></div>
+            <div><span class="guide-line"></span><b>Meta prudente</b><small>referência de consumo confortável</small></div>
+          </div>
           <div class="chart-wrap"><svg id="reportChart" class="chart premium-chart"></svg></div>
+          <div class="report-chart-reading" id="reportChartReading"></div>
         </div>
 
         <div class="grid report-layout" style="margin-top:16px">
@@ -1251,33 +1269,57 @@ function renderReports(){
 }
 function renderReportChart(rows){
   const svg=document.getElementById("reportChart");if(!svg)return;
-  const W=900,H=300,pad={l:48,r:18,t:26,b:48};
+  const W=900,H=300,pad={l:52,r:18,t:34,b:48};
   svg.setAttribute("viewBox","0 0 "+W+" "+H);svg.innerHTML="";
   const data=rows.map(function(e){return {e:e,c:calc(e)};});
   const vals=[];
   data.forEach(function(d){vals.push(d.c.totalConsumption??0,n(d.e.generation)??0,d.c.target??0);});
-  const max=Math.max(100,...vals)*1.1,iw=W-pad.l-pad.r,ih=H-pad.t-pad.b;
+  const max=Math.max(100,...vals)*1.12,iw=W-pad.l-pad.r,ih=H-pad.t-pad.b;
+
+  svg.appendChild(svgEl("text",{x:10,y:18,"font-size":"10",fill:"#657887","font-weight":"700"},"kWh"));
   for(let i=0;i<=5;i++){
     const y=pad.t+ih-i*ih/5;
     svg.appendChild(svgEl("line",{x1:pad.l,y1:y,x2:W-pad.r,y2:y,stroke:"#d9e5ec","stroke-dasharray":"4 4"}));
     svg.appendChild(svgEl("text",{x:pad.l-8,y:y+4,"text-anchor":"end","font-size":"10",fill:"#6b7c88"},Math.round(max*i/5)));
   }
+
   const slot=iw/data.length,bw=Math.min(25,slot*.22),pts=[];
   data.forEach(function(d,i){
-    const cx=pad.l+i*slot+slot/2,cons=d.c.totalConsumption??0,gen=n(d.e.generation)??0,tar=d.c.target;
-    const h1=cons/max*ih,h2=gen/max*ih;
-    svg.appendChild(svgEl("rect",{x:cx-bw-2,y:pad.t+ih-h1,width:bw,height:h1,rx:3,fill:"#1684D6"}));
-    svg.appendChild(svgEl("rect",{x:cx+2,y:pad.t+ih-h2,width:bw,height:h2,rx:3,fill:"#22A861"}));
+    const cx=pad.l+i*slot+slot/2;
+    const cons=d.c.totalConsumption??0,gen=n(d.e.generation)??0,tar=d.c.target;
+    const hGen=gen/max*ih,hCons=cons/max*ih;
+
+    const genRect=svgEl("rect",{x:cx-bw-2,y:pad.t+ih-hGen,width:bw,height:hGen,rx:3,fill:"#22A861"});
+    genRect.appendChild(svgEl("title",{},monthLabel(d.e.month)+" — Geração: "+num(gen,1)+" kWh"));
+    svg.appendChild(genRect);
+
+    const consRect=svgEl("rect",{x:cx+2,y:pad.t+ih-hCons,width:bw,height:hCons,rx:3,fill:"#1684D6"});
+    consRect.appendChild(svgEl("title",{},monthLabel(d.e.month)+" — Consumo: "+num(cons,1)+" kWh"));
+    svg.appendChild(consRect);
+
     if(tar!=null)pts.push(cx+","+(pad.t+ih-tar/max*ih));
     svg.appendChild(svgEl("text",{x:cx,y:H-27,"text-anchor":"middle","font-size":"9",fill:"#657887"},monthLabel(d.e.month)));
   });
-  if(pts.length>1)svg.appendChild(svgEl("polyline",{points:pts.join(" "),fill:"none",stroke:"#E98732","stroke-width":"3"}));
-  const legend=[["#22A861","Geração"],["#1684D6","Consumo"],["#E98732","Meta"]];
-  legend.forEach(function(it,i){
-    const x=580+i*95;
-    svg.appendChild(svgEl("rect",{x:x,y:9,width:11,height:11,rx:2,fill:it[0]}));
-    svg.appendChild(svgEl("text",{x:x+16,y:18,"font-size":"10",fill:"#657887"},it[1]));
-  });
+
+  if(pts.length>1){
+    svg.appendChild(svgEl("polyline",{points:pts.join(" "),fill:"none",stroke:"#E98732","stroke-width":"3","stroke-dasharray":"7 5"}));
+  }
+
+  const reading=document.getElementById("reportChartReading");
+  if(reading&&rows.length){
+    const last=rows[rows.length-1],c=calc(last),gen=n(last.generation)??0,cons=c.totalConsumption??0,meta=c.target;
+    let txt='<b>Como ler:</b> verde mostra quanto o sistema produziu; azul mostra quanto a casa consumiu; a linha laranja representa a meta prudente.';
+    if(meta!=null){
+      if(cons<=meta){
+        txt+=' Em <b>'+monthLabel(last.month)+'</b>, o consumo ficou <b>dentro da meta</b> por '+num(meta-cons,1)+' kWh.';
+      }else{
+        txt+=' Em <b>'+monthLabel(last.month)+'</b>, o consumo ficou <b>acima da meta</b> em '+num(cons-meta,1)+' kWh.';
+      }
+    }
+    if(gen>cons)txt+=' A geração do mês superou o consumo total em '+num(gen-cons,1)+' kWh.';
+    else if(cons>gen)txt+=' O consumo total superou a geração em '+num(cons-gen,1)+' kWh; rede e/ou créditos completam essa diferença.';
+    reading.innerHTML=txt;
+  }
 }
 function printReports(){
   document.body.classList.add("print-reports");
