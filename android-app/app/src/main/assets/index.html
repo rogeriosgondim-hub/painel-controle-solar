@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0F5F8C">
-<title>Controle Solar v2.3</title>
+<title>Controle Solar v2.4</title>
 <style>
 :root{
   --navy:#153955; --navy2:#1f5876; --blue:#dcecf7; --blue2:#c8dfef;
@@ -322,6 +322,45 @@ table{font-size:12px}
 .report-chart-reading b{font-weight:900}
 @media(max-width:700px){.report-chart-guide{grid-template-columns:1fr}.report-chart-guide>div{padding:9px 10px}}
 
+
+/* ===== v2.4 — PRODUÇÃO SOLAR ===== */
+.solar-toolbar{display:flex;justify-content:space-between;gap:14px;align-items:end;flex-wrap:wrap}
+.solar-toolbar-actions{display:flex;gap:8px;align-items:end;flex-wrap:wrap}
+.solar-kpis{grid-template-columns:repeat(4,minmax(0,1fr));margin:16px 0}
+.solar-kpi{position:relative;overflow:hidden;min-height:112px}
+.solar-kpi:before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:#22A861}
+.solar-kpi:nth-child(2):before{background:#516273}.solar-kpi:nth-child(3):before{background:#1684D6}
+.solar-kpi:nth-child(4):before{background:#E98732}.solar-kpi:nth-child(5):before{background:#22A861}
+.solar-kpi:nth-child(6):before{background:#7762C9}.solar-kpi:nth-child(7):before{background:#0F5F8C}
+.solar-kpi:nth-child(8):before{background:#E98732}
+.solar-kpi .label{font-size:10.5px;color:var(--muted);font-weight:800}
+.solar-kpi .value{font-size:23px;font-weight:900;margin-top:8px}
+.solar-kpi .hint{font-size:10.5px;color:var(--muted);margin-top:6px;line-height:1.35}
+.solar-legend{display:flex;gap:15px;align-items:center;flex-wrap:wrap;margin:2px 0 10px;font-size:11px;color:var(--muted)}
+.solar-legend span{display:inline-flex;align-items:center;gap:7px}.solar-legend i{display:inline-block}
+.solar-legend .produced{width:12px;height:12px;border-radius:3px;background:#22A861}
+.solar-legend .expected{width:18px;border-top:3px dashed #516273;height:0}
+.solar-reading{margin-top:12px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#f7fafc;font-size:11.5px;line-height:1.55}
+.solar-lower{grid-template-columns:1fr 1fr;margin-top:16px}
+.solar-import-zone{border:1.5px dashed #a9c9dc;border-radius:15px;padding:16px;background:#f8fcff}
+.solar-import-zone h4{margin:0 0 6px;font-size:14px}.solar-import-zone p{margin:0;color:var(--muted);font-size:11px;line-height:1.5}
+.solar-import-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.solar-last-import{margin-top:12px;font-size:10.5px;color:var(--muted)}
+.solar-manual-grid{display:grid;grid-template-columns:1.1fr 1fr 1fr auto;gap:10px;align-items:end}
+.solar-month-compare{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.solar-mini{padding:12px;border:1px solid var(--line);border-radius:13px;background:#fbfdff}
+.solar-mini span{display:block;color:var(--muted);font-size:10px;font-weight:800}.solar-mini b{display:block;margin-top:6px;font-size:17px}.solar-mini small{display:block;margin-top:4px;color:var(--muted);font-size:9.5px}
+.solar-source{font-size:10px;color:var(--muted)}
+.solar-table td,.solar-table th{white-space:nowrap}
+.solar-table .above{color:#16834f;font-weight:900}.solar-table .below{color:#bb6500;font-weight:900}
+.import-result{margin-top:12px;padding:10px 12px;border-radius:10px;background:#eef8f2;border:1px solid #cfe8d9;font-size:11px;display:none}
+@media(max-width:1050px){.solar-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.solar-lower{grid-template-columns:1fr}}
+@media(max-width:700px){
+ .solar-kpis{grid-template-columns:1fr 1fr;gap:10px}.solar-kpi{padding:14px;min-height:104px}.solar-kpi .value{font-size:19px}
+ .solar-manual-grid{grid-template-columns:1fr 1fr}.solar-manual-grid .field:first-child{grid-column:1/-1}.solar-manual-grid button{width:100%}
+ .solar-month-compare{grid-template-columns:1fr}.solar-toolbar-actions{width:100%}.solar-toolbar-actions .field{flex:1}
+}
+
 </style>
 </head>
 <body>
@@ -331,6 +370,7 @@ table{font-size:12px}
     <div class="nav">
       <button data-view="dashboard" class="active">▦ &nbsp; Painel</button>
       <button data-view="entries">✎ &nbsp; Lançamentos</button>
+      <button data-view="solarProduction">☀ &nbsp; Produção Solar</button>
       <button data-view="reports">▤ &nbsp; Relatórios</button>
       <button data-view="history">▥ &nbsp; Histórico</button>
       <button data-view="parameters">⚙ &nbsp; Parâmetros</button>
@@ -338,7 +378,7 @@ table{font-size:12px}
       <button data-view="guide">? &nbsp; Guia rápido</button>
       <button data-view="example">✓ &nbsp; Exemplo preenchido</button>
     </div>
-    <div class="side-foot">Dados armazenados localmente neste dispositivo.<br><br><b>App v2.3 • Cloud Sync</b></div>
+    <div class="side-foot">Dados armazenados localmente neste dispositivo.<br><br><b>App v2.4 • Cloud Sync</b></div>
   </aside>
 
   <main class="main">
@@ -454,6 +494,78 @@ table{font-size:12px}
       </section>
 
 
+
+      <section class="view" id="solarProduction">
+        <div class="solar-toolbar">
+          <div>
+            <div class="report-badge">☀ PRODUÇÃO SOLAR</div>
+            <div class="section-head" style="margin:10px 0 0"><div>
+              <h3>Produção Solar</h3>
+              <p>Importe a planilha do Monitoramento SolarView e acompanhe produção real, esperada e desempenho diário.</p>
+            </div></div>
+          </div>
+          <div class="solar-toolbar-actions">
+            <div class="field"><label>Visualização</label><select id="solarPeriod">
+              <option value="7" selected>Últimos 7 dias</option>
+              <option value="30">Últimos 30 dias</option>
+              <option value="month">Mês mais recente</option>
+              <option value="all">Todo o período</option>
+            </select></div>
+            <button class="btn primary" type="button" onclick="document.getElementById('solarFile').click()">Importar SolarView</button>
+            <input id="solarFile" type="file" accept=".xlsx,.xls" style="display:none">
+          </div>
+        </div>
+
+        <div class="grid solar-kpis" id="solarKpis"></div>
+
+        <div class="card chart-feature">
+          <div class="section-head compact"><div><h3>Produzida × esperada</h3><p>Comparação diária no mesmo período de monitoramento</p></div><span class="soft-chip" id="solarRangeChip">—</span></div>
+          <div class="solar-legend"><span><i class="produced"></i><b>Produzida</b> — geração real</span><span><i class="expected"></i><b>Esperada</b> — referência do SolarView</span></div>
+          <div class="chart-wrap"><svg id="solarDailyChart" class="chart premium-chart"></svg></div>
+          <div class="solar-reading" id="solarReading"></div>
+        </div>
+
+        <div class="grid solar-lower">
+          <div class="card">
+            <div class="section-head compact"><div><h3>Importação SolarView</h3><p>Compatível com as colunas Data, Produzida e Esperada do Monitoramento.</p></div></div>
+            <div class="solar-import-zone">
+              <h4>Planilha Excel do Monitoramento</h4>
+              <p>Arquivos com vários dias atualizam o histórico diário. Arquivos consolidados do mês são usados para registrar a expectativa mensal.</p>
+              <div class="solar-import-actions">
+                <button class="btn primary" type="button" onclick="document.getElementById('solarFile').click()">Selecionar .xlsx</button>
+                <button class="btn" type="button" onclick="loadSolarSample()">Restaurar dados iniciais 22–28/09</button>
+              </div>
+              <div class="solar-last-import" id="solarLastImport">Nenhuma importação nesta prévia.</div>
+              <div class="import-result" id="solarImportResult"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="section-head compact"><div><h3>Adicionar dia manualmente</h3><p>Alternativa caso um arquivo não esteja disponível.</p></div></div>
+            <form id="solarManualForm">
+              <div class="solar-manual-grid">
+                <div class="field"><label>Data</label><input type="date" id="solarDate" required></div>
+                <div class="field"><label>Produzida (kWh)</label><input type="number" id="solarProduced" min="0" step="0.001" required></div>
+                <div class="field"><label>Esperada (kWh)</label><input type="number" id="solarExpected" min="0" step="0.001" required></div>
+                <button class="btn primary" type="submit">Salvar dia</button>
+              </div>
+            </form>
+            <div class="section-head compact" style="margin-top:18px"><div><h3>Conferência mensal</h3><p>Diário importado × lançamento mensal</p></div></div>
+            <div class="solar-month-compare" id="solarMonthCompare"></div>
+          </div>
+        </div>
+
+        <div class="section-head"><div><h3>Histórico diário</h3><p>Dias existentes são atualizados em novas importações; não são duplicados.</p></div></div>
+        <div class="card table-card"><div class="table-scroll"><table class="solar-table">
+          <thead><tr><th>Data</th><th>Produzida</th><th>Esperada</th><th>Desempenho</th><th>Diferença</th><th>Origem</th><th></th></tr></thead>
+          <tbody id="solarTableBody"></tbody>
+        </table></div></div>
+        <div class="notice" style="margin-top:14px">
+          O <b>desempenho do período</b> compara somente os dias importados com a expectativa desses mesmos dias.
+          O <b>progresso mensal</b> compara a produção acumulada com a expectativa mensal completa quando essa referência estiver disponível.
+        </div>
+      </section>
+
       <section class="view" id="reports">
         <div class="report-toolbar">
           <div>
@@ -551,7 +663,7 @@ table{font-size:12px}
           </div>
           <div class="card">
             <div class="section-head" style="margin-top:0"><div><h3>Como funciona</h3></div></div>
-            <div class="rule">A versão 2.3 usa uma área separada do seu repositório GitHub (<b>branch cloud-sync</b>) como armazenamento. Antes do envio, os dados são criptografados no aparelho com <b>AES-GCM</b>. A senha de criptografia e o token do GitHub não são enviados para o repositório.</div>
+            <div class="rule">A versão 2.4 usa uma área separada do seu repositório GitHub (<b>branch cloud-sync</b>) como armazenamento. Antes do envio, os dados são criptografados no aparelho com <b>AES-GCM</b>. A senha de criptografia e o token do GitHub não são enviados para o repositório.</div>
             <div class="notice" style="margin-top:14px"><b>Importante:</b> use um token GitHub <b>fine-grained</b>, restrito somente ao repositório <b>painel-controle-solar</b>, com permissão <b>Contents: Read and write</b>. Não envie esse token pelo chat.</div>
           </div>
         </div>
@@ -600,8 +712,19 @@ table{font-size:12px}
 </div>
 <div class="toast" id="toast"></div>
 
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script>
 const DEFAULTS = {"parameters": {"installedKwp": 3.75, "declaredKw": 3.8, "moduleCount": 6, "moduleWp": 625, "inverterCount": 2, "inverterKw": 2.4, "voltage": 220, "breakerA": 50, "uc": "7196632", "historicalAverage": 310.8333333333, "invoiceAverage": 321, "referenceConsumption": 220, "prudenceFactor": 0.85, "referenceCip": 48.19, "currentInstallment": 157.44, "currentEnergyBilling": 302.08, "currentTotalBill": 507.71, "recurringCeiling": 350.27, "effectiveKwhCost": 1.3730909091, "creditReserve": 50}, "history": [{"month": "2025-10", "label": "Out/2025", "consumption": 220}, {"month": "2025-11", "label": "Nov/2025", "consumption": 220}, {"month": "2025-12", "label": "Dez/2025", "consumption": 360}, {"month": "2026-01", "label": "Jan/2026", "consumption": 560}, {"month": "2026-02", "label": "Fev/2026", "consumption": 440}, {"month": "2026-03", "label": "Mar/2026", "consumption": 340}, {"month": "2026-04", "label": "Abr/2026", "consumption": 390}, {"month": "2026-05", "label": "Mai/2026", "consumption": 360}, {"month": "2026-06", "label": "Jun/2026", "consumption": 240}, {"month": "2026-07", "label": "Jul/2026", "consumption": 170}, {"month": "2026-08", "label": "Ago/2026", "consumption": 210}, {"month": "2026-09", "label": "Set/2026", "consumption": 220}], "entries": [{"month": "2026-09", "generation": null, "gridImported": 220, "injected": 0, "creditsUsed": 0, "creditBalance": 0, "totalBill": 507.71, "cip": 48.19, "extras": 157.44}, {"month": "2026-10", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2026-11", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2026-12", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-01", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-02", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-03", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-04", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-05", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-06", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-07", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-08", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-09", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-10", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-11", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-12", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2028-01", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2028-02", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2028-03", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2028-04", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2028-05", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2028-06", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2028-07", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2028-08", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}]};
+const SOLAR_INITIAL_DAILY = [
+  {date:"2026-09-22",produced:0,expected:13.182,source:"SolarView • importação inicial"},
+  {date:"2026-09-23",produced:1.6,expected:13.182,source:"SolarView • importação inicial"},
+  {date:"2026-09-24",produced:8.1,expected:13.182,source:"SolarView • importação inicial"},
+  {date:"2026-09-25",produced:18.4,expected:13.182,source:"SolarView • importação inicial"},
+  {date:"2026-09-26",produced:23.1,expected:13.182,source:"SolarView • importação inicial"},
+  {date:"2026-09-27",produced:6,expected:13.182,source:"SolarView • importação inicial"},
+  {date:"2026-09-28",produced:15.3,expected:13.182,source:"SolarView • importação inicial"}
+];
+const SOLAR_INITIAL_TARGETS = {"2026-09":369.096};
 const STORAGE_KEY = "painelSolarResidencia.v1";
 const CLOUD_CONFIG_KEY = "painelSolarCloud.v2";
 const CLOUD_META_KEY = "painelSolarCloudMeta.v2";
@@ -613,6 +736,7 @@ let editingMonth = null;
 const titles = {
  dashboard:["Painel de Controle Solar","Visão geral da residência"],
  entries:["Lançamentos Mensais","Preenchimento e cálculo automático"],
+ solarProduction:["Produção Solar","Monitoramento diário importado do SolarView"],
  reports:["Relatórios","Geração, consumo, créditos e economia"],
  history:["Histórico de Consumo","Base pré-solar"],
  parameters:["Parâmetros","Sistema e regras do painel"],
@@ -623,12 +747,24 @@ const titles = {
 const monthNames=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
 
 function deepClone(o){return JSON.parse(JSON.stringify(o))}
+function ensureSolarState(x){
+  if(!Array.isArray(x.dailyProduction)) x.dailyProduction=deepClone(SOLAR_INITIAL_DAILY);
+  if(!x.solarMonthlyTargets || typeof x.solarMonthlyTargets!=="object") x.solarMonthlyTargets=deepClone(SOLAR_INITIAL_TARGETS);
+  if(!x.solarImportMeta) x.solarImportMeta={lastImportAt:null,lastFile:null};
+  return x;
+}
 function loadState(){
   try{
     const x=JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if(x && x.parameters && x.history && x.entries) return x;
+    if(x && x.parameters && x.history && x.entries){
+      const migrated=ensureSolarState(x);
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(migrated));
+      return migrated;
+    }
   }catch(e){}
-  return deepClone(DEFAULTS);
+  const fresh=ensureSolarState(deepClone(DEFAULTS));
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(fresh));
+  return fresh;
 }
 function loadCloudConfig(){
   const defaults={owner:"rogeriosgondim-hub",repo:"painel-controle-solar",branch:"cloud-sync",path:"cloud-data.enc.json",token:"",passphrase:"",autoSync:true};
@@ -1010,7 +1146,7 @@ async function cloudFetchFile(cfg){
 }
 async function cloudWriteFile(cfg,envelope,sha){
   const bytes=new TextEncoder().encode(JSON.stringify(envelope,null,2));
-  const body={message:"Sincroniza dados do Controle Solar v2.3",content:bytesToB64(bytes),branch:cfg.branch};
+  const body={message:"Sincroniza dados do Controle Solar v2.4",content:bytesToB64(bytes),branch:cfg.branch};
   if(sha)body.sha=sha;
   const r=await fetch(cloudApiUrl(cfg),{method:"PUT",headers:cloudHeaders(cfg),body:JSON.stringify(body)});
   if(r.status===401)throw new Error("Token GitHub inválido ou expirado.");
@@ -1068,7 +1204,7 @@ function clearCloudSettings(){
   renderCloud();toast("Configuração de nuvem removida.");
 }
 async function cloudApplyRemote(remote){
-  state=remote.state;
+  state=ensureSolarState(remote.state);
   localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
   const m=loadCloudMeta();m.lastLocalChangeAt=remote.updatedAt;m.lastCloudSyncAt=new Date().toISOString();m.lastCloudStatus="Sincronizado";saveCloudMeta(m);
   renderAll();
@@ -1150,17 +1286,29 @@ function exportCsv(){
 }
 function resetApp(){
   if(!confirm("Restaurar todos os dados para os valores originais da planilha?"))return;
-  state=deepClone(DEFAULTS);saveState();renderAll();clearForm();toast("Dados originais restaurados.");
+  state=ensureSolarState(deepClone(DEFAULTS));saveState();renderAll();clearForm();toast("Dados originais restaurados.");
 }
 document.getElementById("backupInput").addEventListener("change",ev=>{
   const f=ev.target.files[0];if(!f)return;const r=new FileReader();
-  r.onload=()=>{try{const x=JSON.parse(r.result);if(!x.parameters||!x.history||!x.entries)throw 0;state=x;saveState();renderAll();clearForm();toast("Backup importado.");}catch(e){alert("Arquivo de backup inválido.");}};
+  r.onload=()=>{try{const x=JSON.parse(r.result);if(!x.parameters||!x.history||!x.entries)throw 0;state=ensureSolarState(x);saveState();renderAll();clearForm();toast("Backup importado.");}catch(e){alert("Arquivo de backup inválido.");}};
   r.readAsText(f);ev.target.value="";
 });
 
 document.getElementById("fMonthName").addEventListener("change",()=>{syncMonthPicker();updatePreview();});
 document.getElementById("fYear").addEventListener("change",()=>{syncMonthPicker();updatePreview();});
 document.getElementById("reportPeriod").addEventListener("change",renderReports);
+document.getElementById("solarPeriod").addEventListener("change",renderSolarProduction);
+document.getElementById("solarFile").addEventListener("change",function(ev){const f=ev.target.files&&ev.target.files[0];if(f)importSolarViewFile(f);ev.target.value="";});
+document.getElementById("solarManualForm").addEventListener("submit",function(ev){
+  ev.preventDefault();
+  const date=document.getElementById("solarDate").value,produced=n(document.getElementById("solarProduced").value),expected=n(document.getElementById("solarExpected").value);
+  if(!date||produced==null||expected==null)return;
+  state.dailyProduction=state.dailyProduction||[];
+  const ex=state.dailyProduction.find(function(x){return x.date===date;});
+  if(ex){ex.produced=produced;ex.expected=expected;ex.source="Manual";}
+  else state.dailyProduction.push({date:date,produced:produced,expected:expected,source:"Manual"});
+  state.dailyProduction.sort(function(a,b){return a.date.localeCompare(b.date);});saveState();renderSolarProduction();ev.target.reset();toast("Produção diária salva.");
+});
 document.getElementById("entryForm").addEventListener("input",updatePreview);
 document.getElementById("entryForm").addEventListener("submit",ev=>{
   ev.preventDefault();const e=formEntry();if(!e.month){alert("Informe o mês.");return}
@@ -1169,6 +1317,188 @@ document.getElementById("entryForm").addEventListener("submit",ev=>{
   saveState();editingMonth=e.month;renderAll();toast("Lançamento salvo.");
 });
 
+
+
+function solarDateBR(iso){
+  if(!iso)return"—";
+  const p=iso.split("-");return p.length===3?p[2]+"/"+p[1]+"/"+p[0]:iso;
+}
+function solarMonthKey(iso){return iso?iso.slice(0,7):""}
+function solarRowsSorted(){return (state.dailyProduction||[]).slice().sort(function(a,b){return a.date.localeCompare(b.date);})}
+function solarFilteredRows(){
+  const all=solarRowsSorted();if(!all.length)return [];
+  const v=(document.getElementById("solarPeriod")||{}).value||"7";
+  if(v==="all")return all;
+  const last=all[all.length-1];
+  if(v==="month"){const mk=solarMonthKey(last.date);return all.filter(function(x){return solarMonthKey(x.date)===mk;});}
+  const count=Math.max(1,Number(v)||7);return all.slice(-count);
+}
+function solarSum(rows,key){return rows.reduce(function(s,x){return s+(n(x[key])??0);},0)}
+function solarPerformance(row){const e=n(row.expected),p=n(row.produced);return e&&p!=null?p/e:null}
+function solarDaysInMonth(ym){const q=ym.split("-").map(Number);return new Date(q[0],q[1],0).getDate()}
+function solarProjection(rows){
+  if(!rows.length)return null;
+  const last=rows[rows.length-1],mk=solarMonthKey(last.date),monthRows=solarRowsSorted().filter(function(x){return solarMonthKey(x.date)===mk;});
+  if(!monthRows.length)return null;
+  const total=solarSum(monthRows,"produced"),avg=total/monthRows.length,lastDay=Number(last.date.slice(8,10)),days=solarDaysInMonth(mk);
+  return total+Math.max(days-lastDay,0)*avg;
+}
+function renderSolarProduction(){
+  state=ensureSolarState(state);
+  const rows=solarFilteredRows(),all=solarRowsSorted();
+  const kpi=document.getElementById("solarKpis");if(!kpi)return;
+  const chip=document.getElementById("solarRangeChip");
+  if(!rows.length){
+    kpi.innerHTML='<div class="card" style="grid-column:1/-1;text-align:center;padding:30px;color:var(--muted)">Importe uma planilha SolarView ou adicione um dia manualmente.</div>';
+    document.getElementById("solarTableBody").innerHTML="";
+    document.getElementById("solarReading").innerHTML="Sem dados diários nesta prévia.";
+    return;
+  }
+  const produced=solarSum(rows,"produced"),expected=solarSum(rows,"expected"),perf=expected?produced/expected:null;
+  const avg=produced/rows.length;
+  const best=rows.reduce(function(a,b){return (n(b.produced)??0)>(n(a.produced)??0)?b:a;},rows[0]);
+  const above=rows.filter(function(x){return (n(x.produced)??0)>=(n(x.expected)??Infinity);}).length;
+  const last=rows[rows.length-1],mk=solarMonthKey(last.date);
+  const monthRows=all.filter(function(x){return solarMonthKey(x.date)===mk;});
+  const monthProduced=solarSum(monthRows,"produced");
+  const target=n((state.solarMonthlyTargets||{})[mk]);
+  const progress=target?monthProduced/target:null;
+  const projection=solarProjection(monthRows);
+  const label=solarDateBR(rows[0].date)+" — "+solarDateBR(last.date);
+  if(chip)chip.textContent=label;
+  const cards=[
+    ["Produzida",num(produced,1)+" kWh","Soma do período exibido"],
+    ["Esperada",num(expected,1)+" kWh","Referência dos mesmos dias"],
+    ["Desempenho",perf==null?"—":pct(perf),"Produzida ÷ esperada"],
+    ["Média diária",num(avg,1)+" kWh/dia",rows.length+" dias no período"],
+    ["Melhor dia",num(n(best.produced),1)+" kWh",solarDateBR(best.date)],
+    ["Dias na/ acima da expectativa",String(above),above+" de "+rows.length+" dias"],
+    ["Progresso mensal",progress==null?"—":pct(progress),target?num(monthProduced,1)+" de "+num(target,1)+" kWh":"Importe referência mensal"],
+    ["Projeção até fim do mês",projection==null?"—":num(projection,1)+" kWh","Mantendo a média dos dias disponíveis"]
+  ];
+  kpi.innerHTML=cards.map(function(x){return '<div class="card solar-kpi"><div class="label">'+x[0]+'</div><div class="value">'+x[1]+'</div><div class="hint">'+x[2]+'</div></div>';}).join("");
+
+  renderSolarChart(rows);
+  const reading=document.getElementById("solarReading");
+  if(reading){
+    let msg='<b>Leitura do período:</b> foram produzidos <b>'+num(produced,1)+' kWh</b> contra <b>'+num(expected,1)+' kWh</b> esperados, desempenho de <b>'+(perf==null?"—":pct(perf))+'</b>.';
+    if(perf!=null) msg+=perf>=1?' A produção ficou acima da referência do SolarView.':' A produção ficou abaixo da referência do SolarView.';
+    msg+=' Melhor resultado: <b>'+solarDateBR(best.date)+'</b>, com '+num(n(best.produced),1)+' kWh.';
+    if(target)msg+=' No mês, o acumulado representa <b>'+pct(progress)+'</b> da expectativa mensal completa de '+num(target,1)+' kWh.';
+    if(monthRows.length&&Number(monthRows[0].date.slice(8,10))>1)msg+=' <b>Observação:</b> os dados diários disponíveis começam em '+solarDateBR(monthRows[0].date)+', por isso o progresso do primeiro mês não equivale ao desempenho dos dias monitorados.';
+    reading.innerHTML=msg;
+  }
+
+  document.getElementById("solarTableBody").innerHTML=all.slice().reverse().map(function(x){
+    const p=solarPerformance(x),diff=(n(x.produced)??0)-(n(x.expected)??0),cls=p==null?"":(p>=1?"above":"below");
+    return '<tr><td><b>'+solarDateBR(x.date)+'</b></td><td>'+num(n(x.produced),3)+' kWh</td><td>'+num(n(x.expected),3)+' kWh</td>'+
+      '<td class="'+cls+'">'+(p==null?"—":pct(p))+'</td><td>'+((diff>=0?"+":"")+num(diff,3))+' kWh</td>'+
+      '<td class="solar-source">'+htmlEscape(x.source||"Manual")+'</td><td><button class="btn tiny danger" type="button" onclick="deleteSolarDay(\''+x.date+'\')">Excluir</button></td></tr>';
+  }).join("");
+
+  const meta=state.solarImportMeta||{};
+  document.getElementById("solarLastImport").textContent=meta.lastImportAt?("Última importação: "+new Date(meta.lastImportAt).toLocaleString("pt-BR")+(meta.lastFile?" • "+meta.lastFile:"")):"Dados iniciais de 22–28/09/2026 carregados a partir do SolarView.";
+
+  renderSolarMonthCompare(mk,monthProduced,target);
+}
+function renderSolarChart(rows){
+  const svg=document.getElementById("solarDailyChart");if(!svg)return;
+  const W=900,H=300,pad={l:52,r:18,t:24,b:50};svg.setAttribute("viewBox","0 0 "+W+" "+H);svg.innerHTML="";
+  const vals=[];rows.forEach(function(x){vals.push(n(x.produced)??0,n(x.expected)??0);});
+  const max=Math.max(10,...vals)*1.15,iw=W-pad.l-pad.r,ih=H-pad.t-pad.b;
+  svg.appendChild(svgEl("text",{x:10,y:17,"font-size":"10",fill:"#657887","font-weight":"700"},"kWh"));
+  for(let i=0;i<=5;i++){const y=pad.t+ih-i*ih/5;svg.appendChild(svgEl("line",{x1:pad.l,y1:y,x2:W-pad.r,y2:y,stroke:"#d9e5ec","stroke-dasharray":"4 4"}));svg.appendChild(svgEl("text",{x:pad.l-8,y:y+4,"text-anchor":"end","font-size":"10",fill:"#6b7c88"},num(max*i/5,1)));}
+  const slot=iw/rows.length,bw=Math.min(38,slot*.46),pts=[];
+  rows.forEach(function(x,i){
+    const cx=pad.l+i*slot+slot/2,p=n(x.produced)??0,e=n(x.expected)??0,h=p/max*ih;
+    const rect=svgEl("rect",{x:cx-bw/2,y:pad.t+ih-h,width:bw,height:h,rx:4,fill:"#22A861"});
+    rect.appendChild(svgEl("title",{},solarDateBR(x.date)+" — Produzida: "+num(p,3)+" kWh"));
+    svg.appendChild(rect);
+    pts.push(cx+","+(pad.t+ih-e/max*ih));
+    svg.appendChild(svgEl("text",{x:cx,y:H-28,"text-anchor":"middle","font-size":"9",fill:"#657887"},x.date.slice(8,10)+"/"+x.date.slice(5,7)));
+  });
+  if(pts.length>1)svg.appendChild(svgEl("polyline",{points:pts.join(" "),fill:"none",stroke:"#516273","stroke-width":"3","stroke-dasharray":"7 5"}));
+  else if(rows.length===1){const x=pad.l+slot/2,y=pad.t+ih-(n(rows[0].expected)??0)/max*ih;svg.appendChild(svgEl("line",{x1:x-slot*.35,y1:y,x2:x+slot*.35,y2:y,stroke:"#516273","stroke-width":"3","stroke-dasharray":"7 5"}));}
+}
+function renderSolarMonthCompare(mk,monthProduced,target){
+  const box=document.getElementById("solarMonthCompare");if(!box)return;
+  const entry=state.entries.find(function(e){return e.month===mk;});
+  const monthly=n(entry&&entry.generation),diff=monthly==null?null:monthProduced-monthly;
+  box.innerHTML=[
+    ["Diário acumulado",num(monthProduced,1)+" kWh","Soma dos dias importados"],
+    ["Lançamento mensal",monthly==null?"Ainda não preenchido":num(monthly,1)+" kWh",monthLabel(mk)],
+    ["Diferença",diff==null?"—":((diff>=0?"+":"")+num(diff,1)+" kWh"),diff==null?"Será calculada após o lançamento mensal":(Math.abs(diff)<=1?"✓ Valores consistentes":"Revise período/importação")]
+  ].map(function(x){return '<div class="solar-mini"><span>'+x[0]+'</span><b>'+x[1]+'</b><small>'+x[2]+'</small></div>';}).join("");
+}
+function loadSolarSample(){
+  state.dailyProduction=deepClone(SOLAR_INITIAL_DAILY);state.solarMonthlyTargets=deepClone(SOLAR_INITIAL_TARGETS);
+  state.solarImportMeta={lastImportAt:null,lastFile:"Dados iniciais SolarView 22–28/09/2026"};saveState();renderSolarProduction();toast("Dados iniciais SolarView restaurados.");
+}
+function deleteSolarDay(date){
+  if(!confirm("Excluir o registro de "+solarDateBR(date)+"?"))return;
+  state.dailyProduction=(state.dailyProduction||[]).filter(function(x){return x.date!==date;});saveState();renderSolarProduction();toast("Dia excluído.");
+}
+function solarParseDate(v){
+  if(v instanceof Date&&!isNaN(v))return v.getFullYear()+"-"+String(v.getMonth()+1).padStart(2,"0")+"-"+String(v.getDate()).padStart(2,"0");
+  if(typeof v==="number"&&window.XLSX&&XLSX.SSF){const q=XLSX.SSF.parse_date_code(v);if(q)return String(q.y).padStart(4,"0")+"-"+String(q.m).padStart(2,"0")+"-"+String(q.d).padStart(2,"0");}
+  const s=String(v??"").trim();
+  let m=s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);if(m)return m[3]+"-"+m[2].padStart(2,"0")+"-"+m[1].padStart(2,"0");
+  m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);if(m)return m[1]+"-"+m[2].padStart(2,"0")+"-"+m[3].padStart(2,"0");
+  return null;
+}
+function solarParseNumber(v){
+  if(typeof v==="number"&&Number.isFinite(v))return v;
+  const s=String(v??"").trim().replace(/\./g,"").replace(",",".").replace(/[^\d.-]/g,"");const q=Number(s);return Number.isFinite(q)?q:null;
+}
+function solarRangeFromFilename(name){
+  const m=String(name||"").match(/\((\d{2})-(\d{2})-(\d{4})\)\s*at[eé]\s*\((\d{2})-(\d{2})-(\d{4})\)/i);
+  if(!m)return null;return {start:m[3]+"-"+m[2]+"-"+m[1],end:m[6]+"-"+m[5]+"-"+m[4]};
+}
+function daysBetween(a,b){return Math.round((new Date(b+"T12:00:00")-new Date(a+"T12:00:00"))/86400000)+1}
+async function importSolarViewFile(file){
+  const result=document.getElementById("solarImportResult");result.style.display="block";result.textContent="Lendo planilha...";
+  if(!window.XLSX){result.textContent="Não foi possível carregar o leitor Excel. Verifique sua conexão e tente novamente.";return;}
+  try{
+    const buf=await file.arrayBuffer(),wb=XLSX.read(buf,{type:"array",cellDates:true}),ws=wb.Sheets[wb.SheetNames[0]];
+    const matrix=XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:null});
+    let hi=-1,di=-1,pi=-1,ei=-1;
+    for(let r=0;r<Math.min(matrix.length,10);r++){
+      const row=matrix[r].map(function(x){return String(x??"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");});
+      const d=row.findIndex(function(x){return x==="data"||x.includes("data");});
+      const p=row.findIndex(function(x){return x.includes("produzida");});
+      const e=row.findIndex(function(x){return x.includes("esperada");});
+      if(d>=0&&p>=0&&e>=0){hi=r;di=d;pi=p;ei=e;break;}
+    }
+    if(hi<0)throw new Error("Não encontrei as colunas Data, Produzida e Esperada.");
+    const parsed=[];
+    for(let r=hi+1;r<matrix.length;r++){
+      const date=solarParseDate(matrix[r][di]),produced=solarParseNumber(matrix[r][pi]),expected=solarParseNumber(matrix[r][ei]);
+      if(date&&produced!=null&&expected!=null)parsed.push({date:date,produced:produced,expected:expected,source:"SolarView"});
+    }
+    if(!parsed.length)throw new Error("A planilha não contém linhas de produção válidas.");
+    const range=solarRangeFromFilename(file.name);
+    let added=0,updated=0,mode="diário";
+    if(parsed.length===1&&range&&daysBetween(range.start,range.end)>1){
+      mode="consolidado";
+      const p=parsed[0],mk=solarMonthKey(range.start);
+      if(solarMonthKey(range.end)===mk){state.solarMonthlyTargets=state.solarMonthlyTargets||{};state.solarMonthlyTargets[mk]=p.expected;}
+    }else{
+      state.dailyProduction=state.dailyProduction||[];
+      parsed.forEach(function(p){
+        const ex=state.dailyProduction.find(function(x){return x.date===p.date;});
+        if(ex){ex.produced=p.produced;ex.expected=p.expected;ex.source="SolarView";updated++;}
+        else{state.dailyProduction.push(p);added++;}
+      });
+      state.dailyProduction.sort(function(a,b){return a.date.localeCompare(b.date);});
+    }
+    state.solarImportMeta={lastImportAt:new Date().toISOString(),lastFile:file.name};
+    saveState();renderSolarProduction();
+    result.innerHTML=mode==="consolidado"
+      ?'<b>Referência mensal importada.</b> Expectativa de '+num(parsed[0].expected,3)+' kWh registrada para '+monthLabel(solarMonthKey(range.start))+'.'
+      :'<b>Importação concluída.</b> '+added+' dia(s) novo(s) e '+updated+' dia(s) atualizado(s).';
+    toast("Planilha SolarView importada.");
+  }catch(err){result.textContent="Não foi possível importar: "+(err&&err.message?err.message:String(err));}
+}
 
 function reportFilledEntries(){
   return state.entries.filter(function(e){return n(e.generation)!=null;}).sort(function(a,b){return a.month.localeCompare(b.month);});
@@ -1332,7 +1662,7 @@ function printReports(){
   setTimeout(function(){document.body.classList.remove("print-reports");},700);
 }
 
-function renderAll(){renderDashboard();renderEntries();renderReports();renderHistory();renderParams();renderCloud();renderGuide();renderExample()}
+function renderAll(){renderDashboard();renderEntries();renderSolarProduction();renderReports();renderHistory();renderParams();renderCloud();renderGuide();renderExample()}
 function goTo(id){
   document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===id));
   document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===id));
