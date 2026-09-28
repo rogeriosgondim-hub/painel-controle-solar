@@ -1036,7 +1036,9 @@ function exportBackup(){
 function exportCsv(){
   const rows=[["Mês","Geração solar (kWh)","Rede importada (kWh)","Energia injetada (kWh)","Créditos usados (kWh)","Saldo créditos (kWh)","Conta total (R$)","CIP (R$)","Parcel./outros (R$)","Autoconsumo (kWh)","Consumo total (kWh)","Conta recorrente (R$)","Custo energia (R$)","Autoconsumo (%)","Meta sustentável (kWh)","Margem conforto (kWh)","Status"]];
   state.entries.forEach(e=>{const c=calc(e);rows.push([monthLabel(e.month),e.generation,e.gridImported,e.injected,e.creditsUsed,e.creditBalance,e.totalBill,e.cip,e.extras,c.autoconsumption,c.totalConsumption,c.recurringBill,c.energyCost,c.autoconsumptionPct==null?"":c.autoconsumptionPct*100,c.target,c.margin,c.status])});
-  const csv="\ufeff"+rows.map(r=>r.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(";")).join("\r\n");\n  if(nativeDownload("lancamentos_solar.csv",csv,"text/csv")) return;\n  const blob=new Blob([csv],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");
+  const csv="\ufeff"+rows.map(r=>r.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(";")).join("\r\n");
+  if(nativeDownload("lancamentos_solar.csv",csv,"text/csv")) return;
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");
   a.href=URL.createObjectURL(blob);a.download="lancamentos_solar.csv";a.click();URL.revokeObjectURL(a.href);
 }
 function resetApp(){
