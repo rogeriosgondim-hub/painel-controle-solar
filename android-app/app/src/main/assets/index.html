@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#153955">
-<title>Painel de Controle Solar da Residência</title>
+<meta name="theme-color" content="#0F5F8C">
+<title>Controle Solar v2.1</title>
 <style>
 :root{
   --navy:#153955; --navy2:#1f5876; --blue:#dcecf7; --blue2:#c8dfef;
@@ -81,6 +81,195 @@ td.manual{color:var(--red);font-weight:800}
 }
 @media(max-width:450px){.kpis{grid-template-columns:1fr}.hero{padding:18px}}
 @media print{.sidebar,.topbar,.no-print{display:none!important}.main{margin:0}.content{padding:0}.view{display:block!important;page-break-after:always}.card,.hero{box-shadow:none}}
+
+/* ===== v2.1 PREMIUM CLARO — OPTION A ===== */
+:root{
+  --navy:#123f67; --navy2:#0f6fbc; --blue:#eaf5ff; --blue2:#dceeff;
+  --bg:#f5f9fd; --card:#ffffff; --text:#102b43; --muted:#6e8192; --line:#dfe9f1;
+  --input:#f8fbff; --red:#c5393f; --green:#19a65a; --yellow:#cc8a00; --orange:#ef7b18; --danger:#c83b43;
+  --premium-blue:#1684D6; --premium-green:#22A861; --premium-orange:#E98732; --premium-purple:#7558e8;
+  --shadow:0 8px 26px rgba(34,72,105,.08); --radius:16px;
+}
+*{scrollbar-color:#c8dbea transparent}
+body{
+  font-family:Inter,"Segoe UI",Roboto,Arial,sans-serif;
+  background:linear-gradient(180deg,#f7fbff 0%,#f3f8fc 100%);
+  color:var(--text);
+}
+.sidebar{
+  width:230px;padding:20px 14px;background:linear-gradient(180deg,#0877da 0%,#075daf 38%,#0b477d 100%);
+  box-shadow:8px 0 28px rgba(20,77,124,.12);
+}
+.main{margin-left:230px}
+.brand{padding:4px 6px 18px;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,.16)}
+.logo{width:43px;height:43px;border-radius:13px;background:#fff;color:#ffb500;border:0;box-shadow:0 8px 20px rgba(4,51,96,.18)}
+.brand h1{font-size:16px}.brand small{font-size:10px;opacity:.86}
+.nav{gap:4px}.nav button{padding:11px 12px;border-radius:9px;font-size:13px;font-weight:650;color:#eef7ff;transition:.18s}
+.nav button:hover{background:rgba(255,255,255,.10)}
+.nav button.active{background:#fff;color:#0a69bf;box-shadow:0 7px 20px rgba(5,60,111,.18)}
+.side-foot{font-size:10px;line-height:1.45;color:#e7f4ff}
+.topbar{height:70px;padding:0 22px;background:rgba(255,255,255,.96);border-bottom:1px solid #e1ebf2;box-shadow:0 2px 12px rgba(32,72,104,.04)}
+.title-row{display:flex;align-items:center;gap:8px}.topbar h2{font-size:18px;letter-spacing:-.02em}.topbar .sub{font-size:11px}
+.preview-tag{font-size:9px;font-weight:900;letter-spacing:.06em;color:#0967b7;background:#e9f4ff;border:1px solid #cce5fb;padding:4px 7px;border-radius:999px}
+.content{padding:22px;max-width:1460px}
+.premium-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-end;margin-bottom:15px}
+.premium-head .eyebrow{font-size:10px;color:#1684D6;font-weight:900;letter-spacing:.12em;margin-bottom:5px}
+.premium-head h3{font-size:25px;letter-spacing:-.035em;margin:0 0 5px;color:#0d2940}.premium-head p{margin:0;color:var(--muted);font-size:12px}
+.month-control{display:flex;align-items:center;gap:9px;padding:9px 12px;border:1px solid #dce8f1;background:#fff;border-radius:10px;box-shadow:0 4px 14px rgba(38,77,108,.05)}
+.month-control span{font-size:10px;color:var(--muted);text-transform:uppercase;font-weight:800;letter-spacing:.05em}.month-control strong{font-size:13px;color:#163e5e}
+.card{border:1px solid #e0e9f0;border-radius:15px;box-shadow:var(--shadow);background:#fff}
+.kpis.premium-kpis{grid-template-columns:repeat(4,minmax(0,1fr));margin:0 0 14px;gap:10px}
+.premium-kpis .kpi{position:relative;min-height:112px;padding:15px 15px 13px;border-top:3px solid var(--premium-blue);box-shadow:0 6px 18px rgba(35,72,104,.065)}
+.premium-kpis .kpi:nth-child(1){border-top-color:#22A861;background:linear-gradient(180deg,#f6fff9,#fff 38%)}
+.premium-kpis .kpi:nth-child(2){border-top-color:#1684D6;background:linear-gradient(180deg,#f5faff,#fff 38%)}
+.premium-kpis .kpi:nth-child(3){border-top-color:#ffb000;background:linear-gradient(180deg,#fffaf0,#fff 38%)}
+.premium-kpis .kpi:nth-child(4){border-top-color:#28a0d8;background:linear-gradient(180deg,#f4fcff,#fff 38%)}
+.premium-kpis .kpi:nth-child(5){border-top-color:#7558e8;background:linear-gradient(180deg,#f8f6ff,#fff 38%)}
+.premium-kpis .kpi:nth-child(6){border-top-color:#29a867}.premium-kpis .kpi:nth-child(7){border-top-color:#E98732}.premium-kpis .kpi:nth-child(8){border-top-color:#2e8dce}
+.kpi .label{font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:800;color:#728394}
+.kpi .value{font-size:25px;letter-spacing:-.035em;margin-top:8px;color:#143b59}.kpi .hint{font-size:10px;margin-top:6px;line-height:1.3}
+.chart-feature{padding:16px 17px 8px;margin-bottom:14px}.section-head.compact{margin:0 0 8px}.section-head.compact h3{font-size:16px}.section-head.compact p{font-size:10px}
+.soft-chip{font-size:10px;font-weight:750;padding:6px 9px;border-radius:999px;background:#f4f8fb;border:1px solid #dde8ef;color:#60788a}
+.premium-chart{height:275px}
+.dashboard-lower{grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.month-summary,.origin-card,.latest-card,.operation-card{padding:16px}
+.summary-list{display:grid;gap:3px}
+.summary-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid #edf2f6;font-size:11px}
+.summary-row:last-child{border-bottom:0}.summary-row .slabel{display:flex;align-items:center;gap:8px;color:#536c7e}.summary-row .sval{font-weight:850;color:#173b57}
+.summary-dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto}.sd-green{background:#22A861}.sd-blue{background:#1684D6}.sd-orange{background:#E98732}.sd-purple{background:#7558e8}.sd-cyan{background:#25a8c8}
+.origin-content{display:flex;align-items:center;justify-content:center;gap:28px;min-height:160px}
+.donut-shell{display:grid;place-items:center}.donut{width:132px;height:132px;border-radius:50%;display:grid;place-items:center;position:relative;background:conic-gradient(#22A861 0 50%,#1684D6 50% 100%)}
+.donut:after{content:"";position:absolute;width:82px;height:82px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 1px #edf2f6}
+.donut>div{position:relative;z-index:2;text-align:center}.donut strong{display:block;font-size:20px;letter-spacing:-.03em}.donut span{font-size:10px;color:var(--muted)}
+.origin-legend{display:grid;gap:12px;min-width:150px}.origin-item{font-size:11px}.origin-item b{display:block;font-size:14px;margin-top:2px}.origin-item .legend-label{display:flex;align-items:center;gap:7px;color:#627a8b}
+.secondary-row{grid-template-columns:1.35fr .65fr}
+.btn.subtle{padding:6px 10px;border-color:#dce8f1;background:#f8fbfe;font-size:10px;color:#17659e}
+.mini-table-wrap{overflow:auto}.mini-table{font-size:10px}.mini-table thead th{background:#f5f8fb;color:#607589;padding:8px;border-bottom:1px solid #e0e9ef}.mini-table tbody td{padding:8px;background:#fff;border-bottom:1px solid #edf2f5}.mini-table tbody tr:nth-child(even) td{background:#fbfdff}
+.premium-rule{font-size:11px;padding:13px;border-radius:11px}.status-block{margin-top:12px;padding-top:10px;border-top:1px solid #edf2f5}.status-label{display:block;font-size:10px;text-transform:uppercase;color:#768a99;font-weight:800;letter-spacing:.06em;margin-bottom:7px}
+.sync-bar{display:flex;align-items:center;gap:12px;padding:11px 14px;margin:12px 0 18px;background:linear-gradient(90deg,#f0fff7,#f6fbff);border:1px solid #d8ece2;border-radius:13px}
+.sync-icon{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#dff8ea;color:#149151}.sync-copy{display:grid;gap:2px;flex:1}.sync-copy strong{font-size:12px;color:#166b43}.sync-copy span{font-size:10px;color:#6c8190}
+.history-head{margin:17px 0 9px}.history-card{padding:14px}.history-card .chart{height:235px}
+.btn{border-radius:9px;font-size:12px}.btn.primary{background:linear-gradient(180deg,#1181e6,#086ac7);border-color:#0866bd;box-shadow:0 5px 14px rgba(8,105,196,.16)}
+.field input,.field select{border-radius:9px;background:#fbfdff}.table-card{border-radius:14px}thead th{background:#185b87}
+@media(max-width:1050px){.kpis.premium-kpis{grid-template-columns:repeat(2,1fr)}.dashboard-lower,.secondary-row{grid-template-columns:1fr}}
+@media(max-width:760px){
+  .sidebar{width:270px}.main{margin-left:0}.content{padding:13px}.topbar{height:64px;padding:0 11px}
+  .premium-head{align-items:flex-start;flex-direction:column;margin-bottom:12px}.premium-head h3{font-size:21px}.month-control{align-self:stretch;justify-content:space-between}
+  .kpis.premium-kpis{grid-template-columns:1fr 1fr;gap:8px}.premium-kpis .kpi{min-height:102px;padding:13px}.kpi .value{font-size:21px}.kpi .label{font-size:9px}
+  .chart-feature{padding:13px 10px 5px}.premium-chart{height:240px}.origin-content{gap:18px;flex-wrap:wrap}.donut{width:118px;height:118px}.donut:after{width:73px;height:73px}
+  .sync-bar{align-items:flex-start;flex-wrap:wrap}.sync-bar .btn{width:100%}.preview-tag{display:none}
+}
+@media(max-width:390px){.kpis.premium-kpis{grid-template-columns:1fr 1fr}.premium-kpis .kpi{min-height:96px}.kpi .value{font-size:19px}}
+
+
+/* Seletor próprio de mês/ano — padroniza capitalização em Android e desktop */
+.month-year-picker{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(92px,.75fr);gap:8px}
+.month-year-picker select{
+  width:100%;min-height:43px;padding:10px 34px 10px 12px;border:1px solid #cbdde7;border-radius:9px;
+  background-color:#fbfdff;color:var(--red);font-weight:800;outline:none;appearance:auto;
+}
+.month-year-picker select:focus{border-color:#5da6be;box-shadow:0 0 0 4px rgba(75,163,190,.13);background:#fff}
+@media(max-width:430px){.month-year-picker{grid-template-columns:minmax(0,1.45fr) minmax(88px,.75fr);gap:6px}}
+
+
+/* ===== VARIAÇÃO A2 — harmonização de cores ===== */
+:root{
+  --navy:#0F5F8C;
+  --navy2:#1684D6;
+  --bg:#F6F9FC;
+  --card:#FFFFFF;
+  --text:#173042;
+  --muted:#6D8190;
+  --line:#DEE7EE;
+  --green:#22A861;
+  --orange:#E98732;
+  --danger:#C94C53;
+  --premium-blue:#1684D6;
+  --premium-green:#22A861;
+  --premium-orange:#E98732;
+  --premium-purple:#7762C9;
+}
+body{background:linear-gradient(180deg,#F8FBFD 0%,#F4F8FB 100%)}
+.sidebar{
+  background:linear-gradient(180deg,#0F5F8C 0%,#0E527A 52%,#0B3E5D 100%);
+}
+.nav button.active{color:#0F5F8C}
+.btn.primary{
+  background:linear-gradient(180deg,#1684D6,#0F6FBC);
+  border-color:#0F6FBC;
+}
+.premium-kpis .kpi:nth-child(1){border-top-color:#22A861;background:linear-gradient(180deg,#F5FCF8,#FFF 38%)}
+.premium-kpis .kpi:nth-child(2){border-top-color:#1684D6;background:linear-gradient(180deg,#F5FAFD,#FFF 38%)}
+.premium-kpis .kpi:nth-child(3){border-top-color:#E6A030;background:linear-gradient(180deg,#FFF9F2,#FFF 38%)}
+.premium-kpis .kpi:nth-child(4){border-top-color:#5E9FBF;background:linear-gradient(180deg,#F6FBFD,#FFF 38%)}
+.premium-kpis .kpi:nth-child(5){border-top-color:#7762C9;background:linear-gradient(180deg,#F8F6FD,#FFF 38%)}
+.premium-kpis .kpi:nth-child(6){border-top-color:#4A9E75}
+.premium-kpis .kpi:nth-child(7){border-top-color:#E98732}
+.premium-kpis .kpi:nth-child(8){border-top-color:#518EAF}
+.sync-bar{
+  background:linear-gradient(90deg,#F1FAF5,#F6FAFD);
+  border-color:#D9E9E1;
+}
+.summary-dot.sd-green{background:#22A861}
+.summary-dot.sd-blue{background:#1684D6}
+.summary-dot.sd-orange{background:#E98732}
+.summary-dot.sd-purple{background:#7762C9}
+.summary-dot.sd-cyan{background:#5E9FBF}
+
+
+/* ===== A2 — refinamento tipográfico ===== */
+.topbar h2{font-size:19px}
+.topbar .sub{font-size:12px}
+.premium-head .eyebrow{font-size:10.5px}
+.premium-head h3{font-size:26px}
+.premium-head p{font-size:12.5px}
+.month-control span{font-size:10.5px}
+.month-control strong{font-size:13.5px}
+
+.kpi .label{font-size:11px;line-height:1.25}
+.kpi .value{font-size:26px}
+.kpi .hint{font-size:11px;line-height:1.35}
+
+.section-head.compact h3{font-size:17px}
+.section-head.compact p{font-size:11px;line-height:1.4}
+.soft-chip{font-size:10.5px}
+
+.summary-row{font-size:12px}
+.origin-item{font-size:11.5px}
+.origin-item b{font-size:14.5px}
+.origin-item small{font-size:10.5px;color:var(--muted)}
+
+.mini-table{font-size:11px}
+.mini-table thead th{font-size:10.5px}
+.premium-rule{font-size:11.5px;line-height:1.55}
+.status-label{font-size:10.5px}
+
+.sync-copy strong{font-size:12.5px}
+.sync-copy span{font-size:11px}
+.field label{font-size:11.5px}
+.field input,.field select,.month-year-picker select{font-size:13px}
+.param .pname{font-size:11px}
+.param .pdesc{font-size:11px}
+table{font-size:12px}
+
+@media(max-width:760px){
+  .topbar h2{font-size:17px}
+  .topbar .sub{font-size:11.5px}
+  .premium-head h3{font-size:22px}
+  .premium-head p{font-size:12px}
+  .kpi .label{font-size:10px}
+  .kpi .value{font-size:22px}
+  .kpi .hint{font-size:10.5px}
+  .section-head.compact h3{font-size:16.5px}
+  .section-head.compact p{font-size:10.5px}
+  .summary-row{font-size:11.5px}
+  .mini-table{font-size:10.5px}
+  .premium-rule{font-size:11.5px}
+  .sync-copy span{font-size:10.5px}
+  .field label{font-size:11.5px}
+  .field input,.field select,.month-year-picker select{font-size:13.5px}
+}
+
 </style>
 </head>
 <body>
@@ -96,34 +285,78 @@ td.manual{color:var(--red);font-weight:800}
       <button data-view="guide">? &nbsp; Guia rápido</button>
       <button data-view="example">✓ &nbsp; Exemplo preenchido</button>
     </div>
-    <div class="side-foot">Dados armazenados localmente neste dispositivo.<br><br><b>App v2.0 • Cloud Sync</b></div>
+    <div class="side-foot">Dados armazenados localmente neste dispositivo.<br><br><b>App v2.1 • Cloud Sync</b></div>
   </aside>
 
   <main class="main">
     <header class="topbar">
       <div style="display:flex;gap:10px;align-items:center">
         <button class="btn mobile-menu" id="menuBtn">☰</button>
-        <div><h2 id="pageTitle">Painel de Controle Solar</h2><div class="sub" id="pageSub">Visão geral da residência</div></div>
+        <div><div class="title-row"><h2 id="pageTitle">Painel de Controle Solar</h2></div><div class="sub" id="pageSub">Visão geral do seu sistema solar</div></div>
       </div>
       <div class="top-actions"><button class="btn desktop-only" onclick="window.print()">Imprimir</button><button class="btn primary" onclick="goTo('entries')">Novo lançamento</button></div>
     </header>
 
     <div class="content">
       <section class="view active" id="dashboard">
-        <div class="hero">
-          <div><h3>Painel de Controle Solar da Residência</h3><p>Sistema: 3,75 kWp • 6 × 625 Wp • 2 inversores de 2,4 kW • 220 V • disjuntor 50 A</p></div>
-          <div class="badge" id="dashMonth">Set/2026</div>
+        <div class="premium-head">
+          <div>
+            <div class="eyebrow">CONTROLE SOLAR RESIDENCIAL</div>
+            <h3>Visão geral do seu sistema</h3>
+            <p>3,75 kWp • 6 × 625 Wp • 2 inversores de 2,4 kW • 220 V</p>
+          </div>
+          <div class="month-control"><span>Período</span><strong id="dashMonth">Set/2026</strong></div>
         </div>
-        <div class="grid kpis" id="kpiGrid"></div>
-        <div class="grid two">
-          <div class="card"><div class="section-head" style="margin-top:0"><div><h3>Evolução mensal</h3><p>Consumo total, geração e meta sustentável</p></div></div><div class="chart-wrap"><svg id="monthlyChart" class="chart"></svg></div></div>
-          <div class="card"><div class="section-head" style="margin-top:0"><div><h3>Regra operacional</h3><p>Referência para o uso no mês</p></div></div>
-            <div class="rule">Use a <b>geração real</b> do aplicativo dos inversores e os dados da fatura. A meta sustentável considera a média histórica somada a <b id="factorText">85%</b> da geração solar real. Quando a margem de conforto chegar perto de zero, evite adicionar novas cargas e preserve a reserva de créditos.</div>
-            <div style="margin-top:16px"><b>Semáforo atual</b><div style="margin-top:10px" id="statusHelp"></div></div>
+
+        <div class="grid kpis premium-kpis" id="kpiGrid"></div>
+
+        <div class="card chart-feature">
+          <div class="section-head compact">
+            <div><h3>Geração x consumo</h3><p>Comparativo mensal entre consumo total, geração solar e meta sustentável</p></div>
+            <span class="soft-chip">Últimos 12 meses</span>
+          </div>
+          <div class="chart-wrap"><svg id="monthlyChart" class="chart premium-chart"></svg></div>
+        </div>
+
+        <div class="grid dashboard-lower">
+          <div class="card month-summary">
+            <div class="section-head compact"><div><h3>Resumo do mês</h3><p>Principais números do período selecionado</p></div></div>
+            <div id="premiumMonthSummary" class="summary-list"></div>
+          </div>
+
+          <div class="card origin-card">
+            <div class="section-head compact"><div><h3>Origem do consumo</h3><p>Solar direto x energia importada da rede</p></div></div>
+            <div class="origin-content">
+              <div class="donut-shell"><div class="donut" id="premiumDonut"><div><strong id="premiumDonutValue">—</strong><span>kWh</span></div></div></div>
+              <div id="premiumOriginLegend" class="origin-legend"></div>
+            </div>
           </div>
         </div>
-        <div class="section-head"><div><h3>Histórico de consumo pré-solar</h3><p>Base usada para calcular a média histórica</p></div></div>
-        <div class="card"><div class="chart-wrap"><svg id="historyChartDash" class="chart"></svg></div></div>
+
+        <div class="grid dashboard-lower secondary-row">
+          <div class="card latest-card">
+            <div class="section-head compact">
+              <div><h3>Últimos lançamentos</h3><p>Visão rápida dos registros mais recentes</p></div>
+              <button class="btn subtle" type="button" onclick="goTo('entries')">Ver todos</button>
+            </div>
+            <div class="mini-table-wrap"><table class="mini-table"><thead><tr><th>Mês</th><th>Geração</th><th>Consumo</th><th>Conta</th><th>Status</th></tr></thead><tbody id="premiumLatestRows"></tbody></table></div>
+          </div>
+
+          <div class="card operation-card">
+            <div class="section-head compact"><div><h3>Uso inteligente</h3><p>Referência operacional para o mês</p></div></div>
+            <div class="rule premium-rule">A meta considera a média histórica somada a <b id="factorText">85%</b> da geração solar real. Priorize cargas maiores durante a geração e preserve a reserva de créditos.</div>
+            <div class="status-block"><span class="status-label">Situação atual</span><div id="statusHelp"></div></div>
+          </div>
+        </div>
+
+        <div class="sync-bar">
+          <div class="sync-icon">☁</div>
+          <div class="sync-copy"><strong>Sincronização na nuvem</strong><span>Seu app mantém celular e computador com a mesma base de dados.</span></div>
+          <button class="btn primary" type="button" onclick="goTo('cloud')">Abrir sincronização</button>
+        </div>
+
+        <div class="section-head history-head"><div><h3>Histórico de consumo pré-solar</h3><p>Base de referência dos 12 meses anteriores à geração solar</p></div></div>
+        <div class="card history-card"><div class="chart-wrap"><svg id="historyChartDash" class="chart"></svg></div></div>
       </section>
 
       <section class="view" id="entries">
@@ -131,7 +364,21 @@ td.manual{color:var(--red);font-weight:800}
         <div class="card">
           <form id="entryForm">
             <div class="form-grid">
-              <div class="field"><label>Mês</label><input type="month" id="fMonth" required></div>
+              <div class="field month-field"><label>Mês</label>
+  <input type="hidden" id="fMonth" required>
+  <div class="month-year-picker">
+    <select id="fMonthName" aria-label="Mês">
+      <option value="01">Janeiro</option><option value="02">Fevereiro</option><option value="03">Março</option>
+      <option value="04">Abril</option><option value="05">Maio</option><option value="06">Junho</option>
+      <option value="07">Julho</option><option value="08">Agosto</option><option value="09">Setembro</option>
+      <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
+    </select>
+    <select id="fYear" aria-label="Ano">
+      <option>2025</option><option>2026</option><option>2027</option><option>2028</option><option>2029</option>
+      <option>2030</option><option>2031</option><option>2032</option><option>2033</option><option>2034</option><option>2035</option>
+    </select>
+  </div>
+</div>
               <div class="field"><label>Geração solar (kWh)</label><input type="number" id="fGeneration" step="0.01" min="0"></div>
               <div class="field"><label>Rede importada (kWh)</label><input type="number" id="fGrid" step="0.01" min="0"></div>
               <div class="field"><label>Energia injetada (kWh)</label><input type="number" id="fInjected" step="0.01" min="0"></div>
@@ -198,7 +445,7 @@ td.manual{color:var(--red);font-weight:800}
           </div>
           <div class="card">
             <div class="section-head" style="margin-top:0"><div><h3>Como funciona</h3></div></div>
-            <div class="rule">A versão 2.0 usa uma área separada do seu repositório GitHub (<b>branch cloud-sync</b>) como armazenamento. Antes do envio, os dados são criptografados no aparelho com <b>AES-GCM</b>. A senha de criptografia e o token do GitHub não são enviados para o repositório.</div>
+            <div class="rule">A versão 2.1 usa uma área separada do seu repositório GitHub (<b>branch cloud-sync</b>) como armazenamento. Antes do envio, os dados são criptografados no aparelho com <b>AES-GCM</b>. A senha de criptografia e o token do GitHub não são enviados para o repositório.</div>
             <div class="notice" style="margin-top:14px"><b>Importante:</b> use um token GitHub <b>fine-grained</b>, restrito somente ao repositório <b>painel-controle-solar</b>, com permissão <b>Contents: Read and write</b>. Não envie esse token pelo chat.</div>
           </div>
         </div>
@@ -372,6 +619,30 @@ function renderDashboard(){
     "AGUARDANDO SOLAR":"Aguardando o primeiro valor de geração solar."
   };
   document.getElementById("statusHelp").innerHTML=statusPill(c.status)+`<div style="margin-top:10px;color:var(--muted);line-height:1.5">${explanations[c.status]}</div>`;
+  const summaryEl=document.getElementById("premiumMonthSummary");
+  if(summaryEl){
+    summaryEl.innerHTML=[
+      ["sd-green","Geração solar",num(n(e.generation),1)+" kWh"],
+      ["sd-blue","Consumo total",num(c.totalConsumption,1)+" kWh"],
+      ["sd-orange","Rede importada",num(n(e.gridImported),1)+" kWh"],
+      ["sd-cyan","Energia injetada",num(n(e.injected),1)+" kWh"],
+      ["sd-purple","Saldo de créditos",num(n(e.creditBalance),1)+" kWh"],
+      ["sd-orange","Conta recorrente",money(c.recurringBill)]
+    ].map(r=>'<div class="summary-row"><span class="slabel"><i class="summary-dot '+r[0]+'"></i>'+r[1]+'</span><span class="sval">'+r[2]+'</span></div>').join("");
+  }
+  const direct=c.autoconsumption??0, imported=n(e.gridImported)??0, originTotal=direct+imported;
+  const directPct=originTotal?Math.max(0,Math.min(100,direct/originTotal*100)):0;
+  const donut=document.getElementById("premiumDonut");
+  if(donut)donut.style.background='conic-gradient(#22A861 0 '+directPct+'%,#1684D6 '+directPct+'% 100%)';
+  const donutValue=document.getElementById("premiumDonutValue"); if(donutValue)donutValue.textContent=num(originTotal,1);
+  const originLegend=document.getElementById("premiumOriginLegend");
+  if(originLegend)originLegend.innerHTML=
+    '<div class="origin-item"><span class="legend-label"><i class="summary-dot sd-green"></i>Solar direto</span><b>'+num(direct,1)+' kWh</b><small>'+num(directPct,1)+'% do consumo</small></div>'+
+    '<div class="origin-item"><span class="legend-label"><i class="summary-dot sd-blue"></i>Rede</span><b>'+num(imported,1)+' kWh</b><small>'+num(100-directPct,1)+'% do consumo</small></div>';
+  const recent=state.entries.filter(x=>[x.generation,x.gridImported,x.totalBill,x.creditBalance].some(v=>n(v)!=null)).sort((a,b)=>b.month.localeCompare(a.month)).slice(0,5);
+  const rows=document.getElementById("premiumLatestRows");
+  if(rows)rows.innerHTML=recent.length?recent.map(x=>{const cc=calc(x);return '<tr><td>'+monthLabel(x.month)+'</td><td>'+num(n(x.generation),1)+'</td><td>'+num(cc.totalConsumption,1)+'</td><td>'+money(n(x.totalBill))+'</td><td>'+statusPill(cc.status)+'</td></tr>'}).join(""):'<tr><td colspan="5" class="empty">Sem lançamentos preenchidos.</td></tr>';
+
   renderMonthlyChart("monthlyChart");
   renderHistoryChart("historyChartDash");
 }
@@ -388,7 +659,7 @@ function renderHistoryChart(id){
   const data=state.history, max=Math.max(...data.map(d=>d.consumption),600);
   for(let i=0;i<=6;i++){const y=pad.t+ih-i*ih/6, val=max*i/6;svg.appendChild(svgEl("line",{x1:pad.l,y1:y,x2:W-pad.r,y2:y,stroke:"#d7e1e8","stroke-dasharray":"4 4"}));svg.appendChild(svgEl("text",{x:pad.l-8,y:y+4,"text-anchor":"end","font-size":"10",fill:"#6b7c88"},Math.round(val)))}
   const slot=iw/data.length, bw=slot*.55;
-  data.forEach((d,i)=>{const h=d.consumption/max*ih,x=pad.l+i*slot+(slot-bw)/2,y=pad.t+ih-h;svg.appendChild(svgEl("rect",{x,y,width:bw,height:h,rx:3,fill:"#176b8d"}));svg.appendChild(svgEl("text",{x:x+bw/2,y:H-27,"text-anchor":"middle","font-size":"9",fill:"#657887"},d.label));});
+  data.forEach((d,i)=>{const h=d.consumption/max*ih,x=pad.l+i*slot+(slot-bw)/2,y=pad.t+ih-h;svg.appendChild(svgEl("rect",{x,y,width:bw,height:h,rx:3,fill:"#1684D6"}));svg.appendChild(svgEl("text",{x:x+bw/2,y:H-27,"text-anchor":"middle","font-size":"9",fill:"#657887"},d.label));});
   svg.appendChild(svgEl("text",{x:W/2,y:14,"text-anchor":"middle","font-size":"13","font-weight":"700",fill:"#173042"},"Histórico de consumo pré-solar"));
 }
 function renderMonthlyChart(id){
@@ -404,19 +675,42 @@ function renderMonthlyChart(id){
     const cx=pad.l+i*slot+slot/2;
     const cons=d.c.totalConsumption??0, gen=n(d.e.generation)??0, tar=d.c.target;
     const h1=cons/max*ih,h2=gen/max*ih;
-    svg.appendChild(svgEl("rect",{x:cx-bw-2,y:pad.t+ih-h1,width:bw,height:h1,rx:2,fill:"#176b8d"}));
-    svg.appendChild(svgEl("rect",{x:cx+2,y:pad.t+ih-h2,width:bw,height:h2,rx:2,fill:"#77b255"}));
+    svg.appendChild(svgEl("rect",{x:cx-bw-2,y:pad.t+ih-h1,width:bw,height:h1,rx:2,fill:"#1684D6"}));
+    svg.appendChild(svgEl("rect",{x:cx+2,y:pad.t+ih-h2,width:bw,height:h2,rx:2,fill:"#22A861"}));
     if(tar!=null) pts.push(`${cx},${pad.t+ih-tar/max*ih}`);
     svg.appendChild(svgEl("text",{x:cx,y:H-27,"text-anchor":"middle","font-size":"9",fill:"#657887"},monthLabel(d.e.month)));
   });
-  if(pts.length>1) svg.appendChild(svgEl("polyline",{points:pts.join(" "),fill:"none",stroke:"#d18400","stroke-width":"3"}));
-  const legend=[["#176b8d","Consumo"],["#77b255","Geração"],["#d18400","Meta"]];
+  if(pts.length>1) svg.appendChild(svgEl("polyline",{points:pts.join(" "),fill:"none",stroke:"#E98732","stroke-width":"3"}));
+  const legend=[["#1684D6","Consumo"],["#22A861","Geração"],["#E98732","Meta"]];
   legend.forEach((it,i)=>{const x=610+i*88;svg.appendChild(svgEl("rect",{x,y:9,width:11,height:11,rx:2,fill:it[0]}));svg.appendChild(svgEl("text",{x:x+16,y:18,"font-size":"10",fill:"#657887"},it[1]));});
 }
 
+function setMonthPicker(ym){
+  const value=ym||suggestMonth();
+  const parts=String(value).split("-");
+  const year=parts[0]||String(new Date().getFullYear());
+  const month=parts[1]||String(new Date().getMonth()+1).padStart(2,"0");
+  const monthSel=document.getElementById("fMonthName");
+  const yearSel=document.getElementById("fYear");
+  const hidden=document.getElementById("fMonth");
+  if(monthSel)monthSel.value=month;
+  if(yearSel){
+    if(!Array.from(yearSel.options).some(o=>o.value===year)){
+      const opt=document.createElement("option");opt.value=year;opt.textContent=year;yearSel.appendChild(opt);
+    }
+    yearSel.value=year;
+  }
+  if(hidden)hidden.value=year+"-"+month;
+}
+function syncMonthPicker(){
+  const month=document.getElementById("fMonthName")?.value;
+  const year=document.getElementById("fYear")?.value;
+  const hidden=document.getElementById("fMonth");
+  if(hidden&&month&&year)hidden.value=year+"-"+month;
+}
 function fillForm(e){
   editingMonth=e?.month||null;
-  document.getElementById("fMonth").value=e?.month||suggestMonth();
+  setMonthPicker(e?.month||suggestMonth());
   document.getElementById("fGeneration").value=e?.generation??"";
   document.getElementById("fGrid").value=e?.gridImported??"";
   document.getElementById("fInjected").value=e?.injected??"";
@@ -561,7 +855,6 @@ function nativeDownload(filename, content, mime){
   return false;
 }
 
-
 function bytesToB64(bytes){
   let s="";for(let i=0;i<bytes.length;i++)s+=String.fromCharCode(bytes[i]);return btoa(s);
 }
@@ -610,7 +903,7 @@ async function cloudFetchFile(cfg){
 }
 async function cloudWriteFile(cfg,envelope,sha){
   const bytes=new TextEncoder().encode(JSON.stringify(envelope,null,2));
-  const body={message:"Sincroniza dados do Controle Solar v2.0",content:bytesToB64(bytes),branch:cfg.branch};
+  const body={message:"Sincroniza dados do Controle Solar v2.1",content:bytesToB64(bytes),branch:cfg.branch};
   if(sha)body.sha=sha;
   const r=await fetch(cloudApiUrl(cfg),{method:"PUT",headers:cloudHeaders(cfg),body:JSON.stringify(body)});
   if(r.status===401)throw new Error("Token GitHub inválido ou expirado.");
@@ -743,9 +1036,7 @@ function exportBackup(){
 function exportCsv(){
   const rows=[["Mês","Geração solar (kWh)","Rede importada (kWh)","Energia injetada (kWh)","Créditos usados (kWh)","Saldo créditos (kWh)","Conta total (R$)","CIP (R$)","Parcel./outros (R$)","Autoconsumo (kWh)","Consumo total (kWh)","Conta recorrente (R$)","Custo energia (R$)","Autoconsumo (%)","Meta sustentável (kWh)","Margem conforto (kWh)","Status"]];
   state.entries.forEach(e=>{const c=calc(e);rows.push([monthLabel(e.month),e.generation,e.gridImported,e.injected,e.creditsUsed,e.creditBalance,e.totalBill,e.cip,e.extras,c.autoconsumption,c.totalConsumption,c.recurringBill,c.energyCost,c.autoconsumptionPct==null?"":c.autoconsumptionPct*100,c.target,c.margin,c.status])});
-  const csv="\ufeff"+rows.map(r=>r.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(";")).join("\r\n");
-  if(nativeDownload("lancamentos_solar.csv",csv,"text/csv")) return;
-  const blob=new Blob([csv],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");
+  const csv="\ufeff"+rows.map(r=>r.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(";")).join("\r\n");\n  if(nativeDownload("lancamentos_solar.csv",csv,"text/csv")) return;\n  const blob=new Blob([csv],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");
   a.href=URL.createObjectURL(blob);a.download="lancamentos_solar.csv";a.click();URL.revokeObjectURL(a.href);
 }
 function resetApp(){
@@ -758,6 +1049,8 @@ document.getElementById("backupInput").addEventListener("change",ev=>{
   r.readAsText(f);ev.target.value="";
 });
 
+document.getElementById("fMonthName").addEventListener("change",()=>{syncMonthPicker();updatePreview();});
+document.getElementById("fYear").addEventListener("change",()=>{syncMonthPicker();updatePreview();});
 document.getElementById("entryForm").addEventListener("input",updatePreview);
 document.getElementById("entryForm").addEventListener("submit",ev=>{
   ev.preventDefault();const e=formEntry();if(!e.month){alert("Informe o mês.");return}
