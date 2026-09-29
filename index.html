@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0F5F8C">
-<title>Controle Solar v2.4</title>
+<title>Controle Solar v2.5</title>
 <style>
 :root{
   --navy:#153955; --navy2:#1f5876; --blue:#dcecf7; --blue2:#c8dfef;
@@ -361,6 +361,48 @@ table{font-size:12px}
  .solar-month-compare{grid-template-columns:1fr}.solar-toolbar-actions{width:100%}.solar-toolbar-actions .field{flex:1}
 }
 
+
+/* ===== v2.5 — USO INTELIGENTE ===== */
+.smart-head{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap}
+.smart-settings{display:flex;gap:9px;align-items:end;flex-wrap:wrap}
+.smart-kpis{grid-template-columns:repeat(5,minmax(0,1fr));margin:16px 0}
+.smart-kpi{min-height:112px;position:relative;overflow:hidden}
+.smart-kpi:before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:#1684D6}
+.smart-kpi:nth-child(2):before{background:#22A861}.smart-kpi:nth-child(3):before{background:#E98732}
+.smart-kpi:nth-child(4):before{background:#7762C9}.smart-kpi:nth-child(5):before{background:#0F5F8C}
+.smart-kpi .label{font-size:10.5px;color:var(--muted);font-weight:800}
+.smart-kpi .value{font-size:21px;font-weight:900;margin-top:8px;line-height:1.1}
+.smart-kpi .hint{font-size:10px;color:var(--muted);margin-top:7px;line-height:1.35}
+.smart-layout{grid-template-columns:1.15fr .85fr;gap:16px}
+.timer-panel{padding:18px;border:1px solid var(--line);border-radius:15px;background:linear-gradient(135deg,#f8fcff,#fbfefa)}
+.timer-status{display:flex;justify-content:space-between;gap:15px;align-items:center;flex-wrap:wrap}
+.timer-clock{font-size:25px;font-weight:900;color:var(--primary)}
+.timer-sub{font-size:10.5px;color:var(--muted);margin-top:4px}
+.timer-actions{display:flex;gap:8px;flex-wrap:wrap}
+.smart-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.smart-form-grid .full{grid-column:1/-1}
+.smart-form-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:12px}
+.smart-success{background:#eef8f2;border:1px solid #cde7d7;color:#1e6a3f;padding:10px 12px;border-radius:11px;font-size:11px}
+.smart-warning{background:#fff7ec;border:1px solid #f3d4a7;color:#8b570d;padding:10px 12px;border-radius:11px;font-size:11px}
+.smart-danger{background:#fff0f0;border:1px solid #edc4c4;color:#a02b2b;padding:10px 12px;border-radius:11px;font-size:11px}
+.smart-window{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+.smart-window>div{padding:12px;border:1px solid var(--line);border-radius:12px;background:#fbfdff}
+.smart-window span{display:block;font-size:10px;color:var(--muted);font-weight:800}
+.smart-window b{display:block;font-size:17px;margin-top:5px}
+.appliance-row{display:grid;grid-template-columns:1fr auto;gap:8px}
+.smart-table td,.smart-table th{white-space:nowrap}
+.smart-pill{display:inline-flex;align-items:center;padding:5px 8px;border-radius:999px;font-size:9px;font-weight:900}
+.smart-pill.inside{background:#e7f5ec;color:#177044}.smart-pill.partial{background:#fff3dc;color:#a66400}
+.smart-pill.outside{background:#fde8e8;color:#a62c2c}.smart-pill.ok{background:#e7f5ec;color:#177044}
+.smart-pill.fail{background:#fde8e8;color:#a62c2c}
+.smart-note{margin-top:12px;font-size:10.5px;color:var(--muted);line-height:1.5}
+@media(max-width:1100px){.smart-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.smart-layout{grid-template-columns:1fr}}
+@media(max-width:700px){
+ .smart-kpis{grid-template-columns:1fr 1fr;gap:10px}.smart-kpi{min-height:104px;padding:14px}.smart-kpi .value{font-size:18px}
+ .smart-form-grid{grid-template-columns:1fr}.smart-form-grid .full{grid-column:auto}
+ .smart-window{grid-template-columns:1fr}.smart-settings{width:100%}.smart-settings .field{flex:1;min-width:90px}
+}
+
 </style>
 </head>
 <body>
@@ -371,6 +413,7 @@ table{font-size:12px}
       <button data-view="dashboard" class="active">▦ &nbsp; Painel</button>
       <button data-view="entries">✎ &nbsp; Lançamentos</button>
       <button data-view="solarProduction">☀ &nbsp; Produção Solar</button>
+      <button data-view="smartUse">⚡ &nbsp; Uso Inteligente</button>
       <button data-view="reports">▤ &nbsp; Relatórios</button>
       <button data-view="history">▥ &nbsp; Histórico</button>
       <button data-view="parameters">⚙ &nbsp; Parâmetros</button>
@@ -378,7 +421,7 @@ table{font-size:12px}
       <button data-view="guide">? &nbsp; Guia rápido</button>
       <button data-view="example">✓ &nbsp; Exemplo preenchido</button>
     </div>
-    <div class="side-foot">Dados armazenados localmente neste dispositivo.<br><br><b>App v2.4 • Cloud Sync</b></div>
+    <div class="side-foot">Dados armazenados localmente neste dispositivo.<br><br><b>App v2.5 • Cloud Sync</b></div>
   </aside>
 
   <main class="main">
@@ -566,6 +609,87 @@ table{font-size:12px}
         </div>
       </section>
 
+
+      <section class="view" id="smartUse">
+        <div class="smart-head">
+          <div>
+            <div class="report-badge">⚡ USO INTELIGENTE</div>
+            <div class="section-head" style="margin:10px 0 0"><div>
+              <h3>Controle de uso dos eletrodomésticos</h3>
+              <p>Aprenda a duração real dos ciclos e descubra até que horas vale iniciar cada aparelho para priorizar a energia solar.</p>
+            </div></div>
+          </div>
+          <div class="smart-settings">
+            <div class="field"><label>Início da janela solar</label><input type="time" id="smartSolarStart"></div>
+            <div class="field"><label>Fim da janela solar</label><input type="time" id="smartSolarEnd"></div>
+            <div class="field"><label>Margem de segurança</label><input type="number" id="smartSafetyMin" min="0" max="180" step="5" style="width:92px"></div>
+            <button class="btn" type="button" onclick="saveSmartSettings()">Salvar janela</button>
+          </div>
+        </div>
+
+        <div class="grid smart-kpis" id="smartKpis"></div>
+
+        <div class="grid smart-layout">
+          <div class="card">
+            <div class="section-head compact"><div><h3>⏱ Cronômetro de uso</h3><p>Use no momento real em que o aparelho começar e terminar o ciclo.</p></div></div>
+            <div class="timer-panel">
+              <div class="smart-form-grid">
+                <div class="field"><label>Eletrodoméstico</label><select id="smartTimerAppliance"></select></div>
+                <div class="field"><label>Ciclo / programa</label><input id="smartTimerCycle" placeholder="Ex.: Normal, Pesado, Rápido"></div>
+              </div>
+              <div class="timer-status" style="margin-top:15px">
+                <div>
+                  <div class="timer-clock" id="smartTimerClock">Nenhum ciclo em andamento</div>
+                  <div class="timer-sub" id="smartTimerSub">Selecione o aparelho e clique em “Iniciar agora”.</div>
+                </div>
+                <div class="timer-actions" id="smartTimerActions"></div>
+              </div>
+            </div>
+            <div id="smartNowAdvice" class="smart-note"></div>
+          </div>
+
+          <div class="card">
+            <div class="section-head compact"><div><h3>Janela recomendada</h3><p>Calculada a partir dos ciclos concluídos com sucesso.</p></div></div>
+            <div class="field"><label>Analisar aparelho</label><select id="smartStatsAppliance"></select></div>
+            <div class="smart-window" id="smartWindowCards"></div>
+            <div class="smart-note">Regra conservadora da prévia: <b>maior duração bem-sucedida + margem de segurança</b>. Assim, um ciclo que eventualmente demore mais que a média ainda tende a terminar dentro da janela definida.</div>
+          </div>
+        </div>
+
+        <div class="grid smart-layout" style="margin-top:16px">
+          <div class="card">
+            <div class="section-head compact"><div><h3>Registrar uso manualmente</h3><p>Para usos passados ou quando você não utilizar o cronômetro.</p></div></div>
+            <form id="smartManualForm">
+              <div class="smart-form-grid">
+                <div class="field"><label>Eletrodoméstico</label><select id="smartManualAppliance" required></select></div>
+                <div class="field"><label>Ciclo / programa</label><input id="smartManualCycle" placeholder="Ex.: Normal"></div>
+                <div class="field"><label>Início</label><input type="datetime-local" id="smartManualStart" required></div>
+                <div class="field"><label>Fim</label><input type="datetime-local" id="smartManualEnd" required></div>
+                <div class="field"><label>Finalizou com sucesso?</label><select id="smartManualSuccess"><option value="true">Sim</option><option value="false">Não</option></select></div>
+                <div class="field"><label>Observação</label><input id="smartManualNote" placeholder="Opcional"></div>
+              </div>
+              <div class="smart-form-actions"><button class="btn primary" type="submit">Salvar uso</button></div>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="section-head compact"><div><h3>Meus eletrodomésticos</h3><p>Cadastre outros equipamentos para acompanhar.</p></div></div>
+            <div class="appliance-row">
+              <input id="smartNewAppliance" placeholder="Ex.: Lava-louças">
+              <button class="btn primary" type="button" onclick="addSmartAppliance()">Adicionar</button>
+            </div>
+            <div id="smartApplianceList" style="margin-top:12px"></div>
+            <div class="notice" style="margin-top:14px">Nesta prévia, a <b>Máquina de lavar</b> já vem cadastrada. Não é necessário informar potência ou consumo agora: primeiro vamos aprender o tempo real dos ciclos.</div>
+          </div>
+        </div>
+
+        <div class="section-head"><div><h3>Histórico de usos</h3><p>Somente ciclos concluídos com sucesso entram nos cálculos de duração recomendada.</p></div></div>
+        <div class="card table-card"><div class="table-scroll"><table class="smart-table">
+          <thead><tr><th>Aparelho</th><th>Ciclo</th><th>Início</th><th>Fim</th><th>Duração</th><th>Sucesso</th><th>Uso da janela solar</th><th>Observação</th><th></th></tr></thead>
+          <tbody id="smartHistoryBody"></tbody>
+        </table></div></div>
+      </section>
+
       <section class="view" id="reports">
         <div class="report-toolbar">
           <div>
@@ -663,7 +787,7 @@ table{font-size:12px}
           </div>
           <div class="card">
             <div class="section-head" style="margin-top:0"><div><h3>Como funciona</h3></div></div>
-            <div class="rule">A versão 2.4 usa uma área separada do seu repositório GitHub (<b>branch cloud-sync</b>) como armazenamento. Antes do envio, os dados são criptografados no aparelho com <b>AES-GCM</b>. A senha de criptografia e o token do GitHub não são enviados para o repositório.</div>
+            <div class="rule">A versão 2.5 usa uma área separada do seu repositório GitHub (<b>branch cloud-sync</b>) como armazenamento. Antes do envio, os dados são criptografados no aparelho com <b>AES-GCM</b>. A senha de criptografia e o token do GitHub não são enviados para o repositório.</div>
             <div class="notice" style="margin-top:14px"><b>Importante:</b> use um token GitHub <b>fine-grained</b>, restrito somente ao repositório <b>painel-controle-solar</b>, com permissão <b>Contents: Read and write</b>. Não envie esse token pelo chat.</div>
           </div>
         </div>
@@ -737,6 +861,7 @@ const titles = {
  dashboard:["Painel de Controle Solar","Visão geral da residência"],
  entries:["Lançamentos Mensais","Preenchimento e cálculo automático"],
  solarProduction:["Produção Solar","Monitoramento diário importado do SolarView"],
+ smartUse:["Uso Inteligente","Tempo real dos ciclos e melhor janela de uso"],
  reports:["Relatórios","Geração, consumo, créditos e economia"],
  history:["Histórico de Consumo","Base pré-solar"],
  parameters:["Parâmetros","Sistema e regras do painel"],
@@ -753,16 +878,29 @@ function ensureSolarState(x){
   if(!x.solarImportMeta) x.solarImportMeta={lastImportAt:null,lastFile:null};
   return x;
 }
+function ensureSmartUseState(x){
+  if(!x.smartUse || typeof x.smartUse!=="object") x.smartUse={};
+  if(!Array.isArray(x.smartUse.appliances) || !x.smartUse.appliances.length){
+    x.smartUse.appliances=[{id:"washer",name:"Máquina de lavar"}];
+  }
+  if(!Array.isArray(x.smartUse.sessions)) x.smartUse.sessions=[];
+  if(!x.smartUse.settings) x.smartUse.settings={solarStart:"09:00",solarEnd:"16:30",safetyMin:15};
+  if(x.smartUse.settings.solarStart==null)x.smartUse.settings.solarStart="09:00";
+  if(x.smartUse.settings.solarEnd==null)x.smartUse.settings.solarEnd="16:30";
+  if(x.smartUse.settings.safetyMin==null)x.smartUse.settings.safetyMin=15;
+  if(!("activeSession" in x.smartUse))x.smartUse.activeSession=null;
+  return x;
+}
 function loadState(){
   try{
     const x=JSON.parse(localStorage.getItem(STORAGE_KEY));
     if(x && x.parameters && x.history && x.entries){
-      const migrated=ensureSolarState(x);
+      const migrated=ensureSmartUseState(ensureSolarState(x));
       localStorage.setItem(STORAGE_KEY,JSON.stringify(migrated));
       return migrated;
     }
   }catch(e){}
-  const fresh=ensureSolarState(deepClone(DEFAULTS));
+  const fresh=ensureSmartUseState(ensureSolarState(deepClone(DEFAULTS)));
   localStorage.setItem(STORAGE_KEY,JSON.stringify(fresh));
   return fresh;
 }
@@ -1136,7 +1274,7 @@ async function cloudFetchFile(cfg){
 }
 async function cloudWriteFile(cfg,envelope,sha){
   const bytes=new TextEncoder().encode(JSON.stringify(envelope,null,2));
-  const body={message:"Sincroniza dados do Controle Solar v2.4",content:bytesToB64(bytes),branch:cfg.branch};
+  const body={message:"Sincroniza dados do Controle Solar v2.5",content:bytesToB64(bytes),branch:cfg.branch};
   if(sha)body.sha=sha;
   const r=await fetch(cloudApiUrl(cfg),{method:"PUT",headers:cloudHeaders(cfg),body:JSON.stringify(body)});
   if(r.status===401)throw new Error("Token GitHub inválido ou expirado.");
@@ -1194,7 +1332,7 @@ function clearCloudSettings(){
   renderCloud();toast("Configuração de nuvem removida.");
 }
 async function cloudApplyRemote(remote){
-  state=ensureSolarState(remote.state);
+  state=ensureSmartUseState(ensureSolarState(remote.state));
   localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
   const m=loadCloudMeta();m.lastLocalChangeAt=remote.updatedAt;m.lastCloudSyncAt=new Date().toISOString();m.lastCloudStatus="Sincronizado";saveCloudMeta(m);
   renderAll();
@@ -1272,11 +1410,11 @@ function exportCsv(){
 }
 function resetApp(){
   if(!confirm("Restaurar todos os dados para os valores originais da planilha?"))return;
-  state=ensureSolarState(deepClone(DEFAULTS));saveState();renderAll();clearForm();toast("Dados originais restaurados.");
+  state=ensureSmartUseState(ensureSolarState(deepClone(DEFAULTS)));saveState();renderAll();clearForm();toast("Dados originais restaurados.");
 }
 document.getElementById("backupInput").addEventListener("change",ev=>{
   const f=ev.target.files[0];if(!f)return;const r=new FileReader();
-  r.onload=()=>{try{const x=JSON.parse(r.result);if(!x.parameters||!x.history||!x.entries)throw 0;state=ensureSolarState(x);saveState();renderAll();clearForm();toast("Backup importado.");}catch(e){alert("Arquivo de backup inválido.");}};
+  r.onload=()=>{try{const x=JSON.parse(r.result);if(!x.parameters||!x.history||!x.entries)throw 0;state=ensureSmartUseState(ensureSolarState(x));saveState();renderAll();clearForm();toast("Backup importado.");}catch(e){alert("Arquivo de backup inválido.");}};
   r.readAsText(f);ev.target.value="";
 });
 
@@ -1284,6 +1422,24 @@ document.getElementById("fMonthName").addEventListener("change",()=>{syncMonthPi
 document.getElementById("fYear").addEventListener("change",()=>{syncMonthPicker();updatePreview();});
 document.getElementById("reportPeriod").addEventListener("change",renderReports);
 document.getElementById("solarPeriod").addEventListener("change",renderSolarProduction);
+document.getElementById("smartStatsAppliance").addEventListener("change",function(){renderSmartStats();renderSmartTimer();});
+document.getElementById("smartTimerAppliance").addEventListener("change",renderSmartTimer);
+document.getElementById("smartManualForm").addEventListener("submit",function(ev){
+  ev.preventDefault();
+  const start=document.getElementById("smartManualStart").value,end=document.getElementById("smartManualEnd").value;
+  if(!start||!end){return;}
+  if(new Date(end)<=new Date(start)){alert("O horário de fim precisa ser posterior ao início.");return;}
+  smartData().sessions.push({
+    id:"use-"+Date.now().toString(36),
+    applianceId:document.getElementById("smartManualAppliance").value,
+    cycle:document.getElementById("smartManualCycle").value.trim(),
+    start:new Date(start).toISOString(),
+    end:new Date(end).toISOString(),
+    success:document.getElementById("smartManualSuccess").value==="true",
+    note:document.getElementById("smartManualNote").value.trim()
+  });
+  saveState();ev.target.reset();renderSmartUse();toast("Uso registrado.");
+});
 document.getElementById("solarFile").addEventListener("change",function(ev){const f=ev.target.files&&ev.target.files[0];if(f)importSolarViewFile(f);ev.target.value="";});
 document.getElementById("solarManualForm").addEventListener("submit",function(ev){
   ev.preventDefault();
@@ -1486,6 +1642,146 @@ async function importSolarViewFile(file){
   }catch(err){result.textContent="Não foi possível importar: "+(err&&err.message?err.message:String(err));}
 }
 
+
+function smartData(){state=ensureSmartUseState(state);return state.smartUse}
+function smartApplianceName(id){const a=smartData().appliances.find(function(x){return x.id===id;});return a?a.name:"—"}
+function smartLocalDateTimeValue(d){
+  const p=new Date(d);if(isNaN(p))return"";
+  const z=n=>String(n).padStart(2,"0");
+  return p.getFullYear()+"-"+z(p.getMonth()+1)+"-"+z(p.getDate())+"T"+z(p.getHours())+":"+z(p.getMinutes());
+}
+function smartDisplayDateTime(v){
+  if(!v)return"—";const d=new Date(v);if(isNaN(d))return v;
+  return d.toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});
+}
+function smartDurationMin(s){
+  const a=new Date(s.start),b=new Date(s.end);if(isNaN(a)||isNaN(b)||b<a)return null;
+  return Math.round((b-a)/60000);
+}
+function smartDurationText(mins){
+  if(mins==null)return"—";const h=Math.floor(mins/60),m=mins%60;
+  if(h&&m)return h+"h "+String(m).padStart(2,"0")+"min";
+  if(h)return h+"h";return m+"min";
+}
+function smartTimeToMin(t){if(!t||!t.includes(":"))return null;const p=t.split(":").map(Number);return p[0]*60+p[1]}
+function smartMinToTime(v){v=((Math.round(v)%1440)+1440)%1440;return String(Math.floor(v/60)).padStart(2,"0")+":"+String(v%60).padStart(2,"0")}
+function smartSolarClass(s){
+  const st=new Date(s.start),en=new Date(s.end);if(isNaN(st)||isNaN(en))return {key:"outside",label:"Sem dados"};
+  const set=smartData().settings,ss=smartTimeToMin(set.solarStart),se=smartTimeToMin(set.solarEnd);
+  if(ss==null||se==null)return {key:"outside",label:"Sem janela"};
+  const same=st.toDateString()===en.toDateString(),sm=st.getHours()*60+st.getMinutes(),em=en.getHours()*60+en.getMinutes();
+  if(same&&sm>=ss&&em<=se)return {key:"inside",label:"100% na janela"};
+  const dayStart=new Date(st);dayStart.setHours(Math.floor(ss/60),ss%60,0,0);
+  const dayEnd=new Date(st);dayEnd.setHours(Math.floor(se/60),se%60,0,0);
+  if(en>dayStart&&st<dayEnd)return {key:"partial",label:"Parcialmente"};
+  return {key:"outside",label:"Fora da janela"};
+}
+function smartSuccessfulFor(applianceId){
+  return smartData().sessions.filter(function(x){return x.applianceId===applianceId&&x.success===true&&smartDurationMin(x)!=null;});
+}
+function smartStats(applianceId){
+  const rows=smartSuccessfulFor(applianceId),durs=rows.map(smartDurationMin);
+  if(!durs.length)return {count:0,avg:null,max:null,min:null,reserved:null,lastStart:null};
+  const avg=Math.round(durs.reduce((a,b)=>a+b,0)/durs.length),max=Math.max(...durs),min=Math.min(...durs);
+  const margin=Number(smartData().settings.safetyMin)||0,reserved=max+margin,end=smartTimeToMin(smartData().settings.solarEnd);
+  return {count:durs.length,avg,max,min,reserved,lastStart:end==null?null:smartMinToTime(end-reserved)};
+}
+function smartSelectedStatsId(){
+  const el=document.getElementById("smartStatsAppliance");return el&&el.value?el.value:(smartData().appliances[0]||{}).id;
+}
+function renderSmartUse(){
+  state=ensureSmartUseState(state);const su=smartData(),set=su.settings;
+  const start=document.getElementById("smartSolarStart");if(!start)return;
+  start.value=set.solarStart;document.getElementById("smartSolarEnd").value=set.solarEnd;document.getElementById("smartSafetyMin").value=set.safetyMin;
+  const opts=su.appliances.map(function(a){return '<option value="'+htmlEscape(a.id)+'">'+htmlEscape(a.name)+'</option>';}).join("");
+  ["smartTimerAppliance","smartManualAppliance","smartStatsAppliance"].forEach(function(id){
+    const el=document.getElementById(id),old=el.value;el.innerHTML=opts;if(old&&su.appliances.some(a=>a.id===old))el.value=old;
+  });
+  renderSmartAppliances();renderSmartTimer();renderSmartStats();renderSmartHistory();
+}
+function renderSmartAppliances(){
+  const box=document.getElementById("smartApplianceList");if(!box)return;
+  box.innerHTML=smartData().appliances.map(function(a){
+    const count=smartData().sessions.filter(x=>x.applianceId===a.id).length;
+    return '<div class="summary-row"><div><b>'+htmlEscape(a.name)+'</b><small>'+count+' uso(s) registrado(s)</small></div>'+
+      (a.id==="washer"?'':'<button class="btn tiny danger" type="button" onclick="removeSmartAppliance(\''+a.id+'\')">Excluir</button>')+'</div>';
+  }).join("");
+}
+function renderSmartTimer(){
+  const su=smartData(),a=su.activeSession,clock=document.getElementById("smartTimerClock"),sub=document.getElementById("smartTimerSub"),actions=document.getElementById("smartTimerActions");
+  if(!a){
+    clock.textContent="Nenhum ciclo em andamento";sub.textContent="Selecione o aparelho e clique em “Iniciar agora”.";
+    actions.innerHTML='<button class="btn primary" type="button" onclick="startSmartNow()">▶ Iniciar agora</button>';
+  }else{
+    const mins=Math.max(0,Math.floor((Date.now()-new Date(a.start).getTime())/60000));
+    clock.textContent=smartDurationText(mins);sub.textContent=smartApplianceName(a.applianceId)+(a.cycle?" • "+a.cycle:"")+" • iniciado em "+smartDisplayDateTime(a.start);
+    actions.innerHTML='<button class="btn primary" type="button" onclick="finishSmartNow(true)">✓ Finalizar com sucesso</button><button class="btn danger" type="button" onclick="finishSmartNow(false)">Encerrar sem sucesso</button>';
+  }
+  const advice=document.getElementById("smartNowAdvice"),id=(a&&a.applianceId)||document.getElementById("smartTimerAppliance").value,st=smartStats(id);
+  if(st.lastStart){
+    const now=new Date(),cur=now.getHours()*60+now.getMinutes(),last=smartTimeToMin(st.lastStart);
+    advice.innerHTML=cur<=last
+      ?'<div class="smart-success"><b>Boa janela:</b> pelo histórico, este aparelho ainda pode ser iniciado agora e tende a terminar antes de '+htmlEscape(smartData().settings.solarEnd)+'. Último início conservador: <b>'+st.lastStart+'</b>.</div>'
+      :'<div class="smart-warning"><b>Atenção:</b> o último início conservador calculado é <b>'+st.lastStart+'</b>. Um novo ciclo agora pode avançar além da janela solar configurada.</div>';
+  }else advice.innerHTML='<div class="smart-note">Complete pelo menos um ciclo com sucesso para o aplicativo aprender a duração real e calcular o último horário recomendado.</div>';
+}
+function renderSmartStats(){
+  const id=smartSelectedStatsId(),st=smartStats(id),set=smartData().settings;
+  const all=smartData().sessions.filter(x=>x.applianceId===id),inside=all.filter(x=>smartSolarClass(x).key==="inside").length;
+  const kpis=[
+    ["Ciclos com sucesso",String(st.count),"Usados para aprender a duração"],
+    ["Duração média",smartDurationText(st.avg),"Média dos ciclos concluídos"],
+    ["Maior duração",smartDurationText(st.max),"Base conservadora"],
+    ["Tempo reservado",smartDurationText(st.reserved),"Maior duração + "+set.safetyMin+" min"],
+    ["Último início recomendado",st.lastStart||"Aguardando dados","Para terminar até "+set.solarEnd]
+  ];
+  document.getElementById("smartKpis").innerHTML=kpis.map(x=>'<div class="card smart-kpi"><div class="label">'+x[0]+'</div><div class="value">'+x[1]+'</div><div class="hint">'+x[2]+'</div></div>').join("");
+  document.getElementById("smartWindowCards").innerHTML=[
+    ["Janela solar",set.solarStart+"–"+set.solarEnd,"Horário editável"],
+    ["Usos 100% na janela",all.length?Math.round(inside/all.length*100)+"%":"—",inside+" de "+all.length+" registros"],
+    ["Menor ciclo observado",smartDurationText(st.min),st.count?"Somente sucessos":"Aguardando ciclos"]
+  ].map(x=>'<div><span>'+x[0]+'</span><b>'+x[1]+'</b><small>'+x[2]+'</small></div>').join("");
+}
+function renderSmartHistory(){
+  const rows=smartData().sessions.slice().sort((a,b)=>String(b.start).localeCompare(String(a.start)));
+  const body=document.getElementById("smartHistoryBody");
+  if(!rows.length){body.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:24px">Nenhum uso registrado ainda.</td></tr>';return;}
+  body.innerHTML=rows.map(function(x){
+    const dur=smartDurationMin(x),sc=smartSolarClass(x);
+    return '<tr><td><b>'+htmlEscape(smartApplianceName(x.applianceId))+'</b></td><td>'+htmlEscape(x.cycle||"—")+'</td>'+
+      '<td>'+smartDisplayDateTime(x.start)+'</td><td>'+smartDisplayDateTime(x.end)+'</td><td>'+smartDurationText(dur)+'</td>'+
+      '<td><span class="smart-pill '+(x.success?"ok":"fail")+'">'+(x.success?"Sim":"Não")+'</span></td>'+
+      '<td><span class="smart-pill '+sc.key+'">'+sc.label+'</span></td><td>'+htmlEscape(x.note||"—")+'</td>'+
+      '<td><button class="btn tiny danger" type="button" onclick="deleteSmartSession(\''+x.id+'\')">Excluir</button></td></tr>';
+  }).join("");
+}
+function saveSmartSettings(){
+  const s=smartData().settings;s.solarStart=document.getElementById("smartSolarStart").value||"09:00";s.solarEnd=document.getElementById("smartSolarEnd").value||"16:30";s.safetyMin=Math.max(0,Number(document.getElementById("smartSafetyMin").value)||0);
+  saveState();renderSmartUse();toast("Janela de uso salva.");
+}
+function addSmartAppliance(){
+  const el=document.getElementById("smartNewAppliance"),name=el.value.trim();if(!name)return;
+  const id="ap-"+Date.now().toString(36);smartData().appliances.push({id,name});el.value="";saveState();renderSmartUse();toast("Eletrodoméstico adicionado.");
+}
+function removeSmartAppliance(id){
+  if(smartData().sessions.some(x=>x.applianceId===id)){alert("Este aparelho possui usos registrados. Exclua os registros antes de remover o aparelho.");return;}
+  if(!confirm("Excluir este eletrodoméstico?"))return;smartData().appliances=smartData().appliances.filter(x=>x.id!==id);saveState();renderSmartUse();
+}
+function startSmartNow(){
+  const id=document.getElementById("smartTimerAppliance").value;if(!id)return;
+  if(smartData().activeSession){alert("Já existe um ciclo em andamento.");return;}
+  smartData().activeSession={applianceId:id,cycle:document.getElementById("smartTimerCycle").value.trim(),start:new Date().toISOString()};
+  saveState();renderSmartUse();toast("Ciclo iniciado.");
+}
+function finishSmartNow(success){
+  const a=smartData().activeSession;if(!a)return;
+  const s={id:"use-"+Date.now().toString(36),applianceId:a.applianceId,cycle:a.cycle||"",start:a.start,end:new Date().toISOString(),success:!!success,note:"Cronômetro"};
+  smartData().sessions.push(s);smartData().activeSession=null;saveState();renderSmartUse();toast(success?"Ciclo finalizado com sucesso.":"Ciclo encerrado sem sucesso.");
+}
+function deleteSmartSession(id){
+  if(!confirm("Excluir este registro de uso?"))return;smartData().sessions=smartData().sessions.filter(x=>x.id!==id);saveState();renderSmartUse();toast("Registro excluído.");
+}
+
 function reportFilledEntries(){
   return state.entries.filter(function(e){return n(e.generation)!=null;}).sort(function(a,b){return a.month.localeCompare(b.month);});
 }
@@ -1648,7 +1944,7 @@ function printReports(){
   setTimeout(function(){document.body.classList.remove("print-reports");},700);
 }
 
-function renderAll(){renderDashboard();renderEntries();renderSolarProduction();renderReports();renderHistory();renderParams();renderCloud();renderGuide();renderExample()}
+function renderAll(){renderDashboard();renderEntries();renderSolarProduction();renderSmartUse();renderReports();renderHistory();renderParams();renderCloud();renderGuide();renderExample()}
 function goTo(id){
   document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===id));
   document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===id));
