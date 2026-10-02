@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0F5F8C">
-<title>Controle Solar v2.6.1</title>
+<title>Controle Solar v2.6.2</title>
 <style>
 :root{
   --navy:#153955; --navy2:#1f5876; --blue:#dcecf7; --blue2:#c8dfef;
@@ -471,6 +471,32 @@ table{font-size:12px}
  #meter .meter-example-table th,#meter .meter-example-table td{padding:10px 6px}
 }
 
+
+#meter .meter-guide-columns{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:20px}
+#meter .meter-reading-guide h4{font-size:15px;line-height:1.4;margin:0 0 12px;color:#173b57}
+#meter .meter-routine-step{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #e3ebf2}
+#meter .meter-routine-step:last-child{border-bottom:0}
+#meter .meter-step-number{display:grid;place-items:center;flex:0 0 30px;height:30px;border-radius:9px;color:#0f5f8c;background:#e7f2fa;font-size:15px;font-weight:900}
+#meter .meter-routine-step b{font-size:14px}
+#meter .meter-reading-guide p{font-size:14px;line-height:1.55;margin:5px 0 0}
+#meter .meter-guide-codes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#meter .meter-guide-code{background:#eff7fd;border:1px solid #d4e5f3;border-radius:12px;padding:13px;min-width:0}
+#meter .guide-code-103{background:#f0faf4;border-color:#cce7d8}
+#meter .meter-guide-code>strong{display:inline-block;padding:3px 9px;border-radius:7px;background:#0f5f8c;color:#fff;font-size:22px;line-height:1.3}
+#meter .guide-code-103>strong{background:#187f46}
+#meter .meter-guide-code>b{display:block;font-size:14px;margin-top:8px}
+#meter .meter-guide-formula{border:1px solid #dfe9f1;border-radius:12px;padding:13px;margin-top:12px;background:#f8fbfd}
+#meter .meter-guide-formula>b{display:block;font-size:14px}
+#meter .meter-guide-formula>div{font-size:17px;font-weight:800;margin:6px 0;color:#0f5f8c}
+#meter .meter-guide-formula span{color:#657887;margin:0 5px}
+#meter .meter-reading-guide small{display:block;font-size:13px;line-height:1.5;color:#63798a;margin-top:5px}
+#meter .meter-guide-alert{border-left:3px solid #dfa14b;background:#fff8ee;padding:12px 14px;border-radius:0 10px 10px 0;margin-top:12px}
+#meter .meter-guide-alert>b{color:#875016;font-size:14px}
+#meter .meter-guide-bottom{display:grid;grid-template-columns:1fr 1fr;gap:14px;border-top:1px solid #e0e9f1;margin-top:20px;padding-top:18px}
+#meter .meter-guide-note{padding:14px;background:#f5f8fb;border:1px solid #e0e9f1;border-radius:12px}
+#meter .meter-guide-note h4{margin-bottom:8px}
+@media(max-width:850px){#meter .meter-guide-columns,#meter .meter-guide-bottom{grid-template-columns:1fr}#meter .meter-guide-columns{gap:20px}}
+
 </style>
 </head>
 <body>
@@ -490,7 +516,7 @@ table{font-size:12px}
       <button data-view="guide">? &nbsp; Guia rápido</button>
       <button data-view="example">✓ &nbsp; Exemplo preenchido</button>
     </div>
-    <div class="side-foot">Dados armazenados localmente neste dispositivo.<br><br><b>App v2.6.1 • Cloud Sync</b></div>
+    <div class="side-foot">Dados armazenados localmente neste dispositivo.<br><br><b>App v2.6.2 • Cloud Sync</b></div>
   </aside>
 
   <main class="main">
@@ -709,11 +735,29 @@ table{font-size:12px}
         <div class="section-head"><div><h3>Histórico de leituras</h3><p>Os totais nunca são zerados ao mudar de mês. Edite ou exclua uma leitura para corrigir um lançamento.</p></div></div>
         <div class="card table-card"><div class="table-scroll"><table class="meter-table"><thead><tr><th>Data / horário</th><th>Momento</th><th>03 acumulado</th><th>103 acumulado</th><th>Rede desde a anterior</th><th>Injetada desde a anterior</th><th>Observação</th><th>Ações</th></tr></thead><tbody id="meterHistoryBody"></tbody></table></div></div>
         <p class="meter-help">As diferenças do histórico correspondem ao intervalo real entre duas leituras. Uma leitura por dia não separa consumo diurno e noturno; dias sem leitura não são estimados.</p>
-        <details class="card meter-guide" open><summary>Como preencher e interpretar</summary>
-          <ol><li><b>Pela manhã, antes da geração:</b> anote os dois códigos e escolha “Manhã”.</li><li><b>No fim da tarde, após a geração:</b> anote novamente e escolha “Fim da tarde”.</li><li><b>Na manhã seguinte:</b> a nova leitura permite calcular o consumo da noite anterior.</li><li><b>Para observar uma mudança durante o dia:</b> salve uma “Leitura extra”. O histórico mostra a diferença desde a leitura anterior.</li></ol>
-          <p>Se tiver os números registrados na ativação, lance a data e os valores em “Referência inicial”. Sem eles, os acumulados calculados começam na primeira leitura cadastrada. Não presuma que a leitura inicial era zero.</p>
-          <p><b>Legenda:</b> 03 = energia recebida da rede; 103 = energia enviada à rede; diferença = leitura atual menos a anterior. Aumento do 03 durante o dia indica uso da rede no intervalo, mas não comprova consumo excessivo ou defeito. Os dois códigos podem aumentar em momentos diferentes do mesmo dia.</p>
-          <p><b>Produção e créditos:</b> acompanhe a produção total na aba Produção Solar. Energia injetada menos recebida é apenas o balanço físico do período. O saldo oficial de créditos e a compensação vêm da fatura da Enel; estas leituras não alteram seus lançamentos mensais automaticamente.</p>
+        <details class="card meter-guide meter-reading-guide" open><summary>Como preencher e interpretar</summary>
+          <div class="meter-guide-columns">
+            <div class="meter-routine">
+              <h4>Quando fazer cada leitura</h4>
+              <div class="meter-routine-step"><span class="meter-step-number">1</span><div><b>Manhã · antes da geração</b><p>Anote os dois códigos e selecione <strong>“Manhã”</strong>.</p></div></div>
+              <div class="meter-routine-step"><span class="meter-step-number">2</span><div><b>Fim da tarde · após a geração</b><p>Anote novamente e selecione <strong>“Fim da tarde”</strong>. O painel calcula o uso da rede durante o dia.</p></div></div>
+              <div class="meter-routine-step"><span class="meter-step-number">3</span><div><b>Manhã seguinte</b><p>Uma nova leitura de <strong>“Manhã”</strong> permite calcular o consumo da noite anterior.</p></div></div>
+              <div class="meter-routine-step"><span class="meter-step-number">4</span><div><b>Outro horário · leitura extra</b><p>Selecione <strong>“Leitura extra”</strong> para observar uma mudança. O histórico compara com a leitura anterior.</p></div></div>
+            </div>
+            <div class="meter-interpretation">
+              <h4>O que cada informação significa</h4>
+              <div class="meter-guide-codes">
+                <div class="meter-guide-code guide-code-03"><strong>03</strong><b>Recebida da rede</b><p>Energia que a Enel forneceu à sua casa.</p></div>
+                <div class="meter-guide-code guide-code-103"><strong>103</strong><b>Enviada à rede</b><p>Sobra da energia solar entregue à Enel.</p></div>
+              </div>
+              <div class="meter-guide-formula"><b>Diferença do intervalo</b><div>Leitura atual <span>−</span> leitura anterior</div><small>Você lança o total do visor; o painel calcula a diferença de cada código.</small></div>
+              <div class="meter-guide-alert"><b>Se o 03 aumentar durante o dia</b><p>Houve uso da rede no intervalo. Isso, sozinho, não comprova consumo excessivo nem defeito. Os dois códigos podem aumentar em momentos diferentes do mesmo dia.</p></div>
+            </div>
+          </div>
+          <div class="meter-guide-bottom">
+            <div class="meter-guide-note"><h4>Primeira leitura / ativação</h4><p>Se guardou os números da ativação, lance a data e os totais como <b>“Referência inicial”</b>. Caso contrário, o acompanhamento começa na primeira leitura cadastrada.</p><small>Use o valor registrado. Não presuma que o medidor começou em zero.</small></div>
+            <div class="meter-guide-note"><h4>Produção solar e créditos</h4><p>A <b>produção total</b> fica na aba Produção Solar. O <b>saldo oficial de créditos</b> e a compensação vêm da fatura da Enel.</p><small>Injetada − recebida é o balanço físico do período. Estas leituras não alteram os lançamentos mensais automaticamente.</small></div>
+          </div>
         </details>
         <details class="card meter-guide" open><summary>Exemplo ilustrativo — não entra nos seus registros</summary>
           <p class="meter-example-caption">Os dois números abaixo são os totais copiados do visor em cada horário.</p>
@@ -1388,7 +1432,7 @@ async function cloudFetchFile(cfg){
 }
 async function cloudWriteFile(cfg,envelope,sha){
   const bytes=new TextEncoder().encode(JSON.stringify(envelope,null,2));
-  const body={message:"Sincroniza dados do Controle Solar v2.6.1",content:bytesToB64(bytes),branch:cfg.branch};
+  const body={message:"Sincroniza dados do Controle Solar v2.6.2",content:bytesToB64(bytes),branch:cfg.branch};
   if(sha)body.sha=sha;
   const r=await fetch(cloudApiUrl(cfg),{method:"PUT",headers:cloudHeaders(cfg),body:JSON.stringify(body)});
   if(r.status===401)throw new Error("Token GitHub inválido ou expirado.");
