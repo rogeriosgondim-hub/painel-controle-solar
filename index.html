@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0F5F8C">
-<title>Controle Solar v2.6.3</title>
+<title>Controle Solar v2.7.0</title>
 <style>
 :root{
   --navy:#153955; --navy2:#1f5876; --blue:#dcecf7; --blue2:#c8dfef;
@@ -538,6 +538,8 @@ table{font-size:12px}
  #meter .example-value-chips span{font-size:15px;padding:5px 7px}
 }
 
+
+.export-control{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px;border:1px solid var(--line);border-radius:12px;background:#f5f9fd;width:100%}.export-control label{font-size:13px;font-weight:700}.export-control select{padding:9px;border:1px solid var(--line);border-radius:8px;background:white;min-height:40px}.export-help{font-size:13px;line-height:1.5;color:var(--muted)}.about-grid{grid-template-columns:1fr 1fr}.about-name{font-size:24px;font-weight:800;color:var(--navy)}.about-details{display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:15px}.about-details dd{margin:0;font-weight:700}.about-news{line-height:1.8}.about-grid p,#aboutOffline,#panelUpdateStatus{line-height:1.6;font-size:14px}#about a{display:inline-block;text-decoration:none}[hidden]{display:none!important}@media(max-width:760px){.about-grid{grid-template-columns:1fr}.export-control{align-items:stretch;flex-direction:column}.export-control .btn{width:100%}.about-details{font-size:14px}}
 </style>
 </head>
 <body>
@@ -556,8 +558,9 @@ table{font-size:12px}
       <button data-view="cloud">☁ &nbsp; Sincronização</button>
       <button data-view="guide">? &nbsp; Guia rápido</button>
       <button data-view="example">✓ &nbsp; Exemplo preenchido</button>
+      <button data-view="about">ℹ &nbsp; Sobre</button>
     </div>
-    <div class="side-foot">Dados armazenados localmente neste dispositivo.<br><br><b>App v2.6.3 • Cloud Sync</b></div>
+    <div class="side-foot">Dados armazenados localmente neste dispositivo.<br><br><b>App v2.7.0 • Cloud Sync</b></div>
   </aside>
 
   <main class="main">
@@ -914,7 +917,7 @@ table{font-size:12px}
               <option value="6">Últimos 6 meses</option><option value="12" selected>Últimos 12 meses</option>
               <option value="all">Todo o período</option>
             </select></div>
-            <button class="btn" type="button" onclick="printReports()">Imprimir / Salvar PDF</button>
+            <div class="export-control"><label for="reportsExportFormat">Formato do relatório</label><select id="reportsExportFormat"><option value="pdf">PDF</option><option value="xlsx">Excel (.xlsx)</option><option value="csv">CSV (.csv)</option></select><button class="btn" type="button" onclick="exportData('reports')">Exportar relatório</button></div>
           </div>
         </div>
         <div class="report-period-title" id="reportPeriodTitle">—</div>
@@ -970,10 +973,10 @@ table{font-size:12px}
             <button class="btn primary" onclick="exportBackup()">Exportar backup (.json)</button>
             <button class="btn" onclick="document.getElementById('backupInput').click()">Importar backup</button>
             <input id="backupInput" type="file" accept=".json,application/json" style="display:none">
-            <button class="btn" onclick="exportCsv()">Exportar lançamentos (.csv)</button>
+            <div class="export-control"><label for="entriesExportFormat">Formato dos lançamentos</label><select id="entriesExportFormat"><option value="xlsx">Excel (.xlsx)</option><option value="csv">CSV (.csv)</option><option value="pdf">PDF</option></select><button class="btn" onclick="exportData('entries')">Exportar lançamentos</button></div>
             <button class="btn danger" onclick="resetApp()">Restaurar dados originais</button>
           </div>
-          <div class="notice" style="margin-top:15px">A fatura da distribuidora continua sendo a referência oficial de cobrança. Este app reproduz a lógica de gestão da planilha e não substitui os dados oficiais.</div>
+          <p class="export-help">Excel, CSV e PDF servem para consultar e compartilhar. Para recuperar os dados do app, use o backup .json.</p><div class="notice" style="margin-top:15px">A fatura da distribuidora continua sendo a referência oficial de cobrança. Este app reproduz a lógica de gestão da planilha e não substitui os dados oficiais.</div>
         </div>
       </section>
 
@@ -1035,6 +1038,12 @@ table{font-size:12px}
         </div>
       </section>
 
+<section class="view" id="about">
+ <div class="premium-head"><div><div class="eyebrow">SOBRE O PROJETO</div><h3>Painel de Controle Solar da Residência</h3><p>Controle de geração, consumo e leituras do relógio Enel.</p></div></div>
+ <div class="grid about-grid"><div class="card"><h3>Criador do projeto</h3><p class="about-name">Rogerio Sampaio</p><p>Projeto pessoal para acompanhar a energia solar da residência.</p></div>
+ <div class="card"><h3>Versões e atualização</h3><dl class="about-details"><dt>Painel</dt><dd>2.7.0</dd><dt>Data desta versão</dt><dd>02/10/2026</dd><dt>Aplicativo Android</dt><dd id="aboutNativeVersion">Acesso pelo navegador</dd></dl><p id="panelUpdateStatus" role="status">No navegador, recarregue a página para buscar as novidades.</p><div class="backup-box"><button class="btn primary" onclick="checkPanelUpdate()">Buscar atualização</button><button class="btn" id="applyPanelUpdate" hidden onclick="applyPanelUpdate()">Aplicar atualização</button></div></div></div>
+ <div class="card" style="margin-top:16px"><h3>Novidades da versão 2.7.0</h3><ul class="about-news"><li>Exportação dos lançamentos e relatórios em Excel, CSV e PDF.</li><li>Seção Sobre com autoria, versão e data.</li><li>O novo app Android busca melhorias do painel e mantém uma cópia para uso sem internet.</li></ul><p id="aboutOffline">Os lançamentos ficam salvos neste aparelho. A sincronização na nuvem precisa de internet.</p><a class="btn" href="https://rogeriosgondim-hub.github.io/painel-controle-solar/" target="_blank" rel="noopener">Abrir painel web</a></div>
+ </section>
       <section class="view" id="example">
         <div class="notice"><b>Exemplo simulado.</b> Os números abaixo servem apenas para explicar o preenchimento e não representam geração real nem futura fatura.</div>
         <div class="section-head"><div><h3>Exemplo preenchido</h3><p>Mesma lógica da aba “Exemplo preenchido” da planilha.</p></div></div>
@@ -1045,7 +1054,7 @@ table{font-size:12px}
 </div>
 <div class="toast" id="toast"></div>
 
-<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script src="vendor/xlsx.full.min.js"></script>
 <script>
 const DEFAULTS = {"parameters": {"installedKwp": 3.75, "declaredKw": 3.8, "moduleCount": 6, "moduleWp": 625, "inverterCount": 2, "inverterKw": 2.4, "voltage": 220, "breakerA": 50, "uc": "7196632", "historicalAverage": 310.8333333333, "invoiceAverage": 321, "referenceConsumption": 220, "prudenceFactor": 0.85, "referenceCip": 48.19, "currentInstallment": 157.44, "currentEnergyBilling": 302.08, "currentTotalBill": 507.71, "recurringCeiling": 350.27, "effectiveKwhCost": 1.3730909091, "creditReserve": 50}, "history": [{"month": "2025-10", "label": "Out/2025", "consumption": 220}, {"month": "2025-11", "label": "Nov/2025", "consumption": 220}, {"month": "2025-12", "label": "Dez/2025", "consumption": 360}, {"month": "2026-01", "label": "Jan/2026", "consumption": 560}, {"month": "2026-02", "label": "Fev/2026", "consumption": 440}, {"month": "2026-03", "label": "Mar/2026", "consumption": 340}, {"month": "2026-04", "label": "Abr/2026", "consumption": 390}, {"month": "2026-05", "label": "Mai/2026", "consumption": 360}, {"month": "2026-06", "label": "Jun/2026", "consumption": 240}, {"month": "2026-07", "label": "Jul/2026", "consumption": 170}, {"month": "2026-08", "label": "Ago/2026", "consumption": 210}, {"month": "2026-09", "label": "Set/2026", "consumption": 220}], "entries": [{"month": "2026-09", "generation": null, "gridImported": 220, "injected": 0, "creditsUsed": 0, "creditBalance": 0, "totalBill": 507.71, "cip": 48.19, "extras": 157.44}, {"month": "2026-10", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2026-11", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2026-12", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-01", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-02", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-03", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-04", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-05", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-06", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-07", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-08", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-09", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-10", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-11", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-12", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2028-01", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2028-02", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2028-03", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2028-04", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2028-05", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2028-06", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2028-07", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2028-08", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}]};
 const SOLAR_INITIAL_DAILY = [
@@ -1066,7 +1075,10 @@ let cloudBusy = false;
 let state = loadState();
 let editingMonth = null;
 
+const PANEL_VERSION="2.7.0";
+const PANEL_BUILD_DATE="2026-10-02";
 const titles = {
+ about:["Sobre","Autoria, versões e novidades"],
  dashboard:["Painel de Controle Solar","Visão geral da residência"],
  entries:["Lançamentos Mensais","Preenchimento e cálculo automático"],
  solarProduction:["Produção Solar","Monitoramento diário importado do SolarView"],
@@ -1484,7 +1496,7 @@ async function cloudFetchFile(cfg){
 }
 async function cloudWriteFile(cfg,envelope,sha){
   const bytes=new TextEncoder().encode(JSON.stringify(envelope,null,2));
-  const body={message:"Sincroniza dados do Controle Solar v2.6.3",content:bytesToB64(bytes),branch:cfg.branch};
+  const body={message:"Sincroniza dados do Controle Solar v2.7.0",content:bytesToB64(bytes),branch:cfg.branch};
   if(sha)body.sha=sha;
   const r=await fetch(cloudApiUrl(cfg),{method:"PUT",headers:cloudHeaders(cfg),body:JSON.stringify(body)});
   if(r.status===401)throw new Error("Token GitHub inválido ou expirado.");
@@ -1608,16 +1620,67 @@ async function cloudForcePush(){
   }catch(e){setCloudStatus("Erro de sincronização",false);alert(e.message||String(e))}finally{cloudBusy=false;renderCloud()}
 }
 
-function exportBackup(){
-  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);a.download="backup_painel_solar_"+new Date().toISOString().slice(0,10)+".json";a.click();URL.revokeObjectURL(a.href);
+function downloadFile(filename,content,mime,binary=false){
+ if(window.Android){
+  if(binary&&Android.downloadBase64){Android.downloadBase64(filename,content,mime);return;}
+  if(!binary&&Android.downloadText){Android.downloadText(filename,content,mime);return;}
+ }
+ const data=binary?Uint8Array.from(atob(content),c=>c.charCodeAt(0)):content;
+ const url=URL.createObjectURL(new Blob([data],{type:mime})),a=document.createElement('a');a.href=url;a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
-function exportCsv(){
-  const rows=[["Mês","Geração solar (kWh)","Rede importada (kWh)","Energia injetada (kWh)","Créditos usados (kWh)","Saldo créditos (kWh)","Conta total (R$)","CIP (R$)","Parcel./outros (R$)","Autoconsumo (kWh)","Consumo total (kWh)","Conta recorrente (R$)","Custo energia (R$)","Autoconsumo (%)","Meta sustentável (kWh)","Margem conforto (kWh)","Status"]];
-  state.entries.forEach(e=>{const c=calc(e);rows.push([monthLabel(e.month),e.generation,e.gridImported,e.injected,e.creditsUsed,e.creditBalance,e.totalBill,e.cip,e.extras,c.autoconsumption,c.totalConsumption,c.recurringBill,c.energyCost,c.autoconsumptionPct==null?"":c.autoconsumptionPct*100,c.target,c.margin,c.status])});
-  const csv="\ufeff"+rows.map(r=>r.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(";")).join("\r\n"),blob=new Blob([csv],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);a.download="lancamentos_solar.csv";a.click();URL.revokeObjectURL(a.href);
+function exportBackup(){downloadFile('backup_painel_solar_'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(state,null,2),'application/json');}
+function exportRows(entries){
+ const rows=[["Mês","Geração solar (kWh)","Rede importada (kWh)","Energia injetada (kWh)","Créditos usados (kWh)","Saldo créditos (kWh)","Conta total (R$)","CIP (R$)","Parcel./outros (R$)","Autoconsumo (kWh)","Consumo total (kWh)","Conta recorrente (R$)","Custo energia (R$)","Autoconsumo (%)","Meta sustentável (kWh)","Margem conforto (kWh)","Status"]];
+ entries.forEach(e=>{const c=calc(e);rows.push([monthLabel(e.month),e.generation,e.gridImported,e.injected,e.creditsUsed,e.creditBalance,e.totalBill,e.cip,e.extras,c.autoconsumption,c.totalConsumption,c.recurringBill,c.energyCost,c.autoconsumptionPct==null?null:c.autoconsumptionPct*100,c.target,c.margin,c.status]);});return rows;
 }
+function exportCsv(entries=state.entries,filename='lancamentos_solar.csv'){
+ const safe=v=>typeof v==='string'&&/^[=+@\-]/.test(v)?"'"+v:v;
+ const csv='\ufeff'+exportRows(entries).map(r=>r.map(v=>'"'+String(safe(v)??'').replace(/"/g,'""')+'"').join(';')).join('\r\n');downloadFile(filename,csv,'text/csv;charset=utf-8');
+}
+function exportWorkbook(entries,scope){
+ if(!window.XLSX){toast('Leitor Excel indisponível. Reabra o painel.');return;}
+ const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet(exportRows(entries));ws['!cols']=Array.from({length:17},(_,i)=>({wch:i===16?22:i===0?13:24}));
+ for(let r=1;r<=entries.length;r++)for(let c=1;c<16;c++){const cell=ws[XLSX.utils.encode_cell({r,c})];if(cell&&cell.t==='n')cell.z=c>=6&&c<=8||c===11||c===12?'"R$" #,##0.00':'#,##0.00';}
+ ws['!autofilter']={ref:ws['!ref']};XLSX.utils.book_append_sheet(wb,ws,'Lançamentos');
+ if(scope==='entries'){
+  const meter=[['Data e hora','Momento','03 — rede recebida (kWh)','103 — energia injetada (kWh)','Observação'],...meterRows().map(r=>[r.at,meterPeriods[r.period],r.imported,r.injected,r.note||''])];
+  const ms=XLSX.utils.aoa_to_sheet(meter);ms['!cols']=[{wch:22},{wch:20},{wch:28},{wch:30},{wch:55}];XLSX.utils.book_append_sheet(wb,ms,'Relógio Enel');
+ }
+ const info=[['Painel de Controle Solar da Residência'],['Criador do projeto','Rogerio Sampaio'],['Versão do painel',PANEL_VERSION],['Data da versão',PANEL_BUILD_DATE],['Exportação',new Date().toLocaleString('pt-BR')],['Conteúdo',scope==='reports'?'Período selecionado em Relatórios':'Lançamentos mensais e leituras Enel'],['Nota','Arquivo para consulta; para restaurar o app utilize backup .json.']];
+ const ins=XLSX.utils.aoa_to_sheet(info);ins['!cols']=[{wch:28},{wch:85}];XLSX.utils.book_append_sheet(wb,ins,'Sobre');
+ downloadFile(scope==='reports'?'relatorio_solar.xlsx':'lancamentos_solar.xlsx',XLSX.write(wb,{bookType:'xlsx',type:'base64'}),'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',true);
+}
+function exportPrintHtml(entries,scope){
+ const title=scope==='reports'?'Relatório do sistema solar':'Lançamentos do sistema solar';
+ const header='<header><h1>'+title+'</h1><p>Painel de Controle Solar da Residência · Criador do projeto: Rogerio Sampaio</p><p>Versão '+PANEL_VERSION+' · Emitido em '+htmlEscape(new Date().toLocaleString('pt-BR'))+'</p></header>';
+ let body='';
+ if(scope==='reports'){renderReports();body=document.getElementById('reports').innerHTML;}
+ else {
+  const rows=exportRows(entries);body='<p>Lançamentos mensais: '+entries.length+'</p><div class="table-scroll"><table><thead><tr>'+rows[0].map(v=>'<th>'+htmlEscape(v)+'</th>').join('')+'</tr></thead><tbody>'+rows.slice(1).map(r=>'<tr>'+r.map(v=>'<td>'+htmlEscape(typeof v==='number'?num(v,2):v==null?'—':v)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+  const readings=meterRows();if(readings.length)body+='<h2>Leituras do relógio Enel</h2><table><thead><tr><th>Data e hora</th><th>Momento</th><th>03 — recebida (kWh)</th><th>103 — injetada (kWh)</th><th>Observação</th></tr></thead><tbody>'+readings.map(r=>'<tr>'+[meterDateLabel(r.at),meterPeriods[r.period],num(r.imported,3),num(r.injected,3),r.note||'—'].map(v=>'<td>'+htmlEscape(v)+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
+ }
+ const css=Array.from(document.querySelectorAll('style')).map(x=>x.textContent).join('\n');
+ return '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><title>'+title+'</title><style>'+css+'\n@page{size:A4 landscape;margin:10mm}body{background:white;font:11px Arial;color:#173042}header{border-bottom:2px solid #0f5f8c;margin-bottom:12px}h1{font-size:22px}header p{font-size:11px}.no-print,.report-filter,.report-toolbar{display:none!important}.table-scroll{overflow:visible;max-height:none}table{font-size:8px;width:100%}thead th{position:static;white-space:normal;padding:6px 3px}tbody td{white-space:normal;padding:5px 3px}.card{box-shadow:none;break-inside:avoid}.report-kpis{display:grid;grid-template-columns:repeat(4,1fr)}.chart{min-width:0}.kpi .value{font-size:22px}.export-footer{margin-top:16px;font-size:10px}</style></head><body>'+header+body+'<p class="export-footer">Referência gerencial. A fatura da Enel é a referência oficial. Este PDF não substitui o backup .json.</p></body></html>';
+}
+function exportPdf(entries,scope){
+ const html=exportPrintHtml(entries,scope);
+ if(window.Android&&Android.printHtml){Android.printHtml(html,scope==='reports'?'Relatório Solar':'Lançamentos Solar');return;}
+ const popup=window.open('','_blank');if(!popup){toast('Permita abrir a janela de impressão para salvar o PDF.');return;}popup.document.open();popup.document.write(html);popup.document.close();let printed=false;const printOnce=()=>{if(!printed){printed=true;popup.print();}};popup.onload=printOnce;setTimeout(()=>{if(popup.document.readyState==='complete')printOnce();},500);
+}
+function exportData(scope){
+ const entries=scope==='reports'?reportRangeEntries():state.entries.slice().sort((a,b)=>a.month.localeCompare(b.month));
+ if(!entries.length){toast('Nenhum lançamento disponível nesse período.');return;}
+ const format=document.getElementById(scope+'ExportFormat').value;
+ if(format==='xlsx')exportWorkbook(entries,scope);else if(format==='csv')exportCsv(entries,scope==='reports'?'relatorio_solar.csv':'lancamentos_solar.csv');else exportPdf(entries,scope);
+}
+function renderAbout(){
+ const version=document.getElementById('aboutNativeVersion');if(!version)return;
+ if(window.Android&&Android.appInfo){try{const info=JSON.parse(Android.appInfo());version.textContent=info.version;document.getElementById('panelUpdateStatus').textContent=info.status||'Buscando novidades…';document.getElementById('applyPanelUpdate').hidden=!info.available;}catch(e){version.textContent='Versão anterior do app';}}
+ else if(window.Android){version.textContent='Versão anterior do app';document.getElementById('panelUpdateStatus').textContent='Instale o novo APK para habilitar atualizações do painel.';}
+}
+function onPanelUpdate(message,available){document.getElementById('panelUpdateStatus').textContent=message;document.getElementById('applyPanelUpdate').hidden=!available;if(available)toast('Nova versão do painel disponível em Sobre.');}
+function checkPanelUpdate(){if(window.Android&&Android.checkUpdate){Android.checkUpdate();}else if(window.Android){toast('Instale o novo APK para habilitar esta função.');}else{location.reload();}}
+function applyPanelUpdate(){if(confirm('Aplicar a atualização agora? Seus registros salvos serão mantidos. Termine ou salve qualquer formulário antes de continuar.')){if(window.Android&&Android.applyUpdate)Android.applyUpdate();}}
 function resetApp(){
   if(!confirm("Restaurar todos os dados para os valores originais da planilha?"))return;
   state=ensureSmartUseState(ensureSolarState(deepClone(DEFAULTS)));saveState();renderAll();clearForm();toast("Dados originais restaurados.");
@@ -2251,7 +2314,7 @@ function renderMeter(){
   if(!rows.length)history.innerHTML='<tr><td colspan="8" class="empty">Nenhuma leitura cadastrada. O exemplo abaixo é somente ilustrativo.</td></tr>';
 }
 
-function renderAll(){renderDashboard();renderEntries();renderSolarProduction();renderSmartUse();renderMeter();renderReports();renderHistory();renderParams();renderCloud();renderGuide();renderExample()}
+function renderAll(){renderDashboard();renderEntries();renderSolarProduction();renderSmartUse();renderMeter();renderReports();renderHistory();renderParams();renderCloud();renderGuide();renderExample();renderAbout()}
 function newPrimaryEntry(){
   if(document.getElementById("meter").classList.contains("active")){clearMeterForm();document.getElementById("meterFormTitle").scrollIntoView({behavior:"smooth",block:"center"});}
   else goTo("entries");
@@ -2270,11 +2333,12 @@ function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t
 
 document.getElementById("meterForm").addEventListener("submit",saveMeterReading);
 clearMeterForm();
-renderAll();fillForm(state.entries.find(e=>e.month==="2026-09")||null);
-window.addEventListener("online",()=>cloudAutoSync(false));
+renderAll();if(window.Android&&Android.panelReady)Android.panelReady(PANEL_VERSION);fillForm(state.entries.find(e=>e.month==="2026-09")||null);
+window.addEventListener("online",()=>{cloudAutoSync(false);if(window.Android&&Android.checkUpdate)Android.checkUpdate();});
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)cloudAutoSync(false)});
 setTimeout(()=>cloudAutoSync(false),700);
 
 </script>
 </body>
 </html>
+

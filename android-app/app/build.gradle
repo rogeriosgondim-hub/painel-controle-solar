@@ -15,8 +15,8 @@ android {
         applicationId "br.com.controlesolar.residencia"
         minSdk 24
         targetSdk 35
-        versionCode 9
-        versionName "2.6.3"
+        versionCode 10
+        versionName "2.7.0"
     }
 
     signingConfigs {
@@ -41,3 +41,4 @@ android {
         }
     }
 }
+

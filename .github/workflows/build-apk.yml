@@ -11,11 +11,12 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   build-apk:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
 
     steps:
       - name: Checkout
@@ -91,13 +92,42 @@ jobs:
 
       - name: Preparar APK
         if: steps.signing.outputs.configured == 'true'
-        run: cp android-app/app/build/outputs/apk/release/app-release.apk android-app/Controle-Solar-v2.6.3.apk
+        run: cp android-app/app/build/outputs/apk/release/app-release.apk android-app/Controle-Solar-v2.7.0.apk
+
+      - name: Recuperar APK anterior para teste de atualização
+        continue-on-error: true
+        if: steps.signing.outputs.configured == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: Controle-Solar-v2.6.3-PERMANENTE
+          run-id: 37026939036
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: previous-apk
+
+      - name: Habilitar aceleração do emulador
+        if: steps.signing.outputs.configured == 'true'
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Validar atualização e abertura offline no Android 13
+        if: steps.signing.outputs.configured == 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 33
+          target: google_apis
+          arch: x86_64
+          profile: pixel_2
+          disable-animations: true
+          script: bash android-app/check-install.sh
 
       - name: Publicar artefato
         if: steps.signing.outputs.configured == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: Controle-Solar-v2.6.3-PERMANENTE
-          path: android-app/Controle-Solar-v2.6.3.apk
+          name: Controle-Solar-v2.7.0-PERMANENTE
+          path: android-app/Controle-Solar-v2.7.0.apk
           if-no-files-found: error
           retention-days: 30
+
