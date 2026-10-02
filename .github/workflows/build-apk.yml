@@ -132,6 +132,7 @@ jobs:
             bash android-app/check-install.sh
             adb install -r android-app/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
             adb shell am instrument -w br.com.controlesolar.residencia.test/androidx.test.runner.AndroidJUnitRunner | tee security-instrumentation.log
+            adb logcat -d -s SolarPanel:I chromium:E AndroidRuntime:E > instrumentation-runtime.log
             grep -q "OK (4 tests)" security-instrumentation.log
 
       - name: Guardar diagnóstico do teste Android
@@ -145,6 +146,7 @@ jobs:
             panel-runtime.log
             android-runtime.log
             security-instrumentation.log
+            instrumentation-runtime.log
           if-no-files-found: warn
           retention-days: 7
 
@@ -156,4 +158,3 @@ jobs:
           path: android-app/Controle-Solar-v2.8.2.apk
           if-no-files-found: error
           retention-days: 30
-

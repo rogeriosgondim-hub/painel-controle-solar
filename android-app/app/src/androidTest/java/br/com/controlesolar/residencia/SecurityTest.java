@@ -49,9 +49,11 @@ public class SecurityTest {
   String fixture=new String(InstrumentationRegistry.getInstrumentation().getContext().getAssets().open("update-test.json").readAllBytes(),StandardCharsets.UTF_8);
   Field field=MainActivity.class.getDeclaredField("panelCache");field.setAccessible(true);AtomicFile cache=(AtomicFile)field.get(app);FileOutputStream out=cache.startWrite();out.write(fixture.getBytes(StandardCharsets.UTF_8));cache.finishWrite(out);
   app.new AndroidBridge().applyUpdate();waitFor(app,"!!document.getElementById('update-fixture')&&typeof state!=='undefined'");
+  assertEquals("\"2.8.3\"",evaluate(app,"PANEL_VERSION"));
   assertEquals(before,evaluate(app,"JSON.stringify(state)"));assertEquals("true",evaluate(app,"window.isSecureContext&&!!crypto.subtle&&typeof XLSX==='object'"));
   InstrumentationRegistry.getInstrumentation().runOnMainSync(app::finish);InstrumentationRegistry.getInstrumentation().waitForIdleSync();app=activity.launchActivity(null);
   waitFor(app,"!!document.getElementById('update-fixture')&&typeof state!=='undefined'");assertEquals(before,evaluate(app,"JSON.stringify(state)"));
+  assertEquals("\"2.8.3\"",evaluate(app,"PANEL_VERSION"));
  }
  @Test public void migratesOriginalFileStorageAndCredentialsWithoutDeletingRecords()throws Exception{
   MainActivity app=activity.getActivity();waitFor(app,"typeof state!=='undefined'");
