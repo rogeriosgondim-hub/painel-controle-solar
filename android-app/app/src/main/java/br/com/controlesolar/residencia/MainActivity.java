@@ -47,10 +47,12 @@ import java.util.concurrent.Executors;
 
 public class MainActivity extends Activity {
     private static final int REQUEST_FILE_CHOOSER=1001, REQUEST_SAVE_FILE=1002;
-    private static final String PANEL_URL="file:///android_asset/index.html";
+    private static final String LEGACY_URL="file:///android_asset/index.html";
+    private static final String PANEL_URL="https://appassets.androidplatform.net/assets/index.html";
     private static final String HOST="rogeriosgondim-hub.github.io";
     private static final String SITE="https://"+HOST+"/painel-controle-solar/";
-    private static final int NATIVE_CODE=11, BUNDLED_REVISION=2800;
+    private static final int NATIVE_CODE=12, BUNDLED_REVISION=2802;
+    private static final String BUNDLED_VERSION="2.8.2";
     private WebView webView, printView;
     private ValueCallback<Uri[]> filePathCallback;
     private byte[] pendingBytes;
@@ -59,15 +61,17 @@ public class MainActivity extends Activity {
     private AtomicFile panelCache;
     private volatile byte[] activeHtml;
     private volatile int activeRevision=BUNDLED_REVISION;
+    private volatile String activeVersion=BUNDLED_VERSION;
+    private boolean legacyMode=false;
     private volatile boolean checking=false, updateAvailable=false;
     private volatile String updateStatus="Buscando novidades…";
     private boolean ready=false;
     private long lastCheck=0;
     private final Runnable verifyReady=()->{
         if(!ready && activeHtml!=null && webView!=null){
-            activeHtml=null; activeRevision=BUNDLED_REVISION; panelCache.delete();
+            activeHtml=null; activeRevision=BUNDLED_REVISION;activeVersion=BUNDLED_VERSION;panelCache.delete();
             updateAvailable=false;updateStatus="A cópia atualizada não abriu. Usando a versão incluída no app.";
-            webView.reload();
+            loadPanel();
             Toast.makeText(this,updateStatus,Toast.LENGTH_LONG).show();
         }
     };
@@ -81,24 +85,32 @@ public class MainActivity extends Activity {
             JSONObject manifest=verifyManifest(cached.getJSONObject("manifest"));
             int revision=manifest.getInt("revision");
             String html=cached.getString("html");
-            if(revision>=BUNDLED_REVISION&&validHtml(html,manifest.getString("version"))&&sha256(html.getBytes(StandardCharsets.UTF_8)).equals(manifest.getString("sha256"))){activeHtml=html.getBytes(StandardCharsets.UTF_8);activeRevision=revision;}
+            if(revision>=BUNDLED_REVISION&&validHtml(html,manifest.getString("version"))&&sha256(html.getBytes(StandardCharsets.UTF_8)).equals(manifest.getString("sha256"))){activeHtml=html.getBytes(StandardCharsets.UTF_8);activeRevision=revision;activeVersion=manifest.getString("version");}
         }catch(Exception ignored){}
         webView=new WebView(this);setContentView(webView);
         WebSettings settings=webView.getSettings();
         settings.setJavaScriptEnabled(true);settings.setDomStorageEnabled(true);
         settings.setDatabaseEnabled(true);settings.setAllowFileAccess(true);settings.setAllowContentAccess(true);
         settings.setAllowFileAccessFromFileURLs(false);settings.setAllowUniversalAccessFromFileURLs(false);
-        settings.setCacheMode(WebSettings.LOAD_DEFAULT);settings.setBuiltInZoomControls(false);settings.setDisplayZoomControls(false);
+        settings.setCacheMode(WebSettings.LOAD_NO_CACHE);settings.setBuiltInZoomControls(false);settings.setDisplayZoomControls(false);
         webView.addJavascriptInterface(new AndroidBridge(),"Android");
         webView.setWebViewClient(new WebViewClient(){
             @Override public WebResourceResponse shouldInterceptRequest(WebView view,WebResourceRequest request){
-                if(PANEL_URL.equals(request.getUrl().toString())&&activeHtml!=null)
-                    return new WebResourceResponse("text/html","UTF-8",new ByteArrayInputStream(activeHtml));
+                String url=request.getUrl().toString();
+                if(url.startsWith("https://appassets.androidplatform.net/")){
+                    try{
+                        InputStream in;String mime;
+                        if(PANEL_URL.equals(url)){in=activeHtml!=null?new ByteArrayInputStream(activeHtml):getAssets().open("panel.html");mime="text/html";}
+                        else if(("https://appassets.androidplatform.net/assets/vendor/xlsx.full.min.js").equals(url)){in=getAssets().open("vendor/xlsx.full.min.js");mime="application/javascript";}
+                        else return new WebResourceResponse("text/plain","UTF-8",404,"Not Found",java.util.Collections.emptyMap(),new ByteArrayInputStream(new byte[0]));
+                        return new WebResourceResponse(mime,"UTF-8",200,"OK",java.util.Collections.singletonMap("Cache-Control","no-store"),in);
+                    }catch(Exception e){return new WebResourceResponse("text/plain","UTF-8",500,"Unavailable",java.util.Collections.emptyMap(),new ByteArrayInputStream(new byte[0]));}
+                }
                 return null;
             }
             @Override public boolean shouldOverrideUrlLoading(WebView view,WebResourceRequest request){
                 String url=request.getUrl().toString();
-                if(PANEL_URL.equals(url))return false;
+                if(PANEL_URL.equals(url)||(legacyMode&&LEGACY_URL.equals(url)))return false;
                 if(request.isForMainFrame()){
                     Uri uri=request.getUrl();
                     if("https".equals(uri.getScheme()))try{startActivity(new Intent(Intent.ACTION_VIEW,uri));}catch(Exception ignored){}
@@ -106,7 +118,7 @@ public class MainActivity extends Activity {
                 }
                 return false;
             }
-            @Override public void onPageFinished(WebView view,String url){handler.removeCallbacks(verifyReady);handler.postDelayed(verifyReady,20000);notifyStatus();}
+            @Override public void onPageFinished(WebView view,String url){if(!legacyMode){handler.removeCallbacks(verifyReady);handler.postDelayed(verifyReady,20000);notifyStatus();}}
         });
         webView.setWebChromeClient(new WebChromeClient(){
             @Override public boolean onConsoleMessage(ConsoleMessage message){
@@ -119,9 +131,18 @@ public class MainActivity extends Activity {
                 catch(Exception e){filePathCallback.onReceiveValue(null);filePathCallback=null;Toast.makeText(MainActivity.this,"Não foi possível abrir o seletor de arquivos.",Toast.LENGTH_LONG).show();return false;}
             }
         });
-        // Keep the exact v2.6.3 origin so monthly data, Enel readings and cloud settings stay in place.
-        webView.loadUrl(PANEL_URL);
+        legacyMode=!getSharedPreferences("solar-migration",MODE_PRIVATE).getBoolean("complete",false)
+                &&!getSharedPreferences("solar-migration",MODE_PRIVATE).contains("snapshot");
+        if(legacyMode)webView.loadUrl(LEGACY_URL);else loadPanel();
         checkForUpdate();
+    }
+    private void loadPanel(){ready=false;webView.getSettings().setAllowFileAccess(false);webView.clearCache(true);webView.loadUrl(PANEL_URL);}
+    private String encryptPrivate(String plain)throws Exception{
+        Cipher cipher=Cipher.getInstance("AES/GCM/NoPadding");cipher.init(Cipher.ENCRYPT_MODE,vaultKey());
+        JSONObject e=new JSONObject();e.put("iv",Base64.encodeToString(cipher.getIV(),Base64.NO_WRAP));e.put("data",Base64.encodeToString(cipher.doFinal(plain.getBytes(StandardCharsets.UTF_8)),Base64.NO_WRAP));return e.toString();
+    }
+    private String decryptPrivate(String stored)throws Exception{
+        JSONObject e=new JSONObject(stored);Cipher cipher=Cipher.getInstance("AES/GCM/NoPadding");cipher.init(Cipher.DECRYPT_MODE,vaultKey(),new GCMParameterSpec(128,Base64.decode(e.getString("iv"),Base64.DEFAULT)));return new String(cipher.doFinal(Base64.decode(e.getString("data"),Base64.DEFAULT)),StandardCharsets.UTF_8);
     }
     private boolean validHtml(String html,String version){
         return html.startsWith("<!DOCTYPE html>") && html.contains("const PANEL_VERSION=\""+version+"\"")
@@ -175,7 +196,7 @@ public class MainActivity extends Activity {
                 JSONObject manifest=verifyManifest(wrapper);
                 if(manifest.getInt("schema")!=1)throw new Exception("Formato não suportado");
                 if(manifest.getInt("minNativeVersionCode")>NATIVE_CODE){updateStatus="Há novidades que precisam de uma nova versão do app Android.";}
-                else if(manifest.getInt("revision")<=activeRevision){updateStatus="Painel atualizado. A cópia deste aparelho funciona sem internet.";updateAvailable=false;}
+                else if(manifest.getInt("revision")<=activeRevision){updateStatus="Painel "+activeVersion+" atualizado. A cópia deste aparelho funciona sem internet.";updateAvailable=false;}
                 else {
                     byte[] bytes=fetch("index.html",2*1024*1024);
                     String version=manifest.getString("version"),html=new String(bytes,StandardCharsets.UTF_8);
@@ -203,6 +224,16 @@ public class MainActivity extends Activity {
         });
     }
     public class AndroidBridge{
+        @JavascriptInterface public boolean migrateLegacyStorage(String snapshot){
+            if(!legacyMode||snapshot.length()>8*1024*1024)return false;
+            try{JSONObject source=new JSONObject(snapshot);JSONObject safe=new JSONObject();for(String key:new String[]{"painelSolarResidencia.v1","painelSolarResidencia.v1.recovery","painelSolarCloud.v2","painelSolarCloudMeta.v2","painelSolarCredentials.v1"})if(source.has(key))safe.put(key,source.getString(key));
+                if(!getSharedPreferences("solar-migration",MODE_PRIVATE).edit().putString("snapshot",encryptPrivate(safe.toString())).commit())throw new Exception("Gravação falhou");
+                return true;
+            }catch(Exception e){runOnUiThread(()->Toast.makeText(MainActivity.this,"Não foi possível migrar os dados. A cópia anterior foi mantida.",Toast.LENGTH_LONG).show());return false;}
+        }
+        @JavascriptInterface public void openMigratedPanel(){if(legacyMode&&getSharedPreferences("solar-migration",MODE_PRIVATE).contains("snapshot"))runOnUiThread(()->{legacyMode=false;loadPanel();});}
+        @JavascriptInterface public String getLegacyStorage(){try{String value=getSharedPreferences("solar-migration",MODE_PRIVATE).getString("snapshot",null);return value==null?"{}":decryptPrivate(value);}catch(Exception e){return "{\"__migrationError\":true}";}}
+        @JavascriptInterface public void completeLegacyMigration(){getSharedPreferences("solar-migration",MODE_PRIVATE).edit().putBoolean("complete",true).remove("snapshot").commit();}
         @JavascriptInterface public boolean storeCloudSecrets(String json){
             try{JSONObject value=new JSONObject(json);if(value.getString("token").length()>1000||value.getString("passphrase").length()>4000)return false;
                 Cipher cipher=Cipher.getInstance("AES/GCM/NoPadding");cipher.init(Cipher.ENCRYPT_MODE,vaultKey());
@@ -224,11 +255,11 @@ public class MainActivity extends Activity {
         @JavascriptInterface public String appInfo(){
             try{JSONObject info=new JSONObject();info.put("version",getPackageManager().getPackageInfo(getPackageName(),0).versionName);info.put("status",updateStatus);info.put("available",updateAvailable);return info.toString();}catch(Exception e){return "{}";}
         }
-        @JavascriptInterface public void panelReady(String version){runOnUiThread(()->{ready=true;handler.removeCallbacks(verifyReady);Log.i("SolarPanel","Painel pronto: "+version);});}
+        @JavascriptInterface public void panelReady(String version){runOnUiThread(()->{if(!activeVersion.equals(version)){updateStatus="O painel aberto não corresponde à atualização. Recarregando a cópia verificada.";Log.e("SolarPanel","Versão divergente: "+version+" esperada "+activeVersion);notifyStatus();return;}ready=true;handler.removeCallbacks(verifyReady);updateStatus="Painel "+version+" carregado. Cópia disponível sem internet.";notifyStatus();Log.i("SolarPanel","Painel pronto: "+version);});}
         @JavascriptInterface public void checkUpdate(){checkForUpdate();}
         @JavascriptInterface public void applyUpdate(){
             runOnUiThread(()->{
-                try{JSONObject cache=new JSONObject(new String(panelCache.readFully(),StandardCharsets.UTF_8));JSONObject manifest=verifyManifest(cache.getJSONObject("manifest"));byte[] html=cache.getString("html").getBytes(StandardCharsets.UTF_8);if(!sha256(html).equals(manifest.getString("sha256")))throw new Exception("Painel inválido");activeHtml=html;activeRevision=manifest.getInt("revision");updateAvailable=false;ready=false;updateStatus="Painel atualizado. Cópia disponível sem internet.";webView.reload();}
+                try{JSONObject cache=new JSONObject(new String(panelCache.readFully(),StandardCharsets.UTF_8));JSONObject manifest=verifyManifest(cache.getJSONObject("manifest"));byte[] html=cache.getString("html").getBytes(StandardCharsets.UTF_8);if(!sha256(html).equals(manifest.getString("sha256"))||!validHtml(new String(html,StandardCharsets.UTF_8),manifest.getString("version")))throw new Exception("Painel inválido");activeHtml=html;activeRevision=manifest.getInt("revision");activeVersion=manifest.getString("version");updateAvailable=false;updateStatus="Aplicando painel "+activeVersion+"…";loadPanel();}
                 catch(Exception e){Toast.makeText(MainActivity.this,"Atualização ainda não disponível.",Toast.LENGTH_SHORT).show();}
             });
         }

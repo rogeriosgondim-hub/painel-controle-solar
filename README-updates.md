@@ -1,3 +1,9 @@
+# Painel e Android 2.8.2 — carregamento corrigido
+
+O Android usa uma origem HTTPS virtual atendida somente pelos arquivos locais do APK ou pelo HTML com assinatura verificada. A primeira abertura lê os dados na origem file original, guarda uma cópia de migração criptografada pelo Keystore e transfere os registros para a nova origem. Credenciais antigas em texto aberto são retiradas da origem anterior depois que a cópia protegida é gravada. A migração não requer internet e não substitui dados que já existam na nova origem. A versão exibida precisa corresponder ao manifesto; divergência mantém a cópia offline e não informa atualização concluída.
+
+Instalar o APK 2.8.2 por cima do anterior, sem desinstalar. As versões anteriores não conseguem aplicar esta correção do carregamento nativo. Publicações compatíveis futuras usam minNativeVersionCode 12.
+
 # Painel 2.8.1 — correção de acesso à nuvem
 
 O APK 2.8.0 permanece compatível (código nativo 11). No Android, o botão Desbloquear usa o cofre nativo. No navegador, distingue ausência de credenciais de falha ao abrir pela senha. Reconfigurar acesso preserva os registros e a configuração anterior; o token e a senha são conferidos na nuvem antes de gravar novas credenciais. Mostrar senha facilita conferir o preenchimento. Não é necessário instalar outro APK: Sobre → Buscar atualização → Aplicar atualização.
