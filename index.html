@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0F5F8C">
-<title>Controle Solar v2.6.2</title>
+<title>Controle Solar v2.6.3</title>
 <style>
 :root{
   --navy:#153955; --navy2:#1f5876; --blue:#dcecf7; --blue2:#c8dfef;
@@ -497,6 +497,47 @@ table{font-size:12px}
 #meter .meter-guide-note h4{margin-bottom:8px}
 @media(max-width:850px){#meter .meter-guide-columns,#meter .meter-guide-bottom{grid-template-columns:1fr}#meter .meter-guide-columns{gap:20px}}
 
+
+#meter .meter-example-calculations{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:18px}
+#meter .meter-example-calc{border:1px solid #cfe2f1;border-top:3px solid #1684d6;background:#f2f8fd;padding:16px;border-radius:12px;min-width:0}
+#meter .example-injected{background:#f1faf5;border-color:#cce7d8;border-top-color:#22a861}
+#meter .example-night{background:#f6f4fc;border-color:#ddd7f2;border-top-color:#7762c9}
+#meter .example-code-badge{display:inline-block;font-size:13px;font-weight:800;color:#0f5f8c;line-height:1.4}
+#meter .example-injected .example-code-badge{color:#187f46}
+#meter .example-night .example-code-badge{color:#624aa3}
+#meter .meter-example-calc h4{font-size:15px;line-height:1.4;margin:10px 0 4px}
+#meter .example-time{display:block;font-size:13px;line-height:1.5;color:#63798a;min-height:39px}
+#meter .example-equation{font-size:20px;font-weight:800;margin:12px 0 4px}
+#meter .meter-example-calc>strong{display:block;font-size:28px;line-height:1.3;color:#0f5f8c}
+#meter .example-injected>strong{color:#187f46}
+#meter .example-night>strong{color:#624aa3}
+#meter .meter-example-calc p{font-size:14px;line-height:1.5;margin:8px 0 0}
+#meter .meter-example-entry{margin-top:18px;padding-top:18px;border-top:1px solid #e0e9f1}
+#meter .meter-example-entry h4{font-size:16px;margin:0 0 6px}
+#meter .meter-example-entry>p{font-size:14px;line-height:1.5;margin:0 0 12px}
+#meter .example-entry-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#meter .example-entry-code{background:#f2f8fd;padding:14px;border:1px solid #cfe2f1;border-radius:12px;min-width:0}
+#meter .entry-injected{background:#f1faf5;border-color:#cce7d8}
+#meter .example-entry-code>b{font-size:14px;color:#0f5f8c}
+#meter .entry-injected>b{color:#187f46}
+#meter .example-value-chips{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}
+#meter .example-value-chips span{padding:5px 10px;color:var(--red);font-weight:900;background:#fff;border:1px solid #dbe6ee;border-radius:8px;font-size:17px}
+#meter .example-entry-code small,#meter .example-precision{display:block;font-size:13px;line-height:1.5;color:#63798a}
+#meter .example-entry-reminder{background:#fff8ee;border-left:3px solid #dfa14b;border-radius:0 10px 10px 0;padding:12px 14px;font-size:14px;line-height:1.5;margin-top:14px}
+#meter .example-precision{margin-top:10px}
+@media(max-width:760px){
+ #meter .meter-example-calculations{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ #meter .example-night{grid-column:1/-1}
+ #meter .meter-example-calc{padding:12px}
+ #meter .meter-example-calc h4{font-size:14px;min-height:40px}
+ #meter .example-night h4{min-height:0}
+ #meter .example-equation{font-size:18px}
+ #meter .example-entry-columns{gap:10px}
+ #meter .example-entry-code{padding:12px}
+ #meter .example-value-chips{gap:5px}
+ #meter .example-value-chips span{font-size:15px;padding:5px 7px}
+}
+
 </style>
 </head>
 <body>
@@ -516,7 +557,7 @@ table{font-size:12px}
       <button data-view="guide">? &nbsp; Guia rápido</button>
       <button data-view="example">✓ &nbsp; Exemplo preenchido</button>
     </div>
-    <div class="side-foot">Dados armazenados localmente neste dispositivo.<br><br><b>App v2.6.2 • Cloud Sync</b></div>
+    <div class="side-foot">Dados armazenados localmente neste dispositivo.<br><br><b>App v2.6.3 • Cloud Sync</b></div>
   </aside>
 
   <main class="main">
@@ -759,11 +800,22 @@ table{font-size:12px}
             <div class="meter-guide-note"><h4>Produção solar e créditos</h4><p>A <b>produção total</b> fica na aba Produção Solar. O <b>saldo oficial de créditos</b> e a compensação vêm da fatura da Enel.</p><small>Injetada − recebida é o balanço físico do período. Estas leituras não alteram os lançamentos mensais automaticamente.</small></div>
           </div>
         </details>
-        <details class="card meter-guide" open><summary>Exemplo ilustrativo — não entra nos seus registros</summary>
+        <details class="card meter-guide meter-example-guide" open><summary>Exemplo ilustrativo — não entra nos seus registros</summary>
           <p class="meter-example-caption">Os dois números abaixo são os totais copiados do visor em cada horário.</p>
           <table class="meter-example-table"><colgroup><col style="width:40%"><col style="width:30%"><col style="width:30%"></colgroup><thead><tr><th scope="col">Quando ler</th><th scope="col"><strong>03</strong><span>Consumo da rede</span></th><th scope="col"><strong>103</strong><span>Energia injetada</span></th></tr></thead><tbody><tr><th scope="row"><b>01/10 · 06:00</b><span>Manhã</span></th><td class="manual">150<small>kWh</small></td><td class="manual">200<small>kWh</small></td></tr><tr><th scope="row"><b>01/10 · 18:00</b><span>Fim da tarde</span></th><td class="manual">152<small>kWh</small></td><td class="manual">212<small>kWh</small></td></tr><tr><th scope="row"><b>02/10 · 06:00</b><span>Manhã seguinte</span></th><td class="manual">158<small>kWh</small></td><td class="manual">212<small>kWh</small></td></tr></tbody></table>
-          <div class="meter-example-results"><div><span>Rede durante o dia</span><strong>2 kWh</strong><small>03: 152 − 150</small></div><div><span>Injetada durante o dia</span><strong>12 kWh</strong><small>103: 212 − 200</small></div><div><span>Rede na noite anterior</span><strong>6 kWh</strong><small>03: 158 − 152</small></div></div>
-          <p><b>Durante o dia 01/10:</b> 152 − 150 = <b>2 kWh recebidos da rede</b>; 212 − 200 = <b>12 kWh injetados</b>.</p><p><b>Na noite anterior a 02/10:</b> 158 − 152 = <b>6 kWh recebidos da rede</b>.</p><p>Digite 150, 152 e 158 no campo 03 de cada leitura; nunca digite as diferenças 2 e 6 nesse campo. Copie somente as casas decimais que seu visor realmente mostra.</p>
+          <div class="meter-example-calculations" aria-label="Resultados calculados do exemplo">
+            <article class="meter-example-calc example-received"><span class="example-code-badge">03 · recebida da rede</span><h4>Consumo durante o dia</h4><span class="example-time">01/10 · manhã até fim da tarde</span><div class="example-equation">152 − 150</div><strong>2 kWh</strong><p>Energia recebida da Enel durante o dia.</p></article>
+            <article class="meter-example-calc example-injected"><span class="example-code-badge">103 · enviada à rede</span><h4>Injetada durante o dia</h4><span class="example-time">01/10 · manhã até fim da tarde</span><div class="example-equation">212 − 200</div><strong>12 kWh</strong><p>Sobra solar entregue à rede durante o dia.</p></article>
+            <article class="meter-example-calc example-night"><span class="example-code-badge">03 · recebida da rede</span><h4>Consumo durante a noite</h4><span class="example-time">01/10 à tarde até 02/10 de manhã</span><div class="example-equation">158 − 152</div><strong>6 kWh</strong><p>Energia recebida na noite anterior a 02/10.</p></article>
+          </div>
+          <div class="meter-example-entry"><h4>O que digitar em cada campo</h4><p>Em cada leitura, copie o <b>total do visor</b> correspondente ao horário.</p>
+            <div class="example-entry-columns">
+              <div class="example-entry-code entry-received"><b>03 · Consumo da rede</b><div class="example-value-chips"><span>150</span><span>152</span><span>158</span></div><small>Totais das três leituras do exemplo, em ordem.</small></div>
+              <div class="example-entry-code entry-injected"><b>103 · Energia injetada</b><div class="example-value-chips"><span>200</span><span>212</span><span>212</span></div><small>Totais das mesmas três leituras, em ordem.</small></div>
+            </div>
+            <div class="example-entry-reminder"><b>O painel faz as subtrações.</b> As diferenças de 2, 12 e 6 kWh são resultados calculados; não devem ser digitadas nos campos de total acumulado.</div>
+            <small class="example-precision">Copie somente as casas decimais que seu visor realmente mostra.</small>
+          </div>
         </details>
       </section>
 
@@ -1432,7 +1484,7 @@ async function cloudFetchFile(cfg){
 }
 async function cloudWriteFile(cfg,envelope,sha){
   const bytes=new TextEncoder().encode(JSON.stringify(envelope,null,2));
-  const body={message:"Sincroniza dados do Controle Solar v2.6.2",content:bytesToB64(bytes),branch:cfg.branch};
+  const body={message:"Sincroniza dados do Controle Solar v2.6.3",content:bytesToB64(bytes),branch:cfg.branch};
   if(sha)body.sha=sha;
   const r=await fetch(cloudApiUrl(cfg),{method:"PUT",headers:cloudHeaders(cfg),body:JSON.stringify(body)});
   if(r.status===401)throw new Error("Token GitHub inválido ou expirado.");
