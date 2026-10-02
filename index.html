@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0F5F8C">
-<title>Controle Solar v2.5</title>
+<title>Controle Solar v2.6</title>
 <style>
 :root{
   --navy:#153955; --navy2:#1f5876; --blue:#dcecf7; --blue2:#c8dfef;
@@ -362,7 +362,7 @@ table{font-size:12px}
 }
 
 
-/* ===== v2.5 — USO INTELIGENTE ===== */
+/* ===== v2.6 — USO INTELIGENTE ===== */
 .smart-head{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap}
 .smart-settings{display:flex;gap:9px;align-items:end;flex-wrap:wrap}
 .smart-kpis{grid-template-columns:repeat(5,minmax(0,1fr));margin:16px 0}
@@ -403,6 +403,23 @@ table{font-size:12px}
  .smart-window{grid-template-columns:1fr}.smart-settings{width:100%}.smart-settings .field{flex:1;min-width:90px}
 }
 
+#meter .meter-help,#meter .rule,#meter .meter-guide{font-size:14px;line-height:1.6}
+#meter .field label{font-size:14px;text-transform:none;line-height:1.4}
+#meter .field small{display:block;font-size:13px;line-height:1.5;color:var(--muted);margin-top:6px}
+#meter .field input,#meter .field select{min-height:46px;font-size:15px}
+#meter .meter-form{margin-bottom:16px}
+#meter .meter-table{font-size:14px}
+#meter .meter-status,#meter .meter-note{white-space:normal;min-width:200px;max-width:360px;text-align:left;overflow-wrap:anywhere}
+#meter .meter-attention{color:#9a5200;font-weight:700}
+#meter .meter-guide{margin-top:16px}
+#meter summary{font-weight:800;cursor:pointer;font-size:16px}
+#meter .kpi .label,#meter .kpi .hint{font-size:13px;text-transform:none;letter-spacing:0}
+#meter .kpi .value{font-size:24px;overflow-wrap:anywhere}
+#meterError{margin-top:14px;color:var(--danger)}
+.sidebar .nav{max-height:calc(100dvh - 220px);overflow-y:auto}
+@media(max-width:760px){#meter .form-grid{grid-template-columns:1fr}#meter .kpis{grid-template-columns:1fr 1fr}#meter .kpi .value{font-size:21px}}
+@media(max-width:430px){#meter .kpis{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -413,6 +430,7 @@ table{font-size:12px}
       <button data-view="dashboard" class="active">▦ &nbsp; Painel</button>
       <button data-view="entries">✎ &nbsp; Lançamentos</button>
       <button data-view="solarProduction">☀ &nbsp; Produção Solar</button>
+      <button data-view="meter">⚡ &nbsp; Relógio Enel</button>
       <button data-view="smartUse">⚡ &nbsp; Uso Inteligente</button>
       <button data-view="reports">▤ &nbsp; Relatórios</button>
       <button data-view="history">▥ &nbsp; Histórico</button>
@@ -421,7 +439,7 @@ table{font-size:12px}
       <button data-view="guide">? &nbsp; Guia rápido</button>
       <button data-view="example">✓ &nbsp; Exemplo preenchido</button>
     </div>
-    <div class="side-foot">Dados armazenados localmente neste dispositivo.<br><br><b>App v2.5 • Cloud Sync</b></div>
+    <div class="side-foot">Dados armazenados localmente neste dispositivo.<br><br><b>App v2.6 • Cloud Sync</b></div>
   </aside>
 
   <main class="main">
@@ -430,7 +448,7 @@ table{font-size:12px}
         <button class="btn mobile-menu" id="menuBtn">☰</button>
         <div><div class="title-row"><h2 id="pageTitle">Painel de Controle Solar</h2></div><div class="sub" id="pageSub">Visão geral do seu sistema solar</div></div>
       </div>
-      <div class="top-actions"><button class="btn desktop-only" onclick="window.print()">Imprimir</button><button class="btn primary" onclick="goTo('entries')">Novo lançamento</button></div>
+      <div class="top-actions"><button class="btn desktop-only" onclick="window.print()">Imprimir</button><button class="btn primary" id="newEntryButton" onclick="newPrimaryEntry()">Novo lançamento</button></div>
     </header>
 
     <div class="content">
@@ -610,6 +628,44 @@ table{font-size:12px}
       </section>
 
 
+      <section class="view" id="meter">
+        <div class="premium-head"><div><h3>Relógio Enel</h3><p>Leituras acumuladas dos códigos 03 e 103, em kWh.</p></div></div>
+        <div class="card meter-form">
+          <div class="section-head compact"><h3 id="meterFormTitle">Registrar leitura</h3></div>
+          <p class="meter-help">Copie os <b>totais do visor</b>. Não desconte a leitura anterior: o painel faz essa conta. Campos preenchidos por você aparecem em vermelho.</p>
+          <form id="meterForm">
+            <div class="form-grid">
+              <div class="field"><label for="meterDate">Data da leitura</label><input type="date" id="meterDate" required></div>
+              <div class="field"><label for="meterTime">Horário da leitura</label><input type="time" id="meterTime" required></div>
+              <div class="field"><label for="meterPeriod">Momento da leitura</label><select id="meterPeriod"><option value="morning">Manhã — antes da geração</option><option value="evening">Fim da tarde — após a geração</option><option value="extra">Leitura extra — durante o dia/outro horário</option><option value="initial">Referência inicial / ativação do medidor</option></select></div>
+              <div class="field"><label for="meterImported">03 — Consumo da rede acumulado (kWh)</label><input type="text" inputmode="decimal" id="meterImported" placeholder="Ex.: 150 ou 150,5" required aria-describedby="meter03Help"><small id="meter03Help">Toda energia recebida da Enel, de dia e de noite.</small></div>
+              <div class="field"><label for="meterInjected">103 — Energia injetada acumulada (kWh)</label><input type="text" inputmode="decimal" id="meterInjected" placeholder="Ex.: 200 ou 200,5" required aria-describedby="meter103Help"><small id="meter103Help">Somente a sobra solar enviada à rede; não é toda a produção.</small></div>
+              <div class="field"><label for="meterNote">Observação (opcional)</label><input type="text" id="meterNote" maxlength="300" placeholder="Ex.: chuva, ar-condicionado, leitura inicial"></div>
+            </div>
+            <div id="meterError" class="notice" role="alert" hidden></div>
+            <div class="form-actions"><button class="btn" type="button" onclick="clearMeterForm()">Cancelar / nova leitura</button><button class="btn primary" type="submit">Salvar leitura</button></div>
+          </form>
+        </div>
+        <div class="grid kpis" id="meterKpis"></div>
+        <div class="rule meter-help" id="meterRange"></div>
+        <div class="section-head"><div><h3>Dia e noite</h3><p>Diferenças entre as leituras de manhã e fim da tarde. Valores em kWh.</p></div></div>
+        <div class="card table-card"><div class="table-scroll"><table class="meter-table"><thead><tr><th>Data</th><th>Rede durante o dia</th><th>Injetada durante o dia</th><th>Rede na noite anterior</th><th>Leitura do resultado</th></tr></thead><tbody id="meterDailyBody"></tbody></table></div></div>
+        <p class="meter-help">“—” significa que faltam leituras compatíveis. A noite anterior exige a leitura do fim da tarde do dia anterior e a da manhã desta data. Horários de referência são escolhidos por você conforme a geração real. “Sem aumento visível” respeita a precisão do visor; um relógio que mostra apenas inteiros pode acumular frações sem mudar imediatamente o número.</p>
+        <div class="section-head"><div><h3>Histórico de leituras</h3><p>Os totais nunca são zerados ao mudar de mês. Edite ou exclua uma leitura para corrigir um lançamento.</p></div></div>
+        <div class="card table-card"><div class="table-scroll"><table class="meter-table"><thead><tr><th>Data / horário</th><th>Momento</th><th>03 acumulado</th><th>103 acumulado</th><th>Rede desde a anterior</th><th>Injetada desde a anterior</th><th>Observação</th><th>Ações</th></tr></thead><tbody id="meterHistoryBody"></tbody></table></div></div>
+        <p class="meter-help">As diferenças do histórico correspondem ao intervalo real entre duas leituras. Uma leitura por dia não separa consumo diurno e noturno; dias sem leitura não são estimados.</p>
+        <details class="card meter-guide" open><summary>Como preencher e interpretar</summary>
+          <ol><li><b>Pela manhã, antes da geração:</b> anote os dois códigos e escolha “Manhã”.</li><li><b>No fim da tarde, após a geração:</b> anote novamente e escolha “Fim da tarde”.</li><li><b>Na manhã seguinte:</b> a nova leitura permite calcular o consumo da noite anterior.</li><li><b>Para observar uma mudança durante o dia:</b> salve uma “Leitura extra”. O histórico mostra a diferença desde a leitura anterior.</li></ol>
+          <p>Se tiver os números registrados na ativação, lance a data e os valores em “Referência inicial”. Sem eles, os acumulados calculados começam na primeira leitura cadastrada. Não presuma que a leitura inicial era zero.</p>
+          <p><b>Legenda:</b> 03 = energia recebida da rede; 103 = energia enviada à rede; diferença = leitura atual menos a anterior. Aumento do 03 durante o dia indica uso da rede no intervalo, mas não comprova consumo excessivo ou defeito. Os dois códigos podem aumentar em momentos diferentes do mesmo dia.</p>
+          <p><b>Produção e créditos:</b> acompanhe a produção total na aba Produção Solar. Energia injetada menos recebida é apenas o balanço físico do período. O saldo oficial de créditos e a compensação vêm da fatura da Enel; estas leituras não alteram seus lançamentos mensais automaticamente.</p>
+        </details>
+        <details class="card meter-guide" open><summary>Exemplo ilustrativo — não entra nos seus registros</summary>
+          <div class="table-scroll"><table class="meter-table"><thead><tr><th>Leitura</th><th>03 acumulado</th><th>103 acumulado</th></tr></thead><tbody><tr><td>01/10 às 06:00 — manhã</td><td class="manual">150</td><td class="manual">200</td></tr><tr><td>01/10 às 18:00 — fim da tarde</td><td class="manual">152</td><td class="manual">212</td></tr><tr><td>02/10 às 06:00 — manhã</td><td class="manual">158</td><td class="manual">212</td></tr></tbody></table></div>
+          <p><b>Durante o dia 01/10:</b> 152 − 150 = <b>2 kWh recebidos da rede</b>; 212 − 200 = <b>12 kWh injetados</b>.</p><p><b>Na noite anterior a 02/10:</b> 158 − 152 = <b>6 kWh recebidos da rede</b>.</p><p>Digite 150, 152 e 158 no campo 03 de cada leitura; nunca digite as diferenças 2 e 6 nesse campo. Copie somente as casas decimais que seu visor realmente mostra.</p>
+        </details>
+      </section>
+
       <section class="view" id="smartUse">
         <div class="smart-head">
           <div>
@@ -787,7 +843,7 @@ table{font-size:12px}
           </div>
           <div class="card">
             <div class="section-head" style="margin-top:0"><div><h3>Como funciona</h3></div></div>
-            <div class="rule">A versão 2.5 usa uma área separada do seu repositório GitHub (<b>branch cloud-sync</b>) como armazenamento. Antes do envio, os dados são criptografados no aparelho com <b>AES-GCM</b>. A senha de criptografia e o token do GitHub não são enviados para o repositório.</div>
+            <div class="rule">A versão 2.6 usa uma área separada do seu repositório GitHub (<b>branch cloud-sync</b>) como armazenamento. Antes do envio, os dados são criptografados no aparelho com <b>AES-GCM</b>. A senha de criptografia e o token do GitHub não são enviados para o repositório.</div>
             <div class="notice" style="margin-top:14px"><b>Importante:</b> use um token GitHub <b>fine-grained</b>, restrito somente ao repositório <b>painel-controle-solar</b>, com permissão <b>Contents: Read and write</b>. Não envie esse token pelo chat.</div>
           </div>
         </div>
@@ -861,6 +917,7 @@ const titles = {
  dashboard:["Painel de Controle Solar","Visão geral da residência"],
  entries:["Lançamentos Mensais","Preenchimento e cálculo automático"],
  solarProduction:["Produção Solar","Monitoramento diário importado do SolarView"],
+ meter:["Relógio Enel","Leituras dos códigos 03 e 103 • dia e noite"],
  smartUse:["Uso Inteligente","Tempo real dos ciclos e melhor janela de uso"],
  reports:["Relatórios","Geração, consumo, créditos e economia"],
  history:["Histórico de Consumo","Base pré-solar"],
@@ -889,7 +946,7 @@ function ensureSmartUseState(x){
   if(x.smartUse.settings.solarEnd==null)x.smartUse.settings.solarEnd="16:30";
   if(x.smartUse.settings.safetyMin==null)x.smartUse.settings.safetyMin=15;
   if(!("activeSession" in x.smartUse))x.smartUse.activeSession=null;
-  return x;
+  return ensureMeterState(x);
 }
 function loadState(){
   try{
@@ -1274,7 +1331,7 @@ async function cloudFetchFile(cfg){
 }
 async function cloudWriteFile(cfg,envelope,sha){
   const bytes=new TextEncoder().encode(JSON.stringify(envelope,null,2));
-  const body={message:"Sincroniza dados do Controle Solar v2.5",content:bytesToB64(bytes),branch:cfg.branch};
+  const body={message:"Sincroniza dados do Controle Solar v2.6",content:bytesToB64(bytes),branch:cfg.branch};
   if(sha)body.sha=sha;
   const r=await fetch(cloudApiUrl(cfg),{method:"PUT",headers:cloudHeaders(cfg),body:JSON.stringify(body)});
   if(r.status===401)throw new Error("Token GitHub inválido ou expirado.");
@@ -1944,18 +2001,122 @@ function printReports(){
   setTimeout(function(){document.body.classList.remove("print-reports");},700);
 }
 
-function renderAll(){renderDashboard();renderEntries();renderSolarProduction();renderSmartUse();renderReports();renderHistory();renderParams();renderCloud();renderGuide();renderExample()}
+// Leituras do medidor fazem parte do mesmo state: backup e nuvem existentes.
+function ensureMeterState(x){
+  if(!x.meter || typeof x.meter!=="object")x.meter={};
+  if(!Array.isArray(x.meter.readings))x.meter.readings=[];
+  return x;
+}
+let editingMeterId=null;
+const meterPeriods={morning:"Manhã",evening:"Fim da tarde",extra:"Leitura extra",initial:"Referência inicial"};
+function meterRows(){return ensureMeterState(state).meter.readings.slice().sort((a,b)=>a.at.localeCompare(b.at));}
+function meterNumber(raw){
+  const s=String(raw).trim();
+  if(!/^\d+(?:[.,]\d{1,3})?$/.test(s))return null;
+  const value=Number(s.replace(",","."));return Number.isFinite(value)?value:null;
+}
+function meterDiff(a,b,key){return a&&b?Math.round((b[key]-a[key])*1000)/1000:null;}
+function meterPreviousDate(date){const d=new Date(date+"T12:00:00Z");d.setUTCDate(d.getUTCDate()-1);return d.toISOString().slice(0,10);}
+function meterDateLabel(at){const parts=at.slice(0,10).split("-");return parts.reverse().join("/")+(at.length>10?" "+at.slice(11,16):"");}
+function meterKwh(v){return v==null?"—":num(v,3).replace(/([,.]\d*?)0+$/, "$1").replace(/[,.]$/, "")+" kWh";}
+function meterDaily(rows){
+  const dates=[...new Set(rows.map(r=>r.at.slice(0,10)))].sort();
+  return dates.map(date=>{
+    const today=rows.filter(r=>r.at.slice(0,10)===date);
+    const morning=today.find(r=>r.period==="morning");
+    const evening=today.filter(r=>r.period==="evening").slice(-1)[0];
+    const prevEvening=rows.filter(r=>r.at.slice(0,10)===meterPreviousDate(date)&&r.period==="evening").slice(-1)[0];
+    const complete=morning&&evening&&evening.at>morning.at;
+    const imported=complete?meterDiff(morning,evening,"imported"):null;
+    const injected=complete?meterDiff(morning,evening,"injected"):null;
+    const night=morning&&prevEvening?meterDiff(prevEvening,morning,"imported"):null;
+    return {date,imported,injected,night,status:imported==null?"Faltam leituras de manhã / fim da tarde":imported>0?"Houve consumo da rede durante o dia":"Sem aumento visível do 03 no período diurno"};
+  });
+}
+function clearMeterForm(){
+  editingMeterId=null;document.getElementById("meterForm").reset();
+  const parts=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Sao_Paulo",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(new Date());
+  const p=Object.fromEntries(parts.map(x=>[x.type,x.value]));
+  document.getElementById("meterDate").value=p.year+"-"+p.month+"-"+p.day;
+  document.getElementById("meterTime").value=p.hour+":"+p.minute;
+  document.getElementById("meterPeriod").value="extra";
+  document.getElementById("meterFormTitle").textContent="Registrar leitura";
+  document.getElementById("meterError").hidden=true;
+}
+function validateMeterRow(row,rows){
+  if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(row.at)||Number.isNaN(new Date(row.at).getTime())||new Date(row.at).getFullYear()<2000)return "Informe uma data e um horário válidos.";
+  if(!Object.hasOwn(meterPeriods,row.period))return "Selecione o momento da leitura.";
+  if(row.imported==null||row.injected==null||row.imported<0||row.injected<0)return "Preencha os dois totais com números positivos ou zero. Use vírgula ou ponto para decimais, sem separador de milhar (ex.: 1234,5).";
+  const others=rows.filter(r=>r.id!==row.id).sort((a,b)=>a.at.localeCompare(b.at));
+  if(others.some(r=>r.at===row.at))return "Já existe uma leitura nesse horário. Edite o registro existente ou informe o horário correto.";
+  if(["morning","evening","initial"].includes(row.period)&&others.some(r=>r.at.slice(0,10)===row.at.slice(0,10)&&r.period===row.period))return "Já existe uma leitura desse momento nesta data. Edite-a ou selecione Leitura extra.";
+  const prev=others.filter(r=>r.at<row.at).slice(-1)[0],next=others.find(r=>r.at>row.at);
+  if(["imported","injected"].some(k=>(prev&&row[k]<prev[k])||(next&&row[k]>next[k])))return "Os totais acumulados não podem diminuir com o tempo. Confira os códigos, a data e os números. Se o medidor foi trocado ou reiniciado, é necessário separar os períodos; não misture os dois medidores.";
+  const same=others.filter(r=>r.at.slice(0,10)===row.at.slice(0,10));
+  if((row.period==="morning"&&same.some(r=>r.period==="evening"&&r.at<=row.at))||(row.period==="evening"&&same.some(r=>r.period==="morning"&&r.at>=row.at)))return "A leitura da manhã precisa ocorrer antes da leitura do fim da tarde.";
+  return null;
+}
+function saveMeterReading(event){
+  event.preventDefault();
+  const row={id:editingMeterId||(crypto.randomUUID?crypto.randomUUID():"meter-"+Date.now()),at:document.getElementById("meterDate").value+"T"+document.getElementById("meterTime").value,period:document.getElementById("meterPeriod").value,imported:meterNumber(document.getElementById("meterImported").value),injected:meterNumber(document.getElementById("meterInjected").value),note:document.getElementById("meterNote").value.trim()};
+  const error=validateMeterRow(row,meterRows()),el=document.getElementById("meterError");
+  if(error){el.textContent=error;el.hidden=false;return;}
+  const readings=state.meter.readings,index=readings.findIndex(r=>r.id===row.id);
+  if(index<0)readings.push(row);else readings[index]=row;
+  saveState();clearMeterForm();renderMeter();toast("Leitura salva.");
+}
+function editMeterReading(id){
+  const row=meterRows().find(r=>r.id===id);if(!row)return;
+  editingMeterId=id;document.getElementById("meterDate").value=row.at.slice(0,10);document.getElementById("meterTime").value=row.at.slice(11,16);
+  document.getElementById("meterPeriod").value=row.period;document.getElementById("meterImported").value=String(row.imported).replace(".",",");document.getElementById("meterInjected").value=String(row.injected).replace(".",",");document.getElementById("meterNote").value=row.note||"";
+  document.getElementById("meterFormTitle").textContent="Editar leitura";document.getElementById("meterError").hidden=true;document.getElementById("meterFormTitle").scrollIntoView({behavior:"smooth",block:"center"});
+}
+function deleteMeterReading(id){
+  if(!confirm("Excluir esta leitura do relógio? As diferenças serão recalculadas."))return;
+  state.meter.readings=state.meter.readings.filter(r=>r.id!==id);if(editingMeterId===id)clearMeterForm();saveState();renderMeter();toast("Leitura excluída.");
+}
+function renderMeter(){
+  const box=document.getElementById("meterKpis");if(!box)return;
+  const rows=meterRows(),first=rows[0],last=rows[rows.length-1],imported=meterDiff(first,last,"imported"),injected=meterDiff(first,last,"injected"),hasInterval=rows.length>=2;
+  const values=[
+    ["03 — última leitura",last?meterKwh(last.imported):"—","Total acumulado no visor"],
+    ["103 — última leitura",last?meterKwh(last.injected):"—","Total acumulado no visor"],
+    ["Rede no período registrado",hasInterval?meterKwh(imported):"—","Última leitura menos primeira"],
+    ["Injetada no período registrado",hasInterval?meterKwh(injected):"—","Última leitura menos primeira"]
+  ];
+  box.innerHTML=values.map(v=>'<div class="card kpi"><div class="label">'+v[0]+'</div><div class="value">'+v[1]+'</div><div class="hint">'+v[2]+'</div></div>').join("");
+  document.getElementById("meterRange").textContent=rows.length?(hasInterval?"Período: "+meterDateLabel(first.at)+" até "+meterDateLabel(last.at)+". Balanço físico (injetada − recebida): "+meterKwh(Math.round((injected-imported)*1000)/1000)+". Não representa o saldo oficial de créditos.":"Primeira leitura registrada como referência. Salve a próxima para calcular diferenças."):"Nenhuma leitura cadastrada. Comece com os valores atuais do relógio ou com a leitura que você guardou na ativação.";
+  document.getElementById("meterDailyBody").innerHTML=rows.length?meterDaily(rows).reverse().map(r=>'<tr><td>'+meterDateLabel(r.date)+'</td><td>'+meterKwh(r.imported)+'</td><td>'+meterKwh(r.injected)+'</td><td>'+meterKwh(r.night)+'</td><td class="meter-status '+(r.imported>0?'meter-attention':'')+'">'+r.status+'</td></tr>').join(""):'<tr><td colspan="5" class="empty">Salve as leituras para acompanhar dia e noite.</td></tr>';
+  const history=document.getElementById("meterHistoryBody");history.replaceChildren();
+  rows.map((r,i)=>({r,prev:rows[i-1]})).reverse().forEach(({r,prev})=>{
+    const tr=document.createElement("tr");
+    [meterDateLabel(r.at),meterPeriods[r.period]||"—",meterKwh(r.imported),meterKwh(r.injected),prev?meterKwh(meterDiff(prev,r,"imported")):"Referência",prev?meterKwh(meterDiff(prev,r,"injected")):"Referência",r.note||"—"].forEach((value,i)=>{const td=document.createElement("td");td.textContent=value;if(i===2||i===3)td.className="manual";if(i===6)td.className="meter-note";tr.appendChild(td);});
+    const td=document.createElement("td");td.className="row-actions";
+    [["Editar",editMeterReading],["Excluir",deleteMeterReading]].forEach(([label,action])=>{const b=document.createElement("button");b.type="button";b.textContent=label;b.addEventListener("click",()=>action(r.id));td.appendChild(b);});
+    tr.appendChild(td);history.appendChild(tr);
+  });
+  if(!rows.length)history.innerHTML='<tr><td colspan="8" class="empty">Nenhuma leitura cadastrada. O exemplo abaixo é somente ilustrativo.</td></tr>';
+}
+
+function renderAll(){renderDashboard();renderEntries();renderSolarProduction();renderSmartUse();renderMeter();renderReports();renderHistory();renderParams();renderCloud();renderGuide();renderExample()}
+function newPrimaryEntry(){
+  if(document.getElementById("meter").classList.contains("active")){clearMeterForm();document.getElementById("meterFormTitle").scrollIntoView({behavior:"smooth",block:"center"});}
+  else goTo("entries");
+}
 function goTo(id){
   document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===id));
   document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===id));
   document.getElementById("pageTitle").textContent=titles[id][0];document.getElementById("pageSub").textContent=titles[id][1];
   document.getElementById("sidebar").classList.remove("open");
+  document.getElementById("newEntryButton").textContent=id==="meter"?"Nova leitura":"Novo lançamento";
   if(id==="entries"&&!document.getElementById("fMonth").value)fillForm(null);
 }
 document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>goTo(b.dataset.view));
 document.getElementById("menuBtn").onclick=()=>document.getElementById("sidebar").classList.toggle("open");
 function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2200)}
 
+document.getElementById("meterForm").addEventListener("submit",saveMeterReading);
+clearMeterForm();
 renderAll();fillForm(state.entries.find(e=>e.month==="2026-09")||null);
 window.addEventListener("online",()=>cloudAutoSync(false));
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)cloudAutoSync(false)});
