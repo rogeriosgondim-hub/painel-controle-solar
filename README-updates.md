@@ -1,3 +1,7 @@
+# Painel 2.8.1 — correção de acesso à nuvem
+
+O APK 2.8.0 permanece compatível (código nativo 11). No Android, o botão Desbloquear usa o cofre nativo. No navegador, distingue ausência de credenciais de falha ao abrir pela senha. Reconfigurar acesso preserva os registros e a configuração anterior; o token e a senha são conferidos na nuvem antes de gravar novas credenciais. Mostrar senha facilita conferir o preenchimento. Não é necessário instalar outro APK: Sobre → Buscar atualização → Aplicar atualização.
+
 # Versão 2.8.0 — 02/10/2026
 
 Criador do projeto: Rogerio Sampaio.

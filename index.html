@@ -2,10 +2,10 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ut4aYxyogzLNySjNn0Gb6bs0/iCFooSvPBo/goyrv9I='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src https://api.github.com; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Me/u/izuKofoHFy6Z7u35x+7SNyl9Az3ajUofi/og58='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src https://api.github.com; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0F5F8C">
-<title>Controle Solar v2.8.0</title>
+<title>Controle Solar v2.8.1</title>
 <style>
 :root{
   --navy:#153955; --navy2:#1f5876; --blue:#dcecf7; --blue2:#c8dfef;
@@ -561,7 +561,7 @@ table{font-size:12px}
       <button data-view="example">✓ &nbsp; Exemplo preenchido</button>
       <button data-view="about">ℹ &nbsp; Sobre</button>
     </div>
-    <div class="side-foot">Dados armazenados localmente neste dispositivo.<br><br><b>App v2.8.0 • Cloud Sync</b></div>
+    <div class="side-foot">Dados armazenados localmente neste dispositivo.<br><br><b>App v2.8.1 • Cloud Sync</b></div>
   </aside>
 
   <main class="main">
@@ -993,7 +993,7 @@ table{font-size:12px}
               <div class="param"><div class="pname">Destino</div><div class="pval" id="cloudDestination" style="font-size:14px">—</div></div>
             </div>
             <div class="form-actions" style="justify-content:flex-start">
-              <button class="btn" type="button" data-click="h17">Desbloquear sincronização</button><button class="btn" type="button" data-click="h18">Bloquear sessão</button><button class="btn primary" type="button" data-click="h19">Sincronizar agora</button>
+              <button class="btn" type="button" data-click="h17">Desbloquear sincronização</button><button class="btn" type="button" id="recoverCloudAccess">Reconfigurar acesso</button><button class="btn" type="button" data-click="h18">Bloquear sessão</button><button class="btn primary" type="button" data-click="h19">Sincronizar agora</button>
               <button class="btn" type="button" data-click="h20">Baixar da nuvem</button>
               <button class="btn" type="button" data-click="h21">Enviar este aparelho</button>
             </div>
@@ -1042,8 +1042,8 @@ table{font-size:12px}
 <section class="view" id="about">
  <div class="premium-head"><div><div class="eyebrow">SOBRE O PROJETO</div><h3>Painel de Controle Solar da Residência</h3><p>Controle de geração, consumo e leituras do relógio Enel.</p></div></div>
  <div class="grid about-grid"><div class="card"><h3>Criador do projeto</h3><p class="about-name">Rogerio Sampaio</p><p>Projeto pessoal para acompanhar a energia solar da residência.</p></div>
- <div class="card"><h3>Versões e atualização</h3><dl class="about-details"><dt>Painel</dt><dd>2.8.0</dd><dt>Data desta versão</dt><dd>02/10/2026</dd><dt>Aplicativo Android</dt><dd id="aboutNativeVersion">Acesso pelo navegador</dd></dl><p id="panelUpdateStatus" role="status">No navegador, recarregue a página para buscar as novidades.</p><div class="backup-box"><button class="btn primary" data-click="h24">Buscar atualização</button><button class="btn" id="applyPanelUpdate" hidden data-click="h25">Aplicar atualização</button></div></div></div>
- <div class="card" style="margin-top:16px"><h3>Novidades da versão 2.8.0</h3><ul class="about-news"><li>Backup com senha e validação dos arquivos importados.</li><li>Credenciais protegidas no Android e no navegador.</li><li>Atualizações do painel com assinatura verificada e funcionamento offline.</li></ul><p id="aboutOffline">Os lançamentos ficam salvos neste aparelho. A sincronização na nuvem precisa de internet.</p><a class="btn" href="https://rogeriosgondim-hub.github.io/painel-controle-solar/" target="_blank" rel="noopener">Abrir painel web</a></div>
+ <div class="card"><h3>Versões e atualização</h3><dl class="about-details"><dt>Painel</dt><dd>2.8.1</dd><dt>Data desta versão</dt><dd>02/10/2026</dd><dt>Aplicativo Android</dt><dd id="aboutNativeVersion">Acesso pelo navegador</dd></dl><p id="panelUpdateStatus" role="status">No navegador, recarregue a página para buscar as novidades.</p><div class="backup-box"><button class="btn primary" data-click="h24">Buscar atualização</button><button class="btn" id="applyPanelUpdate" hidden data-click="h25">Aplicar atualização</button></div></div></div>
+ <div class="card" style="margin-top:16px"><h3>Novidades da versão 2.8.1</h3><ul class="about-news"><li>Backup com senha e validação dos arquivos importados.</li><li>Credenciais protegidas no Android e no navegador.</li><li>Atualizações do painel com assinatura verificada e funcionamento offline.</li></ul><p id="aboutOffline">Os lançamentos ficam salvos neste aparelho. A sincronização na nuvem precisa de internet.</p><a class="btn" href="https://rogeriosgondim-hub.github.io/painel-controle-solar/" target="_blank" rel="noopener">Abrir painel web</a></div>
  </section>
       <section class="view" id="example">
         <div class="notice"><b>Exemplo simulado.</b> Os números abaixo servem apenas para explicar o preenchimento e não representam geração real nem futura fatura.</div>
@@ -1102,11 +1102,11 @@ function validateState(input){
 function askPassword(title,confirmation=false){
  return new Promise(resolve=>{
   const dialog=document.createElement('dialog');dialog.style.cssText='max-width:420px;width:90%;border:0;border-radius:16px;padding:24px';
-  dialog.innerHTML='<form method="dialog"><h3></h3><p>Guarde a senha: ela não pode ser recuperada pelo aplicativo.</p><label>Senha<input name="password" type="password" autocomplete="off" required style="width:100%"></label>'+(confirmation?'<label>Confirmar senha<input name="confirmation" type="password" autocomplete="off" required style="width:100%"></label>':'')+'<p role="alert"></p><div class="form-actions"><button class="btn" value="cancel" formnovalidate>Cancelar</button><button class="btn primary" value="ok">Continuar</button></div></form>';
+  dialog.innerHTML='<form method="dialog"><h3></h3><p>'+(confirmation?'Guarde a senha: ela não pode ser recuperada pelo aplicativo.':'Use a senha já existente, respeitando maiúsculas e espaços.')+'</p><label>Senha<input name="password" type="password" autocomplete="off" required style="width:100%"></label>'+(confirmation?'<label>Confirmar senha<input name="confirmation" type="password" autocomplete="off" required style="width:100%"></label>':'')+'<p role="alert"></p><div class="form-actions"><button class="btn" value="cancel" formnovalidate>Cancelar</button><button class="btn primary" value="ok">Continuar</button></div></form>';
   dialog.querySelector('h3').textContent=title;
   dialog.querySelector('form').addEventListener('submit',ev=>{if(ev.submitter?.value==='cancel')return;const f=ev.target;if(confirmation&&(f.elements.password.value.length<12||f.elements.password.value!==f.elements.confirmation.value)){ev.preventDefault();dialog.querySelector('[role=alert]').textContent='Use pelo menos 12 caracteres e confirme a mesma senha.';}});
   dialog.addEventListener('close',()=>{const value=dialog.returnValue==='ok'?dialog.querySelector('[name=password]').value:null;dialog.remove();resolve(value);});
-  document.body.appendChild(dialog);dialog.showModal();dialog.querySelector('input').focus();
+  const reveal=document.createElement('label');reveal.style.cssText='display:flex;gap:8px;margin-top:12px';const checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.addEventListener('change',()=>dialog.querySelectorAll('input[name=password],input[name=confirmation]').forEach(input=>input.type=checkbox.checked?'text':'password'));reveal.append(checkbox,document.createTextNode('Mostrar senha'));dialog.querySelector('form').insertBefore(reveal,dialog.querySelector('[role=alert]'));document.body.appendChild(dialog);dialog.showModal();dialog.querySelector('input').focus();
  });
 }
 function checkEnvelope(e){
@@ -1142,15 +1142,26 @@ async function migrateCredentials(){
  renderCloud();
 }
 async function unlockCloud(){
- const password=await askPassword('Desbloquear sincronização');if(password===null)return;
- try{const stored=JSON.parse(localStorage.getItem(VAULT_KEY)||'null');const value=await openJson(stored,password,'controle-solar-credentials');if(typeof value.token!=='string')throw 0;cloudSecrets={token:value.token,passphrase:password};renderCloud();toast('Sincronização desbloqueada nesta sessão.');}catch(e){alert('Senha incorreta ou credenciais indisponíveis. Seus dados foram mantidos.');}
+ if(cloudReady()){toast('A sincronização já está desbloqueada neste aparelho.');return;}
+ if(window.Android?.getCloudSecrets){
+  try{const value=JSON.parse(Android.getCloudSecrets());if(!value.token||!value.passphrase)throw 0;cloudSecrets=value;renderCloud();toast('Sincronização desbloqueada pelo cofre do Android.');}
+  catch(e){alert('O cofre do Android não disponibilizou as credenciais. Use Reconfigurar acesso e informe o token e a mesma senha de criptografia da nuvem. Seus registros serão mantidos.');}
+  return;
+ }
+ let stored;
+ try{stored=JSON.parse(localStorage.getItem(VAULT_KEY)||'null');if(!stored)throw 0;checkEnvelope(stored);if(stored.format!=='controle-solar-credentials'||stored.version!==1)throw 0;}
+ catch(e){alert('As credenciais protegidas não estão disponíveis neste navegador. Use Reconfigurar acesso e informe o token e a mesma senha de criptografia da nuvem. Seus registros serão mantidos.');return;}
+ const password=await askPassword('Digite a senha de criptografia já usada na nuvem');if(password===null)return;
+ try{const value=await openJson(stored,password,'controle-solar-credentials');if(typeof value.token!=='string'||!value.token)throw 0;cloudSecrets={token:value.token,passphrase:password};renderCloud();toast('Sincronização desbloqueada nesta sessão.');}
+ catch(e){alert('A senha informada não abriu as credenciais salvas neste navegador. Confira maiúsculas, espaços e a senha de criptografia usada anteriormente. Se persistir, use Reconfigurar acesso: o app verificará o token e a senha na nuvem antes de salvar. Seus registros e as credenciais anteriores foram mantidos.');}
 }
+function recoverCloudAccess(){goTo('cloud');document.getElementById('cloudToken').focus();toast('Informe o token e a senha já usados na nuvem. Não é preciso remover a configuração.');}
 function lockCloud(){cloudSecrets=null;clearTimeout(cloudTimer);renderCloud();toast('Sincronização bloqueada nesta sessão.');}
 
 let state = loadState();
 let editingMonth = null;
 
-const PANEL_VERSION="2.8.0";
+const PANEL_VERSION="2.8.1";
 const PANEL_BUILD_DATE="2026-10-02";
 const titles = {
  about:["Sobre","Autoria, versões e novidades"],
@@ -1572,7 +1583,7 @@ async function cloudFetchFile(cfg){
 }
 async function cloudWriteFile(cfg,envelope,sha){
   const bytes=new TextEncoder().encode(JSON.stringify(envelope,null,2));
-  const body={message:"Sincroniza dados do Controle Solar v2.8.0",content:bytesToB64(bytes),branch:cfg.branch};
+  const body={message:"Sincroniza dados do Controle Solar v2.8.1",content:bytesToB64(bytes),branch:cfg.branch};
   if(sha)body.sha=sha;
   const r=await fetch(cloudApiUrl(cfg),{method:"PUT",headers:cloudHeaders(cfg),body:JSON.stringify(body)});
   if(r.status===401)throw new Error("Token GitHub inválido ou expirado.");
@@ -1617,7 +1628,12 @@ async function saveCloudSettings(syncAfter=false){
     alert("Preencha todos os campos. A senha de criptografia deve ter pelo menos 8 caracteres.");
     return;
   }
-  try{await saveCloudConfig(cfg);}catch(e){alert(e.message);return;}
+  try{
+    if(!navigator.onLine)throw new Error('Conecte à internet para verificar o acesso antes de salvar as credenciais.');
+    const existing=await cloudFetchFile(cfg);
+    if(existing)await cloudDecrypt(existing.envelope,cfg.passphrase);
+    await saveCloudConfig(cfg);
+  }catch(e){alert((e.message||'Não foi possível verificar o acesso.')+' A configuração anterior e seus registros foram mantidos.');return;}
   setCloudStatus("Configurado");
   renderCloud();
   toast("Credenciais protegidas neste aparelho.");
@@ -2416,6 +2432,7 @@ document.getElementById("meterForm").addEventListener("submit",saveMeterReading)
 clearMeterForm();
 
 document.getElementById('recoveryBackup').hidden=!localStorage.getItem(STORAGE_KEY+'.recovery');document.getElementById('recoveryBackup').addEventListener('click',()=>downloadFile('controle-solar-recuperacao.json',localStorage.getItem(STORAGE_KEY+'.recovery'),'application/json'));
+document.getElementById('recoverCloudAccess').addEventListener('click',recoverCloudAccess);
 const trustedClicks={h0:function(event){window.print()},h1:function(event){newPrimaryEntry()},h2:function(event){goTo('entries')},h3:function(event){goTo('cloud')},h4:function(event){clearForm()},h5:function(event){document.getElementById('solarFile').click()},h6:function(event){document.getElementById('solarFile').click()},h7:function(event){loadSolarSample()},h8:function(event){clearMeterForm()},h9:function(event){saveSmartSettings()},h10:function(event){addSmartAppliance()},h11:function(event){exportData('reports')},h12:function(event){exportEncryptedBackup()},h13:function(event){exportBackup()},h14:function(event){document.getElementById('backupInput').click()},h15:function(event){exportData('entries')},h16:function(event){resetApp()},h17:function(event){unlockCloud()},h18:function(event){lockCloud()},h19:function(event){cloudAutoSync(true)},h20:function(event){cloudForcePull()},h21:function(event){cloudForcePush()},h22:function(event){saveCloudSettings(true)},h23:function(event){clearCloudSettings()},h24:function(event){checkPanelUpdate()},h25:function(event){applyPanelUpdate()}};
 document.addEventListener('click',event=>{const el=event.target.closest('[data-click],[data-action]');if(!el)return;if(el.dataset.click){trustedClicks[el.dataset.click]?.call(el,event);return;}const actions={editEntry,deleteEntry,deleteSolarDay,removeSmartAppliance,deleteSmartSession,startSmartNow,finishSuccess:()=>finishSmartNow(true),finishFailure:()=>finishSmartNow(false)};actions[el.dataset.action]?.(el.dataset.value);});
 document.addEventListener('change',event=>{const key=event.target.dataset.param;if(['prudenceFactor','creditReserve'].includes(key))updateParam(key,event.target.value);});
@@ -2427,4 +2444,3 @@ setTimeout(()=>cloudAutoSync(false),700);
 </script>
 </body>
 </html>
-
