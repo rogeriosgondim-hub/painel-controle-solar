@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0F5F8C">
-<title>Controle Solar v2.6</title>
+<title>Controle Solar v2.6.1</title>
 <style>
 :root{
   --navy:#153955; --navy2:#1f5876; --blue:#dcecf7; --blue2:#c8dfef;
@@ -420,6 +420,57 @@ table{font-size:12px}
 @media(max-width:760px){#meter .form-grid{grid-template-columns:1fr}#meter .kpis{grid-template-columns:1fr 1fr}#meter .kpi .value{font-size:21px}}
 @media(max-width:430px){#meter .kpis{grid-template-columns:1fr}}
 
+
+/* Legendas e exemplo em comparação lado a lado, inclusive no celular. */
+#meter .meter-code-legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:16px}
+#meter .meter-code-card{border:1px solid #d4e5f3;border-top:4px solid #1684d6;background:#f0f7fd;border-radius:14px;padding:16px;min-width:0}
+#meter .meter-code-103{border-color:#cce7d8;border-top-color:#22a861;background:#f1faf5}
+#meter .meter-code-number{display:inline-block;background:#0f5f8c;color:white;padding:5px 12px;border-radius:8px;font-size:24px;font-weight:900;line-height:1.2}
+#meter .meter-code-103 .meter-code-number{background:#187f46}
+#meter .meter-code-card h4{margin:10px 0 6px;font-size:17px;line-height:1.3}
+#meter .meter-code-card b{font-size:14px;color:#245e88}
+#meter .meter-code-103 b{color:#187f46}
+#meter .meter-code-card p{font-size:14px;line-height:1.5;margin:8px 0}
+#meter .meter-code-card small{font-size:13px;line-height:1.4;color:var(--muted);display:block}
+#meter .meter-input-code{padding:12px;border:1px solid #d4e5f3;border-radius:12px;background:#f4f9fd;display:flex;flex-direction:column;min-width:0}
+#meter .meter-input-103{border-color:#cce7d8;background:#f5fbf7}
+#meter .meter-input-code label{flex:1}
+#meter .meter-input-code label>span{font-weight:900;color:#0f5f8c}
+#meter .meter-input-103 label>span{color:#187f46}
+#meter .meter-input-code label small{font-weight:600;margin:4px 0 0}
+#meter .meter-input-code input{background:#fff;min-width:0}
+#meter .meter-example-table{table-layout:fixed;width:100%;font-size:14px;margin-top:12px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#meter .meter-example-table th,#meter .meter-example-table td{white-space:normal;padding:12px 10px;text-align:center;overflow-wrap:anywhere;position:static}
+#meter .meter-example-table thead th:first-child{background:#0f5f8c;text-align:left}
+#meter .meter-example-table thead th:nth-child(2){background:#176b9f}
+#meter .meter-example-table thead th:nth-child(3){background:#187f46}
+#meter .meter-example-table thead strong{display:block;font-size:22px;line-height:1.3}
+#meter .meter-example-table thead span{display:block;font-size:13px;line-height:1.3;margin-top:4px}
+#meter .meter-example-table tbody th{font-weight:400;text-align:left}
+#meter .meter-example-table tbody th b,#meter .meter-example-table tbody th span{display:block;line-height:1.4}
+#meter .meter-example-table tbody th span{font-size:13px;margin-top:4px;color:var(--muted)}
+#meter .meter-example-table tbody tr{background:#f8fbfd}
+#meter .meter-example-table tbody tr:nth-child(even){background:#eaf3fa}
+#meter .meter-example-table td.manual{font-size:22px}
+#meter .meter-example-table td small{display:block;font-size:12px;color:var(--muted);font-weight:500}
+#meter .meter-example-results{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0}
+#meter .meter-example-results>div{padding:12px;background:#f5f9fc;border:1px solid var(--line);border-radius:12px}
+#meter .meter-example-results span,#meter .meter-example-results small{display:block;font-size:13px;line-height:1.4}
+#meter .meter-example-results strong{display:block;font-size:22px;margin:5px 0}
+@media(max-width:760px){
+ #meter .form-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ #meter .form-grid>.field:nth-child(3),#meter .form-grid>.field:nth-child(6){grid-column:1/-1}
+ #meter .meter-input-code{padding:10px}
+ #meter .meter-input-code label{min-height:68px}
+ #meter .meter-code-card{padding:12px}
+ #meter .meter-code-card h4{font-size:16px}
+ #meter .meter-example-results{grid-template-columns:1fr}
+ #meter .kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ #meter .kpi{padding:13px;min-width:0}
+ #meter .kpi .value{font-size:20px}
+ #meter .meter-example-table th,#meter .meter-example-table td{padding:10px 6px}
+}
+
 </style>
 </head>
 <body>
@@ -439,7 +490,7 @@ table{font-size:12px}
       <button data-view="guide">? &nbsp; Guia rápido</button>
       <button data-view="example">✓ &nbsp; Exemplo preenchido</button>
     </div>
-    <div class="side-foot">Dados armazenados localmente neste dispositivo.<br><br><b>App v2.6 • Cloud Sync</b></div>
+    <div class="side-foot">Dados armazenados localmente neste dispositivo.<br><br><b>App v2.6.1 • Cloud Sync</b></div>
   </aside>
 
   <main class="main">
@@ -630,6 +681,10 @@ table{font-size:12px}
 
       <section class="view" id="meter">
         <div class="premium-head"><div><h3>Relógio Enel</h3><p>Leituras acumuladas dos códigos 03 e 103, em kWh.</p></div></div>
+        <div class="meter-code-legend" aria-label="Legenda dos códigos do relógio">
+          <article class="meter-code-card meter-code-03"><span class="meter-code-number">03</span><h4>Consumo da rede</h4><b>Enel → sua casa</b><p>Energia recebida da rede, de dia ou de noite.</p><small>Copie o total acumulado em kWh.</small></article>
+          <article class="meter-code-card meter-code-103"><span class="meter-code-number">103</span><h4>Energia injetada</h4><b>Sua casa → Enel</b><p>Sobra solar enviada à rede após o uso da casa.</p><small>Copie o total acumulado em kWh.</small></article>
+        </div>
         <div class="card meter-form">
           <div class="section-head compact"><h3 id="meterFormTitle">Registrar leitura</h3></div>
           <p class="meter-help">Copie os <b>totais do visor</b>. Não desconte a leitura anterior: o painel faz essa conta. Campos preenchidos por você aparecem em vermelho.</p>
@@ -638,8 +693,8 @@ table{font-size:12px}
               <div class="field"><label for="meterDate">Data da leitura</label><input type="date" id="meterDate" required></div>
               <div class="field"><label for="meterTime">Horário da leitura</label><input type="time" id="meterTime" required></div>
               <div class="field"><label for="meterPeriod">Momento da leitura</label><select id="meterPeriod"><option value="morning">Manhã — antes da geração</option><option value="evening">Fim da tarde — após a geração</option><option value="extra">Leitura extra — durante o dia/outro horário</option><option value="initial">Referência inicial / ativação do medidor</option></select></div>
-              <div class="field"><label for="meterImported">03 — Consumo da rede acumulado (kWh)</label><input type="text" inputmode="decimal" id="meterImported" placeholder="Ex.: 150 ou 150,5" required aria-describedby="meter03Help"><small id="meter03Help">Toda energia recebida da Enel, de dia e de noite.</small></div>
-              <div class="field"><label for="meterInjected">103 — Energia injetada acumulada (kWh)</label><input type="text" inputmode="decimal" id="meterInjected" placeholder="Ex.: 200 ou 200,5" required aria-describedby="meter103Help"><small id="meter103Help">Somente a sobra solar enviada à rede; não é toda a produção.</small></div>
+              <div class="field meter-input-code meter-input-03"><label for="meterImported"><span>03</span> Consumo da rede <small>Total acumulado · kWh</small></label><input type="text" inputmode="decimal" id="meterImported" placeholder="Ex.: 150,5" required aria-describedby="meter03Help"><small id="meter03Help">Toda energia recebida da Enel, de dia e de noite.</small></div>
+              <div class="field meter-input-code meter-input-103"><label for="meterInjected"><span>103</span> Energia injetada <small>Total acumulado · kWh</small></label><input type="text" inputmode="decimal" id="meterInjected" placeholder="Ex.: 200,5" required aria-describedby="meter103Help"><small id="meter103Help">Somente a sobra solar enviada à rede; não é toda a produção.</small></div>
               <div class="field"><label for="meterNote">Observação (opcional)</label><input type="text" id="meterNote" maxlength="300" placeholder="Ex.: chuva, ar-condicionado, leitura inicial"></div>
             </div>
             <div id="meterError" class="notice" role="alert" hidden></div>
@@ -661,7 +716,9 @@ table{font-size:12px}
           <p><b>Produção e créditos:</b> acompanhe a produção total na aba Produção Solar. Energia injetada menos recebida é apenas o balanço físico do período. O saldo oficial de créditos e a compensação vêm da fatura da Enel; estas leituras não alteram seus lançamentos mensais automaticamente.</p>
         </details>
         <details class="card meter-guide" open><summary>Exemplo ilustrativo — não entra nos seus registros</summary>
-          <div class="table-scroll"><table class="meter-table"><thead><tr><th>Leitura</th><th>03 acumulado</th><th>103 acumulado</th></tr></thead><tbody><tr><td>01/10 às 06:00 — manhã</td><td class="manual">150</td><td class="manual">200</td></tr><tr><td>01/10 às 18:00 — fim da tarde</td><td class="manual">152</td><td class="manual">212</td></tr><tr><td>02/10 às 06:00 — manhã</td><td class="manual">158</td><td class="manual">212</td></tr></tbody></table></div>
+          <p class="meter-example-caption">Os dois números abaixo são os totais copiados do visor em cada horário.</p>
+          <table class="meter-example-table"><colgroup><col style="width:40%"><col style="width:30%"><col style="width:30%"></colgroup><thead><tr><th scope="col">Quando ler</th><th scope="col"><strong>03</strong><span>Consumo da rede</span></th><th scope="col"><strong>103</strong><span>Energia injetada</span></th></tr></thead><tbody><tr><th scope="row"><b>01/10 · 06:00</b><span>Manhã</span></th><td class="manual">150<small>kWh</small></td><td class="manual">200<small>kWh</small></td></tr><tr><th scope="row"><b>01/10 · 18:00</b><span>Fim da tarde</span></th><td class="manual">152<small>kWh</small></td><td class="manual">212<small>kWh</small></td></tr><tr><th scope="row"><b>02/10 · 06:00</b><span>Manhã seguinte</span></th><td class="manual">158<small>kWh</small></td><td class="manual">212<small>kWh</small></td></tr></tbody></table>
+          <div class="meter-example-results"><div><span>Rede durante o dia</span><strong>2 kWh</strong><small>03: 152 − 150</small></div><div><span>Injetada durante o dia</span><strong>12 kWh</strong><small>103: 212 − 200</small></div><div><span>Rede na noite anterior</span><strong>6 kWh</strong><small>03: 158 − 152</small></div></div>
           <p><b>Durante o dia 01/10:</b> 152 − 150 = <b>2 kWh recebidos da rede</b>; 212 − 200 = <b>12 kWh injetados</b>.</p><p><b>Na noite anterior a 02/10:</b> 158 − 152 = <b>6 kWh recebidos da rede</b>.</p><p>Digite 150, 152 e 158 no campo 03 de cada leitura; nunca digite as diferenças 2 e 6 nesse campo. Copie somente as casas decimais que seu visor realmente mostra.</p>
         </details>
       </section>
@@ -1331,7 +1388,7 @@ async function cloudFetchFile(cfg){
 }
 async function cloudWriteFile(cfg,envelope,sha){
   const bytes=new TextEncoder().encode(JSON.stringify(envelope,null,2));
-  const body={message:"Sincroniza dados do Controle Solar v2.6",content:bytesToB64(bytes),branch:cfg.branch};
+  const body={message:"Sincroniza dados do Controle Solar v2.6.1",content:bytesToB64(bytes),branch:cfg.branch};
   if(sha)body.sha=sha;
   const r=await fetch(cloudApiUrl(cfg),{method:"PUT",headers:cloudHeaders(cfg),body:JSON.stringify(body)});
   if(r.status===401)throw new Error("Token GitHub inválido ou expirado.");
