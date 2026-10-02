@@ -53,6 +53,7 @@ public class MainActivity extends Activity {
     private volatile boolean checking=false, updateAvailable=false;
     private volatile String updateStatus="Buscando novidades…";
     private boolean ready=false;
+    private long lastCheck=0;
     private final Runnable verifyReady=()->{
         if(!ready && activeHtml!=null && webView!=null){
             activeHtml=null; activeRevision=BUNDLED_REVISION; panelCache.delete();
@@ -136,7 +137,7 @@ public class MainActivity extends Activity {
         StringBuilder result=new StringBuilder();for(byte b:MessageDigest.getInstance("SHA-256").digest(bytes))result.append(String.format("%02x",b&255));return result.toString();
     }
     private synchronized void checkForUpdate(){
-        if(checking||isFinishing())return;checking=true;updateStatus="Buscando novidades…";notifyStatus();
+        if(checking||isFinishing())return;lastCheck=System.currentTimeMillis();checking=true;updateStatus="Buscando novidades…";notifyStatus();
         worker.execute(()->{
             try{
                 JSONObject manifest=new JSONObject(new String(fetch("panel-update.json",16384),StandardCharsets.UTF_8));
@@ -151,7 +152,7 @@ public class MainActivity extends Activity {
                     FileOutputStream out=null;
                     try{out=panelCache.startWrite();out.write(payload.toString().getBytes(StandardCharsets.UTF_8));panelCache.finishWrite(out);}
                     catch(Exception e){if(out!=null)panelCache.failWrite(out);throw e;}
-                    updateAvailable=true;updateStatus="Painel "+version+" disponível. Aplique agora ou abra o app novamente.";
+                    updateAvailable=true;updateStatus="Painel "+version+" disponível. Toque em Aplicar atualização para usar as novidades.";
                 }
             }catch(Exception e){updateStatus=updateAvailable?"Atualização já baixada. Você pode aplicá-la sem internet.":"Não foi possível consultar novidades. A cópia deste aparelho continua disponível.";}
             finally{checking=false;notifyStatus();}
@@ -211,6 +212,7 @@ public class MainActivity extends Activity {
             pendingBytes=null;
         }
     }
+    @Override protected void onResume(){super.onResume();if(webView!=null&&System.currentTimeMillis()-lastCheck>300000)checkForUpdate();}
     @Override public void onBackPressed(){if(webView!=null&&webView.canGoBack())webView.goBack();else super.onBackPressed();}
     @Override protected void onDestroy(){handler.removeCallbacksAndMessages(null);worker.shutdownNow();if(webView!=null){webView.removeJavascriptInterface("Android");webView.destroy();webView=null;}if(printView!=null)printView.destroy();super.onDestroy();}
 }

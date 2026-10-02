@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 apk=android-app/Controle-Solar-v2.7.0.apk
+adb shell input keyevent KEYCODE_WAKEUP
+adb shell wm dismiss-keyguard
+adb shell input keyevent 82
 if [ -f previous-apk/Controle-Solar-v2.6.3.apk ]; then
   adb install previous-apk/Controle-Solar-v2.6.3.apk
 fi
