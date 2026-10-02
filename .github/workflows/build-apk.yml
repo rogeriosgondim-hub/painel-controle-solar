@@ -122,6 +122,19 @@ jobs:
           disable-animations: true
           script: bash android-app/check-install.sh
 
+      - name: Guardar diagnóstico do teste Android
+        if: always() && steps.signing.outputs.configured == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: diagnostico-android-2.7.0
+          path: |
+            solar-ui.xml
+            solar-screen.png
+            panel-runtime.log
+            android-runtime.log
+          if-no-files-found: warn
+          retention-days: 7
+
       - name: Publicar artefato
         if: steps.signing.outputs.configured == 'true'
         uses: actions/upload-artifact@v4

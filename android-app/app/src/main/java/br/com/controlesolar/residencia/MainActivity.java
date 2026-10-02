@@ -10,6 +10,8 @@ import android.os.Looper;
 import android.print.PrintAttributes;
 import android.print.PrintManager;
 import android.util.AtomicFile;
+import android.util.Log;
+import android.webkit.ConsoleMessage;
 import android.util.Base64;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
@@ -96,6 +98,9 @@ public class MainActivity extends Activity {
             @Override public void onPageFinished(WebView view,String url){handler.removeCallbacks(verifyReady);handler.postDelayed(verifyReady,20000);notifyStatus();}
         });
         webView.setWebChromeClient(new WebChromeClient(){
+            @Override public boolean onConsoleMessage(ConsoleMessage message){
+                if(message.messageLevel()==ConsoleMessage.MessageLevel.ERROR)Log.e("SolarPanel",message.message()+" (linha "+message.lineNumber()+")");return true;
+            }
             @Override public boolean onShowFileChooser(WebView view,ValueCallback<Uri[]> callback,FileChooserParams params){
                 if(filePathCallback!=null)filePathCallback.onReceiveValue(null);
                 filePathCallback=callback;
@@ -172,7 +177,7 @@ public class MainActivity extends Activity {
         @JavascriptInterface public String appInfo(){
             try{JSONObject info=new JSONObject();info.put("version",getPackageManager().getPackageInfo(getPackageName(),0).versionName);info.put("status",updateStatus);info.put("available",updateAvailable);return info.toString();}catch(Exception e){return "{}";}
         }
-        @JavascriptInterface public void panelReady(String version){runOnUiThread(()->{ready=true;handler.removeCallbacks(verifyReady);});}
+        @JavascriptInterface public void panelReady(String version){runOnUiThread(()->{ready=true;handler.removeCallbacks(verifyReady);Log.i("SolarPanel","Painel pronto: "+version);});}
         @JavascriptInterface public void checkUpdate(){checkForUpdate();}
         @JavascriptInterface public void applyUpdate(){
             runOnUiThread(()->{
