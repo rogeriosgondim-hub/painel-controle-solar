@@ -2,9 +2,10 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ut4aYxyogzLNySjNn0Gb6bs0/iCFooSvPBo/goyrv9I='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src https://api.github.com; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0F5F8C">
-<title>Controle Solar v2.7.0</title>
+<title>Controle Solar v2.8.0</title>
 <style>
 :root{
   --navy:#153955; --navy2:#1f5876; --blue:#dcecf7; --blue2:#c8dfef;
@@ -545,7 +546,7 @@ table{font-size:12px}
 <body>
 <div class="app">
   <aside class="sidebar" id="sidebar">
-    <div class="brand"><div class="logo">☀</div><div><h1>Controle Solar</h1><small>Residência • UC 7196632</small></div></div>
+    <div class="brand"><div class="logo">☀</div><div><h1>Controle Solar</h1><small>Painel da residência</small></div></div>
     <div class="nav">
       <button data-view="dashboard" class="active">▦ &nbsp; Painel</button>
       <button data-view="entries">✎ &nbsp; Lançamentos</button>
@@ -560,7 +561,7 @@ table{font-size:12px}
       <button data-view="example">✓ &nbsp; Exemplo preenchido</button>
       <button data-view="about">ℹ &nbsp; Sobre</button>
     </div>
-    <div class="side-foot">Dados armazenados localmente neste dispositivo.<br><br><b>App v2.7.0 • Cloud Sync</b></div>
+    <div class="side-foot">Dados armazenados localmente neste dispositivo.<br><br><b>App v2.8.0 • Cloud Sync</b></div>
   </aside>
 
   <main class="main">
@@ -569,7 +570,7 @@ table{font-size:12px}
         <button class="btn mobile-menu" id="menuBtn">☰</button>
         <div><div class="title-row"><h2 id="pageTitle">Painel de Controle Solar</h2></div><div class="sub" id="pageSub">Visão geral do seu sistema solar</div></div>
       </div>
-      <div class="top-actions"><button class="btn desktop-only" onclick="window.print()">Imprimir</button><button class="btn primary" id="newEntryButton" onclick="newPrimaryEntry()">Novo lançamento</button></div>
+      <div class="top-actions"><button class="btn desktop-only" data-click="h0">Imprimir</button><button class="btn primary" id="newEntryButton" data-click="h1">Novo lançamento</button></div>
     </header>
 
     <div class="content">
@@ -612,7 +613,7 @@ table{font-size:12px}
           <div class="card latest-card">
             <div class="section-head compact">
               <div><h3>Últimos lançamentos</h3><p>Visão rápida dos registros mais recentes</p></div>
-              <button class="btn subtle" type="button" onclick="goTo('entries')">Ver todos</button>
+              <button class="btn subtle" type="button" data-click="h2">Ver todos</button>
             </div>
             <div class="mini-table-wrap"><table class="mini-table"><thead><tr><th>Mês</th><th>Geração</th><th>Consumo</th><th>Conta</th><th>Status</th></tr></thead><tbody id="premiumLatestRows"></tbody></table></div>
           </div>
@@ -627,7 +628,7 @@ table{font-size:12px}
         <div class="sync-bar">
           <div class="sync-icon">☁</div>
           <div class="sync-copy"><strong>Sincronização na nuvem</strong><span>Seu app mantém celular e computador com a mesma base de dados.</span></div>
-          <button class="btn primary" type="button" onclick="goTo('cloud')">Abrir sincronização</button>
+          <button class="btn primary" type="button" data-click="h3">Abrir sincronização</button>
         </div>
 
         <div class="section-head history-head"><div><h3>Histórico de consumo pré-solar</h3><p>Base de referência dos 12 meses anteriores à geração solar</p></div></div>
@@ -664,7 +665,7 @@ table{font-size:12px}
               <div class="field"><label>Parcelamentos / outros (R$)</label><input type="number" id="fExtras" step="0.01" min="0"></div>
             </div>
             <div class="calc-preview" id="calcPreview"></div>
-            <div class="form-actions"><button type="button" class="btn" onclick="clearForm()">Limpar</button><button type="submit" class="btn primary">Salvar mês</button></div>
+            <div class="form-actions"><button type="button" class="btn" data-click="h4">Limpar</button><button type="submit" class="btn primary">Salvar mês</button></div>
           </form>
         </div>
 
@@ -693,7 +694,7 @@ table{font-size:12px}
               <option value="month">Mês mais recente</option>
               <option value="all">Todo o período</option>
             </select></div>
-            <button class="btn primary" type="button" onclick="document.getElementById('solarFile').click()">Importar SolarView</button>
+            <button class="btn primary" type="button" data-click="h5">Importar SolarView</button>
             <input id="solarFile" type="file" accept=".xlsx,.xls" style="display:none">
           </div>
         </div>
@@ -714,8 +715,8 @@ table{font-size:12px}
               <h4>Planilha Excel do Monitoramento</h4>
               <p>Arquivos com vários dias atualizam o histórico diário. Arquivos consolidados do mês são usados para registrar a expectativa mensal.</p>
               <div class="solar-import-actions">
-                <button class="btn primary" type="button" onclick="document.getElementById('solarFile').click()">Selecionar .xlsx</button>
-                <button class="btn" type="button" onclick="loadSolarSample()">Restaurar dados iniciais 22–28/09</button>
+                <button class="btn primary" type="button" data-click="h6">Selecionar .xlsx</button>
+                <button class="btn" type="button" data-click="h7">Limpar produção diária</button>
               </div>
               <div class="solar-last-import" id="solarLastImport">Nenhuma importação nesta prévia.</div>
               <div class="import-result" id="solarImportResult"></div>
@@ -768,7 +769,7 @@ table{font-size:12px}
               <div class="field"><label for="meterNote">Observação (opcional)</label><input type="text" id="meterNote" maxlength="300" placeholder="Ex.: chuva, ar-condicionado, leitura inicial"></div>
             </div>
             <div id="meterError" class="notice" role="alert" hidden></div>
-            <div class="form-actions"><button class="btn" type="button" onclick="clearMeterForm()">Cancelar / nova leitura</button><button class="btn primary" type="submit">Salvar leitura</button></div>
+            <div class="form-actions"><button class="btn" type="button" data-click="h8">Cancelar / nova leitura</button><button class="btn primary" type="submit">Salvar leitura</button></div>
           </form>
         </div>
         <div class="grid kpis" id="meterKpis"></div>
@@ -835,7 +836,7 @@ table{font-size:12px}
             <div class="field"><label>Início da janela solar</label><input type="time" id="smartSolarStart"></div>
             <div class="field"><label>Fim da janela solar</label><input type="time" id="smartSolarEnd"></div>
             <div class="field"><label>Margem de segurança</label><input type="number" id="smartSafetyMin" min="0" max="180" step="5" style="width:92px"></div>
-            <button class="btn" type="button" onclick="saveSmartSettings()">Salvar janela</button>
+            <button class="btn" type="button" data-click="h9">Salvar janela</button>
           </div>
         </div>
 
@@ -888,7 +889,7 @@ table{font-size:12px}
             <div class="section-head compact"><div><h3>Meus eletrodomésticos</h3><p>Cadastre outros equipamentos para acompanhar.</p></div></div>
             <div class="appliance-row">
               <input id="smartNewAppliance" placeholder="Ex.: Lava-louças">
-              <button class="btn primary" type="button" onclick="addSmartAppliance()">Adicionar</button>
+              <button class="btn primary" type="button" data-click="h10">Adicionar</button>
             </div>
             <div id="smartApplianceList" style="margin-top:12px"></div>
             <div class="notice" style="margin-top:14px">Nesta prévia, a <b>Máquina de lavar</b> já vem cadastrada. Não é necessário informar potência ou consumo agora: primeiro vamos aprender o tempo real dos ciclos.</div>
@@ -917,7 +918,7 @@ table{font-size:12px}
               <option value="6">Últimos 6 meses</option><option value="12" selected>Últimos 12 meses</option>
               <option value="all">Todo o período</option>
             </select></div>
-            <div class="export-control"><label for="reportsExportFormat">Formato do relatório</label><select id="reportsExportFormat"><option value="pdf">PDF</option><option value="xlsx">Excel (.xlsx)</option><option value="csv">CSV (.csv)</option></select><button class="btn" type="button" onclick="exportData('reports')">Exportar relatório</button></div>
+            <div class="export-control"><label for="reportsExportFormat">Formato do relatório</label><select id="reportsExportFormat"><option value="pdf">PDF</option><option value="xlsx">Excel (.xlsx)</option><option value="csv">CSV (.csv)</option></select><button class="btn" type="button" data-click="h11">Exportar relatório</button></div>
           </div>
         </div>
         <div class="report-period-title" id="reportPeriodTitle">—</div>
@@ -970,13 +971,13 @@ table{font-size:12px}
         <div class="section-head"><div><h3>Backup e portabilidade</h3><p>Leve seus lançamentos para outro computador ou celular.</p></div></div>
         <div class="card">
           <div class="backup-box">
-            <button class="btn primary" onclick="exportBackup()">Exportar backup (.json)</button>
-            <button class="btn" onclick="document.getElementById('backupInput').click()">Importar backup</button>
+            <button class="btn primary" data-click="h12">Backup com senha (.json)</button><button class="btn" id="recoveryBackup" hidden>Exportar cópia de recuperação</button><button class="btn" data-click="h13">Exportar backup (.json)</button>
+            <button class="btn" data-click="h14">Importar backup</button>
             <input id="backupInput" type="file" accept=".json,application/json" style="display:none">
-            <div class="export-control"><label for="entriesExportFormat">Formato dos lançamentos</label><select id="entriesExportFormat"><option value="xlsx">Excel (.xlsx)</option><option value="csv">CSV (.csv)</option><option value="pdf">PDF</option></select><button class="btn" onclick="exportData('entries')">Exportar lançamentos</button></div>
-            <button class="btn danger" onclick="resetApp()">Restaurar dados originais</button>
+            <div class="export-control"><label for="entriesExportFormat">Formato dos lançamentos</label><select id="entriesExportFormat"><option value="xlsx">Excel (.xlsx)</option><option value="csv">CSV (.csv)</option><option value="pdf">PDF</option></select><button class="btn" data-click="h15">Exportar lançamentos</button></div>
+            <button class="btn danger" data-click="h16">Limpar todos os registros</button>
           </div>
-          <p class="export-help">Excel, CSV e PDF servem para consultar e compartilhar. Para recuperar os dados do app, use o backup .json.</p><div class="notice" style="margin-top:15px">A fatura da distribuidora continua sendo a referência oficial de cobrança. Este app reproduz a lógica de gestão da planilha e não substitui os dados oficiais.</div>
+          <p class="export-help">Prefira o backup com senha para guardar seus registros. A senha não pode ser recuperada. O backup simples, Excel, CSV e PDF contêm dados legíveis. As credenciais da nuvem não entram nos backups.</p><div class="notice" style="margin-top:15px">A fatura da distribuidora continua sendo a referência oficial de cobrança. Este app reproduz a lógica de gestão da planilha e não substitui os dados oficiais.</div>
         </div>
       </section>
 
@@ -992,19 +993,19 @@ table{font-size:12px}
               <div class="param"><div class="pname">Destino</div><div class="pval" id="cloudDestination" style="font-size:14px">—</div></div>
             </div>
             <div class="form-actions" style="justify-content:flex-start">
-              <button class="btn primary" type="button" onclick="cloudAutoSync(true)">Sincronizar agora</button>
-              <button class="btn" type="button" onclick="cloudForcePull()">Baixar da nuvem</button>
-              <button class="btn" type="button" onclick="cloudForcePush()">Enviar este aparelho</button>
+              <button class="btn" type="button" data-click="h17">Desbloquear sincronização</button><button class="btn" type="button" data-click="h18">Bloquear sessão</button><button class="btn primary" type="button" data-click="h19">Sincronizar agora</button>
+              <button class="btn" type="button" data-click="h20">Baixar da nuvem</button>
+              <button class="btn" type="button" data-click="h21">Enviar este aparelho</button>
             </div>
           </div>
           <div class="card">
             <div class="section-head" style="margin-top:0"><div><h3>Como funciona</h3></div></div>
-            <div class="rule">A versão 2.6 usa uma área separada do seu repositório GitHub (<b>branch cloud-sync</b>) como armazenamento. Antes do envio, os dados são criptografados no aparelho com <b>AES-GCM</b>. A senha de criptografia e o token do GitHub não são enviados para o repositório.</div>
+            <div class="rule">O painel usa uma área separada do seu repositório GitHub (<b>branch cloud-sync</b>) como armazenamento. Antes do envio, os dados são criptografados no aparelho com <b>AES-GCM</b>. A senha de criptografia e o token do GitHub não são enviados para o repositório.</div>
             <div class="notice" style="margin-top:14px"><b>Importante:</b> use um token GitHub <b>fine-grained</b>, restrito somente ao repositório <b>painel-controle-solar</b>, com permissão <b>Contents: Read and write</b>. Não envie esse token pelo chat.</div>
           </div>
         </div>
 
-        <div class="section-head"><div><h3>Configuração deste aparelho</h3><p>A configuração fica somente neste navegador/celular e não entra no backup dos dados.</p></div></div>
+        <div class="section-head"><div><h3>Configuração deste aparelho</h3><p>No Android, as credenciais são protegidas pelo sistema. No navegador, desbloqueie a sincronização com sua senha a cada sessão. A configuração não entra no backup dos registros.</p></div></div>
         <div class="card">
           <div class="form-grid">
             <div class="field"><label>Usuário GitHub</label><input id="cloudOwner" value="rogeriosgondim-hub" autocomplete="off"></div>
@@ -1012,14 +1013,14 @@ table{font-size:12px}
             <div class="field"><label>Branch de dados</label><input id="cloudBranch" value="cloud-sync" autocomplete="off"></div>
             <div class="field"><label>Arquivo de dados</label><input id="cloudPath" value="cloud-data.enc.json" autocomplete="off"></div>
             <div class="field"><label>Token GitHub (fine-grained)</label><input type="password" id="cloudToken" autocomplete="off" placeholder="github_pat_..."></div>
-            <div class="field"><label>Senha de criptografia</label><input type="password" id="cloudPassphrase" autocomplete="new-password" placeholder="Use a mesma senha em todos os aparelhos"></div>
+            <div class="field"><label>Senha de criptografia</label><input type="password" id="cloudPassphrase" autocomplete="off" placeholder="Use a mesma senha em todos os aparelhos"></div>
           </div>
           <label style="display:flex;align-items:center;gap:9px;margin-top:14px;font-size:13px;font-weight:700">
             <input type="checkbox" id="cloudAuto" checked style="width:auto"> Sincronizar automaticamente após alterações e ao abrir o app
           </label>
           <div class="form-actions">
-            <button class="btn primary" type="button" onclick="saveCloudSettings(true)">Salvar e sincronizar</button>
-            <button class="btn danger" type="button" onclick="clearCloudSettings()">Remover configuração deste aparelho</button>
+            <button class="btn primary" type="button" data-click="h22">Salvar e sincronizar</button>
+            <button class="btn danger" type="button" data-click="h23">Remover configuração deste aparelho</button>
           </div>
         </div>
       </section>
@@ -1030,10 +1031,10 @@ table{font-size:12px}
         <div class="section-head"><div><h3>Dados da conta analisada — Set/2026</h3></div></div>
         <div class="grid three">
           <div class="card"><b>Consumo faturado</b><div class="big">220 kWh</div></div>
-          <div class="card"><b>Total da fatura</b><div class="big">R$ 507,71</div></div>
-          <div class="card"><b>Energia + bandeira</b><div class="big">R$ 302,08</div></div>
-          <div class="card"><b>CIP</b><div class="big">R$ 48,19</div></div>
-          <div class="card"><b>Parcelamento</b><div class="big">R$ 157,44</div></div>
+          <div class="card"><b>Total da fatura</b><div class="big">R$ 400,00</div></div>
+          <div class="card"><b>Energia + bandeira</b><div class="big">R$ 270,00</div></div>
+          <div class="card"><b>CIP</b><div class="big">R$ 30,00</div></div>
+          <div class="card"><b>Parcelamento</b><div class="big">R$ 100,00</div></div>
           <div class="card"><b>Referência histórica</b><div class="big">3.730 kWh/ano</div></div>
         </div>
       </section>
@@ -1041,8 +1042,8 @@ table{font-size:12px}
 <section class="view" id="about">
  <div class="premium-head"><div><div class="eyebrow">SOBRE O PROJETO</div><h3>Painel de Controle Solar da Residência</h3><p>Controle de geração, consumo e leituras do relógio Enel.</p></div></div>
  <div class="grid about-grid"><div class="card"><h3>Criador do projeto</h3><p class="about-name">Rogerio Sampaio</p><p>Projeto pessoal para acompanhar a energia solar da residência.</p></div>
- <div class="card"><h3>Versões e atualização</h3><dl class="about-details"><dt>Painel</dt><dd>2.7.0</dd><dt>Data desta versão</dt><dd>02/10/2026</dd><dt>Aplicativo Android</dt><dd id="aboutNativeVersion">Acesso pelo navegador</dd></dl><p id="panelUpdateStatus" role="status">No navegador, recarregue a página para buscar as novidades.</p><div class="backup-box"><button class="btn primary" onclick="checkPanelUpdate()">Buscar atualização</button><button class="btn" id="applyPanelUpdate" hidden onclick="applyPanelUpdate()">Aplicar atualização</button></div></div></div>
- <div class="card" style="margin-top:16px"><h3>Novidades da versão 2.7.0</h3><ul class="about-news"><li>Exportação dos lançamentos e relatórios em Excel, CSV e PDF.</li><li>Seção Sobre com autoria, versão e data.</li><li>O novo app Android busca melhorias do painel e mantém uma cópia para uso sem internet.</li></ul><p id="aboutOffline">Os lançamentos ficam salvos neste aparelho. A sincronização na nuvem precisa de internet.</p><a class="btn" href="https://rogeriosgondim-hub.github.io/painel-controle-solar/" target="_blank" rel="noopener">Abrir painel web</a></div>
+ <div class="card"><h3>Versões e atualização</h3><dl class="about-details"><dt>Painel</dt><dd>2.8.0</dd><dt>Data desta versão</dt><dd>02/10/2026</dd><dt>Aplicativo Android</dt><dd id="aboutNativeVersion">Acesso pelo navegador</dd></dl><p id="panelUpdateStatus" role="status">No navegador, recarregue a página para buscar as novidades.</p><div class="backup-box"><button class="btn primary" data-click="h24">Buscar atualização</button><button class="btn" id="applyPanelUpdate" hidden data-click="h25">Aplicar atualização</button></div></div></div>
+ <div class="card" style="margin-top:16px"><h3>Novidades da versão 2.8.0</h3><ul class="about-news"><li>Backup com senha e validação dos arquivos importados.</li><li>Credenciais protegidas no Android e no navegador.</li><li>Atualizações do painel com assinatura verificada e funcionamento offline.</li></ul><p id="aboutOffline">Os lançamentos ficam salvos neste aparelho. A sincronização na nuvem precisa de internet.</p><a class="btn" href="https://rogeriosgondim-hub.github.io/painel-controle-solar/" target="_blank" rel="noopener">Abrir painel web</a></div>
  </section>
       <section class="view" id="example">
         <div class="notice"><b>Exemplo simulado.</b> Os números abaixo servem apenas para explicar o preenchimento e não representam geração real nem futura fatura.</div>
@@ -1056,26 +1057,100 @@ table{font-size:12px}
 
 <script src="vendor/xlsx.full.min.js"></script>
 <script>
-const DEFAULTS = {"parameters": {"installedKwp": 3.75, "declaredKw": 3.8, "moduleCount": 6, "moduleWp": 625, "inverterCount": 2, "inverterKw": 2.4, "voltage": 220, "breakerA": 50, "uc": "7196632", "historicalAverage": 310.8333333333, "invoiceAverage": 321, "referenceConsumption": 220, "prudenceFactor": 0.85, "referenceCip": 48.19, "currentInstallment": 157.44, "currentEnergyBilling": 302.08, "currentTotalBill": 507.71, "recurringCeiling": 350.27, "effectiveKwhCost": 1.3730909091, "creditReserve": 50}, "history": [{"month": "2025-10", "label": "Out/2025", "consumption": 220}, {"month": "2025-11", "label": "Nov/2025", "consumption": 220}, {"month": "2025-12", "label": "Dez/2025", "consumption": 360}, {"month": "2026-01", "label": "Jan/2026", "consumption": 560}, {"month": "2026-02", "label": "Fev/2026", "consumption": 440}, {"month": "2026-03", "label": "Mar/2026", "consumption": 340}, {"month": "2026-04", "label": "Abr/2026", "consumption": 390}, {"month": "2026-05", "label": "Mai/2026", "consumption": 360}, {"month": "2026-06", "label": "Jun/2026", "consumption": 240}, {"month": "2026-07", "label": "Jul/2026", "consumption": 170}, {"month": "2026-08", "label": "Ago/2026", "consumption": 210}, {"month": "2026-09", "label": "Set/2026", "consumption": 220}], "entries": [{"month": "2026-09", "generation": null, "gridImported": 220, "injected": 0, "creditsUsed": 0, "creditBalance": 0, "totalBill": 507.71, "cip": 48.19, "extras": 157.44}, {"month": "2026-10", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2026-11", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2026-12", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-01", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-02", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-03", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-04", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-05", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-06", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-07", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-08", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-09", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-10", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-11", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2027-12", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2028-01", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2028-02", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2028-03", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2028-04", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2028-05", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2028-06", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2028-07", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}, {"month": "2028-08", "generation": null, "gridImported": null, "injected": null, "creditsUsed": null, "creditBalance": null, "totalBill": null, "cip": null, "extras": null}]};
-const SOLAR_INITIAL_DAILY = [
-  {date:"2026-09-22",produced:0,expected:13.182,source:"SolarView • importação inicial"},
-  {date:"2026-09-23",produced:1.6,expected:13.182,source:"SolarView • importação inicial"},
-  {date:"2026-09-24",produced:8.1,expected:13.182,source:"SolarView • importação inicial"},
-  {date:"2026-09-25",produced:18.4,expected:13.182,source:"SolarView • importação inicial"},
-  {date:"2026-09-26",produced:23.1,expected:13.182,source:"SolarView • importação inicial"},
-  {date:"2026-09-27",produced:6,expected:13.182,source:"SolarView • importação inicial"},
-  {date:"2026-09-28",produced:15.3,expected:13.182,source:"SolarView • importação inicial"}
-];
-const SOLAR_INITIAL_TARGETS = {"2026-09":369.096};
+const DEFAULTS = {"parameters": {"installedKwp": 3.75, "declaredKw": 3.8, "moduleCount": 6, "moduleWp": 625, "inverterCount": 2, "inverterKw": 2.4, "voltage": 220, "breakerA": 50, "uc": "", "historicalAverage": null, "invoiceAverage": null, "referenceConsumption": null, "prudenceFactor": 0.85, "referenceCip": null, "currentInstallment": null, "currentEnergyBilling": null, "currentTotalBill": null, "recurringCeiling": null, "effectiveKwhCost": null, "creditReserve": 50}, "history": [], "entries": []};
+const SOLAR_INITIAL_DAILY = [];
+const SOLAR_INITIAL_TARGETS = {};
 const STORAGE_KEY = "painelSolarResidencia.v1";
 const CLOUD_CONFIG_KEY = "painelSolarCloud.v2";
 const CLOUD_META_KEY = "painelSolarCloudMeta.v2";
 let cloudTimer = null;
 let cloudBusy = false;
+// Validate imported, synchronized and stored data before rendering.
+function validateState(input){
+ const fail=()=>{throw new Error('Dados inválidos: o arquivo não foi aplicado.');};
+ const walk=(v,k='',depth=0)=>{
+  if(depth>12||['__proto__','prototype','constructor'].includes(k))fail();
+  if(v===null||typeof v==='boolean')return;
+  if(typeof v==='number'){if(!Number.isFinite(v)||Math.abs(v)>1e12)fail();return;}
+  if(typeof v==='string'){if(v.length>4000||/[\u0000-\u0008]/.test(v))fail();return;}
+  if(!v||typeof v!=='object')fail();
+  if(Array.isArray(v)){if(v.length>20000)fail();v.forEach(x=>walk(x,'',depth+1));}
+  else{if(Object.keys(v).length>5000)fail();Object.entries(v).forEach(([key,x])=>walk(x,key,depth+1));}
+ };
+ walk(input);
+ if(!input.parameters||Array.isArray(input.parameters)||!Array.isArray(input.entries)||!Array.isArray(input.history))fail();
+ const number=(v,nullable=false)=>{if(nullable&&v===null)return;if(typeof v!=='number'||!Number.isFinite(v)||v<0||v>1e9)fail();};
+ const id=v=>{if(typeof v!=='string'||!/^[A-Za-z0-9_-]{1,100}$/.test(v))fail();};
+ const month=v=>{if(typeof v!=='string'||!/^\d{4}-(0[1-9]|1[0-2])$/.test(v))fail();};
+ const date=v=>{if(typeof v!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(v)||!Number.isFinite(Date.parse(v))||new Date(v).toISOString().slice(0,10)!==v)fail();};
+ const timestamp=v=>{if(typeof v!=='string'||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(v)||!Number.isFinite(Date.parse(v)))fail();};
+ for(const [k,v] of Object.entries(input.parameters)){if(k==='uc'){if(typeof v!=='string'||!/^\d{0,30}$/.test(v))fail();}else number(v,true);}
+ input.entries.forEach(x=>{month(x.month);for(const k of ['generation','gridImported','injected','creditsUsed','creditBalance','totalBill','cip','extras'])if(k in x)number(x[k],true);});
+ input.history.forEach(x=>{month(x.month);number(x.consumption);if(typeof x.label!=='string')fail();});
+ (input.dailyProduction||[]).forEach(x=>{date(x.date);number(x.produced);number(x.expected,true);});
+ for(const [m,v] of Object.entries(input.solarMonthlyTargets||{})){month(m);number(v);}
+ const su=input.smartUse;
+ if(su){(su.appliances||[]).forEach(x=>{id(x.id);if(typeof x.name!=='string')fail();});
+  (su.sessions||[]).forEach(x=>{id(x.id);id(x.applianceId);timestamp(x.start);timestamp(x.end);if(typeof x.success!=='boolean')fail();});
+  if(su.activeSession){id(su.activeSession.applianceId);timestamp(su.activeSession.start);}
+  if(su.settings){for(const k of ['solarStart','solarEnd'])if(!/^([01]\d|2[0-3]):[0-5]\d$/.test(su.settings[k]))fail();number(su.settings.safetyMin);}
+ }
+ (input.meter?.readings||[]).forEach(x=>{id(x.id);timestamp(x.at);if(!['morning','evening','extra','initial'].includes(x.period))fail();number(x.imported);number(x.injected);});
+ return ensureSmartUseState(ensureSolarState(deepClone(input)));
+}
+
+function askPassword(title,confirmation=false){
+ return new Promise(resolve=>{
+  const dialog=document.createElement('dialog');dialog.style.cssText='max-width:420px;width:90%;border:0;border-radius:16px;padding:24px';
+  dialog.innerHTML='<form method="dialog"><h3></h3><p>Guarde a senha: ela não pode ser recuperada pelo aplicativo.</p><label>Senha<input name="password" type="password" autocomplete="off" required style="width:100%"></label>'+(confirmation?'<label>Confirmar senha<input name="confirmation" type="password" autocomplete="off" required style="width:100%"></label>':'')+'<p role="alert"></p><div class="form-actions"><button class="btn" value="cancel" formnovalidate>Cancelar</button><button class="btn primary" value="ok">Continuar</button></div></form>';
+  dialog.querySelector('h3').textContent=title;
+  dialog.querySelector('form').addEventListener('submit',ev=>{if(ev.submitter?.value==='cancel')return;const f=ev.target;if(confirmation&&(f.elements.password.value.length<12||f.elements.password.value!==f.elements.confirmation.value)){ev.preventDefault();dialog.querySelector('[role=alert]').textContent='Use pelo menos 12 caracteres e confirme a mesma senha.';}});
+  dialog.addEventListener('close',()=>{const value=dialog.returnValue==='ok'?dialog.querySelector('[name=password]').value:null;dialog.remove();resolve(value);});
+  document.body.appendChild(dialog);dialog.showModal();dialog.querySelector('input').focus();
+ });
+}
+function checkEnvelope(e){
+ if(!e||!Number.isInteger(e.iterations)||e.iterations<100000||e.iterations>1000000||typeof e.data!=='string'||e.data.length>12000000||b64ToBytes(e.salt).length!==16||b64ToBytes(e.iv).length!==12)throw new Error('Arquivo criptografado inválido.');
+}
+async function sealJson(value,password,purpose){
+ const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12)),iterations=600000;
+ const key=await cloudDeriveKey(password,salt,iterations);
+ const data=await crypto.subtle.encrypt({name:'AES-GCM',iv,additionalData:new TextEncoder().encode(purpose)},key,new TextEncoder().encode(JSON.stringify(value)));
+ return {format:purpose,version:1,alg:'AES-256-GCM',kdf:'PBKDF2-SHA256',iterations,salt:bytesToB64(salt),iv:bytesToB64(iv),data:bytesToB64(new Uint8Array(data))};
+}
+async function openJson(e,password,purpose){
+ checkEnvelope(e);if(e.format!==purpose||e.version!==1||e.alg!=='AES-256-GCM'||e.kdf!=='PBKDF2-SHA256')throw new Error('Formato inválido.');
+ const key=await cloudDeriveKey(password,b64ToBytes(e.salt),e.iterations);
+ const bytes=await crypto.subtle.decrypt({name:'AES-GCM',iv:b64ToBytes(e.iv),additionalData:new TextEncoder().encode(purpose)},key,b64ToBytes(e.data));return JSON.parse(new TextDecoder().decode(bytes));
+}
+async function exportEncryptedBackup(){
+ const password=await askPassword('Backup protegido por senha',true);if(password===null)return;
+ try{const envelope=await sealJson(state,password,'controle-solar-backup');downloadFile('controle-solar-protegido-'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(envelope,null,2),'application/json');toast('Backup protegido criado.');}catch(e){alert('Não foi possível criar o backup protegido.');}
+}
+let cloudSecrets=null;
+const VAULT_KEY='painelSolarCredentials.v1';
+async function persistCloudConfig(cfg){
+ const secrets={token:cfg.token,passphrase:cfg.passphrase};
+ if(window.Android?.storeCloudSecrets){if(!Android.storeCloudSecrets(JSON.stringify(secrets)))throw new Error('Não foi possível proteger as credenciais no Android.');}
+ else localStorage.setItem(VAULT_KEY,JSON.stringify(await sealJson({token:cfg.token},cfg.passphrase,'controle-solar-credentials')));
+ cloudSecrets=secrets;const metadata={...cfg};delete metadata.token;delete metadata.passphrase;localStorage.setItem(CLOUD_CONFIG_KEY,JSON.stringify(metadata));
+}
+async function migrateCredentials(){
+ try{const old=JSON.parse(localStorage.getItem(CLOUD_CONFIG_KEY)||'{}');if(old.token&&old.passphrase)await persistCloudConfig(old);
+ else if(window.Android?.getCloudSecrets){const native=JSON.parse(Android.getCloudSecrets());if(native.token&&native.passphrase)cloudSecrets=native;}
+ }catch(e){setCloudStatus('Credenciais precisam ser configuradas novamente',false);}
+ renderCloud();
+}
+async function unlockCloud(){
+ const password=await askPassword('Desbloquear sincronização');if(password===null)return;
+ try{const stored=JSON.parse(localStorage.getItem(VAULT_KEY)||'null');const value=await openJson(stored,password,'controle-solar-credentials');if(typeof value.token!=='string')throw 0;cloudSecrets={token:value.token,passphrase:password};renderCloud();toast('Sincronização desbloqueada nesta sessão.');}catch(e){alert('Senha incorreta ou credenciais indisponíveis. Seus dados foram mantidos.');}
+}
+function lockCloud(){cloudSecrets=null;clearTimeout(cloudTimer);renderCloud();toast('Sincronização bloqueada nesta sessão.');}
+
 let state = loadState();
 let editingMonth = null;
 
-const PANEL_VERSION="2.7.0";
+const PANEL_VERSION="2.8.0";
 const PANEL_BUILD_DATE="2026-10-02";
 const titles = {
  about:["Sobre","Autoria, versões e novidades"],
@@ -1117,20 +1192,20 @@ function loadState(){
   try{
     const x=JSON.parse(localStorage.getItem(STORAGE_KEY));
     if(x && x.parameters && x.history && x.entries){
-      const migrated=ensureSmartUseState(ensureSolarState(x));
+      const migrated=validateState(x);
       localStorage.setItem(STORAGE_KEY,JSON.stringify(migrated));
       return migrated;
     }
-  }catch(e){}
+  }catch(e){if(localStorage.getItem(STORAGE_KEY)){localStorage.setItem(STORAGE_KEY+".recovery",localStorage.getItem(STORAGE_KEY));alert("Os dados locais precisam de revisão. Uma cópia de recuperação foi preservada neste aparelho.");}}
   const fresh=ensureSmartUseState(ensureSolarState(deepClone(DEFAULTS)));
   localStorage.setItem(STORAGE_KEY,JSON.stringify(fresh));
   return fresh;
 }
 function loadCloudConfig(){
   const defaults={owner:"rogeriosgondim-hub",repo:"painel-controle-solar",branch:"cloud-sync",path:"cloud-data.enc.json",token:"",passphrase:"",autoSync:true};
-  try{return Object.assign(defaults,JSON.parse(localStorage.getItem(CLOUD_CONFIG_KEY)||"{}"));}catch(e){return defaults}
+  try{const metadata=JSON.parse(localStorage.getItem(CLOUD_CONFIG_KEY)||"{}");delete metadata.token;delete metadata.passphrase;return Object.assign(defaults,metadata,cloudSecrets||{});}catch(e){return defaults}
 }
-function saveCloudConfig(cfg){localStorage.setItem(CLOUD_CONFIG_KEY,JSON.stringify(cfg))}
+async function saveCloudConfig(cfg){await persistCloudConfig(cfg)}
 function loadCloudMeta(){
   const defaults={lastLocalChangeAt:null,lastCloudSyncAt:null,lastCloudStatus:"Não configurado",deviceId:null};
   try{
@@ -1358,12 +1433,12 @@ function renderEntries(){
     <td class="manual">${money(n(e.cip))}</td><td class="manual">${money(n(e.extras))}</td>
     <td>${num(c.autoconsumption,1)}</td><td>${num(c.totalConsumption,1)}</td><td>${money(c.recurringBill)}</td><td>${money(c.energyCost)}</td>
     <td>${pct(c.autoconsumptionPct)}</td><td>${num(c.target,1)}</td><td>${num(c.margin,1)}</td><td>${statusPill(c.status)}</td>
-    <td class="row-actions"><button onclick="editEntry('${e.month}')">Editar</button> <button onclick="deleteEntry('${e.month}')">Limpar</button></td></tr>`}).join("");
+    <td class="row-actions"><button data-action="editEntry" data-value="${htmlEscape(e.month)}">Editar</button> <button data-action="deleteEntry" data-value="${htmlEscape(e.month)}">Limpar</button></td></tr>`}).join("");
 }
 
 function renderHistory(){
-  const avg=state.history.reduce((s,x)=>s+x.consumption,0)/state.history.length;
-  const max=Math.max(...state.history.map(x=>x.consumption)),min=Math.min(...state.history.map(x=>x.consumption));
+  const avg=state.history.length?state.history.reduce((s,x)=>s+x.consumption,0)/state.history.length:null;
+  const max=state.history.length?Math.max(...state.history.map(x=>x.consumption)):null,min=state.history.length?Math.min(...state.history.map(x=>x.consumption)):null;
   document.getElementById("historyStats").innerHTML=`<h3 style="margin-top:0">Indicadores</h3>
     <div class="param-grid" style="grid-template-columns:1fr 1fr">
       <div class="param"><div class="pname">Consumo anual</div><div class="pval">${num(state.history.reduce((s,x)=>s+x.consumption,0),0)} kWh</div></div>
@@ -1374,7 +1449,7 @@ function renderHistory(){
   document.querySelector("#historyTable tbody").innerHTML=state.history.map(d=>{
     const diff=d.consumption-avg, cls=d.consumption<avg*.8?"Baixo":d.consumption>avg*1.2?"Alto":"Normal";
     const obs=d.consumption===max?"Maior consumo do período":d.consumption===min?"Menor consumo do período":"";
-    return `<tr><td><b>${d.label}</b></td><td>${num(d.consumption,0)}</td><td>${num(avg,1)}</td><td>${diff>=0?"+":""}${num(diff,1)}</td><td>${cls}</td><td>${obs}</td></tr>`;
+    return `<tr><td><b>${htmlEscape(d.label)}</b></td><td>${num(d.consumption,0)}</td><td>${num(avg,1)}</td><td>${diff>=0?"+":""}${num(diff,1)}</td><td>${cls}</td><td>${obs}</td></tr>`;
   }).join("");
   renderHistoryChart("historyChart");
 }
@@ -1401,7 +1476,7 @@ function renderParams(){
     ["Teto recorrente sem parcelamento",money(p.recurringCeiling),"Energia + CIP"],
     ["Custo efetivo atual por kWh",money(p.effectiveKwhCost)+"/kWh","Referência operacional"]
   ];
-  document.getElementById("paramGrid").innerHTML=items.map(x=>`<div class="param ${x[3]?"editable":""}"><div class="pname">${x[0]}</div><div class="pval">${x[1]}</div><div class="pdesc">${x[2]}</div>${x[3]?`<input type="number" step="${x[4]==="prudenceFactor"?"1":"1"}" value="${x[4]==="prudenceFactor"?Math.round(p[x[4]]*100):p[x[4]]}" onchange="updateParam('${x[4]}',this.value)">`:""}</div>`).join("");
+  document.getElementById("paramGrid").innerHTML=items.map(x=>`<div class="param ${x[3]?"editable":""}"><div class="pname">${x[0]}</div><div class="pval">${htmlEscape(x[1])}</div><div class="pdesc">${x[2]}</div>${x[3]?`<input type="number" step="${x[4]==="prudenceFactor"?"1":"1"}" value="${x[4]==="prudenceFactor"?Math.round(p[x[4]]*100):p[x[4]]}" data-param="${x[4]}">`:""}</div>`).join("");
 }
 function updateParam(key,value){
   const x=n(value);if(x==null)return;
@@ -1423,7 +1498,7 @@ function renderGuide(){
   document.getElementById("guideSteps").innerHTML=steps.map((s,i)=>`<div class="step"><div class="n">${i+1}</div><p>${s}</p></div>`).join("");
 }
 function renderExample(){
-  const e={month:"2026-10",generation:410,gridImported:160,injected:250,creditsUsed:20,creditBalance:170,totalBill:185.5,cip:48.19,extras:0},c=calc(e);
+  const e={month:"2026-10",generation:410,gridImported:160,injected:250,creditsUsed:20,creditBalance:170,totalBill:185.5,cip:30,extras:0},c=calc(e);
   document.getElementById("exampleCard").innerHTML=`
     <div class="example">
       <div><h3 style="margin-top:0">${monthLabel(e.month)}</h3>
@@ -1461,7 +1536,7 @@ async function cloudDeriveKey(passphrase,salt,iterations){
 }
 async function cloudEncrypt(payload,passphrase,updatedAt){
   if(!crypto?.subtle)throw new Error("Criptografia segura não está disponível neste navegador.");
-  const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12)),iterations=150000;
+  const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12)),iterations=600000;
   const key=await cloudDeriveKey(passphrase,salt,iterations);
   const plain=new TextEncoder().encode(JSON.stringify({format:2,updatedAt,deviceId:loadCloudMeta().deviceId,state:payload}));
   const enc=new Uint8Array(await crypto.subtle.encrypt({name:"AES-GCM",iv},key,plain));
@@ -1470,11 +1545,12 @@ async function cloudEncrypt(payload,passphrase,updatedAt){
 async function cloudDecrypt(envelope,passphrase){
   if(!envelope||!envelope.salt||!envelope.iv||!envelope.data)throw new Error("Arquivo de nuvem inválido.");
   try{
+    checkEnvelope(envelope);
     const key=await cloudDeriveKey(passphrase,b64ToBytes(envelope.salt),Number(envelope.iterations||150000));
     const dec=await crypto.subtle.decrypt({name:"AES-GCM",iv:b64ToBytes(envelope.iv)},key,b64ToBytes(envelope.data));
     const obj=JSON.parse(new TextDecoder().decode(dec));
     if(!obj.state||!obj.updatedAt)throw new Error("Conteúdo inválido.");
-    return obj;
+    obj.state=validateState(obj.state);return obj;
   }catch(e){throw new Error("Não foi possível descriptografar. Verifique a senha de criptografia.")}
 }
 function cloudApiUrl(cfg){
@@ -1496,7 +1572,7 @@ async function cloudFetchFile(cfg){
 }
 async function cloudWriteFile(cfg,envelope,sha){
   const bytes=new TextEncoder().encode(JSON.stringify(envelope,null,2));
-  const body={message:"Sincroniza dados do Controle Solar v2.7.0",content:bytesToB64(bytes),branch:cfg.branch};
+  const body={message:"Sincroniza dados do Controle Solar v2.8.0",content:bytesToB64(bytes),branch:cfg.branch};
   if(sha)body.sha=sha;
   const r=await fetch(cloudApiUrl(cfg),{method:"PUT",headers:cloudHeaders(cfg),body:JSON.stringify(body)});
   if(r.status===401)throw new Error("Token GitHub inválido ou expirado.");
@@ -1519,7 +1595,7 @@ function renderCloud(){
   const ids={cloudOwner:cfg.owner,cloudRepo:cfg.repo,cloudBranch:cfg.branch,cloudPath:cfg.path,cloudToken:cfg.token,cloudPassphrase:cfg.passphrase};
   for(const [id,val] of Object.entries(ids)){const el=document.getElementById(id);if(el)el.value=val||""}
   const auto=document.getElementById("cloudAuto");if(auto)auto.checked=cfg.autoSync!==false;
-  const st=document.getElementById("cloudStatus");if(st){st.textContent=cloudReady(cfg)?(m.lastCloudStatus||"Configurado"):"Não configurado";st.style.color=cloudReady(cfg)?"var(--green)":"var(--muted)"}
+  const st=document.getElementById("cloudStatus");if(st){st.textContent=cloudReady(cfg)?(m.lastCloudStatus||"Configurado"):(localStorage.getItem(VAULT_KEY)?"Bloqueado — toque em Desbloquear sincronização":"Não configurado");st.style.color=cloudReady(cfg)?"var(--green)":"var(--muted)"}
   const ls=document.getElementById("cloudLastSync");if(ls)ls.textContent=isoTime(m.lastCloudSyncAt);
   const lc=document.getElementById("cloudLocalChange");if(lc)lc.textContent=isoTime(m.lastLocalChangeAt);
   const dst=document.getElementById("cloudDestination");if(dst)dst.textContent=cfg.owner+"/"+cfg.repo+" • "+cfg.branch;
@@ -1541,20 +1617,21 @@ async function saveCloudSettings(syncAfter=false){
     alert("Preencha todos os campos. A senha de criptografia deve ter pelo menos 8 caracteres.");
     return;
   }
-  saveCloudConfig(cfg);
+  try{await saveCloudConfig(cfg);}catch(e){alert(e.message);return;}
   setCloudStatus("Configurado");
   renderCloud();
-  toast("Configuração de nuvem salva neste aparelho.");
+  toast("Credenciais protegidas neste aparelho.");
   if(syncAfter)await cloudAutoSync(true);
 }
 function clearCloudSettings(){
   if(!confirm("Remover o token e a senha de sincronização somente deste aparelho? Seus dados locais serão mantidos."))return;
+  cloudSecrets=null;localStorage.removeItem(VAULT_KEY);if(window.Android?.clearCloudSecrets)Android.clearCloudSecrets();
   localStorage.removeItem(CLOUD_CONFIG_KEY);
   const m=loadCloudMeta();m.lastCloudStatus="Não configurado";m.lastCloudSyncAt=null;saveCloudMeta(m);
   renderCloud();toast("Configuração de nuvem removida.");
 }
 async function cloudApplyRemote(remote){
-  state=ensureSmartUseState(ensureSolarState(remote.state));
+  state=validateState(remote.state);
   localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
   const m=loadCloudMeta();m.lastLocalChangeAt=remote.updatedAt;m.lastCloudSyncAt=new Date().toISOString();m.lastCloudStatus="Sincronizado";saveCloudMeta(m);
   renderAll();
@@ -1682,13 +1759,16 @@ function onPanelUpdate(message,available){document.getElementById('panelUpdateSt
 function checkPanelUpdate(){if(window.Android&&Android.checkUpdate){Android.checkUpdate();}else if(window.Android){toast('Instale o novo APK para habilitar esta função.');}else{location.reload();}}
 function applyPanelUpdate(){if(confirm('Aplicar a atualização agora? Seus registros salvos serão mantidos. Termine ou salve qualquer formulário antes de continuar.')){if(window.Android&&Android.applyUpdate)Android.applyUpdate();}}
 function resetApp(){
-  if(!confirm("Restaurar todos os dados para os valores originais da planilha?"))return;
+  if(!confirm("Excluir todos os registros deste aparelho? Exporte um backup antes de continuar."))return;
   state=ensureSmartUseState(ensureSolarState(deepClone(DEFAULTS)));saveState();renderAll();clearForm();toast("Dados originais restaurados.");
 }
-document.getElementById("backupInput").addEventListener("change",ev=>{
-  const f=ev.target.files[0];if(!f)return;const r=new FileReader();
-  r.onload=()=>{try{const x=JSON.parse(r.result);if(!x.parameters||!x.history||!x.entries)throw 0;state=ensureSmartUseState(ensureSolarState(x));saveState();renderAll();clearForm();toast("Backup importado.");}catch(e){alert("Arquivo de backup inválido.");}};
-  r.readAsText(f);ev.target.value="";
+document.getElementById("backupInput").addEventListener("change",async ev=>{
+ const file=ev.target.files[0];ev.target.value="";if(!file)return;
+ try{if(file.size>8000000)throw 0;let data=JSON.parse(await file.text());
+  if(data.format==='controle-solar-backup'){const password=await askPassword('Abrir backup protegido');if(password===null)return;data=await openJson(data,password,'controle-solar-backup');}
+  const checked=validateState(data);if(!confirm('Substituir os dados deste aparelho pelo backup selecionado?'))return;
+  state=checked;saveState();renderAll();clearForm();toast('Backup importado.');
+ }catch(e){alert('Backup inválido ou senha incorreta. Seus dados atuais foram mantidos.');}
 });
 
 document.getElementById("fMonthName").addEventListener("change",()=>{syncMonthPicker();updatePreview();});
@@ -1808,7 +1888,7 @@ function renderSolarProduction(){
     const p=solarPerformance(x),diff=(n(x.produced)??0)-(n(x.expected)??0),cls=p==null?"":(p>=1?"above":"below");
     return '<tr><td><b>'+solarDateBR(x.date)+'</b></td><td>'+num(n(x.produced),3)+' kWh</td><td>'+num(n(x.expected),3)+' kWh</td>'+
       '<td class="'+cls+'">'+(p==null?"—":pct(p))+'</td><td>'+((diff>=0?"+":"")+num(diff,3))+' kWh</td>'+
-      '<td class="solar-source">'+htmlEscape(x.source||"Manual")+'</td><td><button class="btn tiny danger" type="button" onclick="deleteSolarDay(\''+x.date+'\')">Excluir</button></td></tr>';
+      '<td class="solar-source">'+htmlEscape(x.source||"Manual")+'</td><td><button class="btn tiny danger" type="button" data-action="deleteSolarDay" data-value="'+htmlEscape(x.date)+'">Excluir</button></td></tr>';
   }).join("");
 
   const meta=state.solarImportMeta||{};
@@ -1846,8 +1926,9 @@ function renderSolarMonthCompare(mk,monthProduced,target){
   ].map(function(x){return '<div class="solar-mini"><span>'+x[0]+'</span><b>'+x[1]+'</b><small>'+x[2]+'</small></div>';}).join("");
 }
 function loadSolarSample(){
+  if(!confirm("Apagar os registros de produção diária? Exporte um backup antes de continuar."))return;
   state.dailyProduction=deepClone(SOLAR_INITIAL_DAILY);state.solarMonthlyTargets=deepClone(SOLAR_INITIAL_TARGETS);
-  state.solarImportMeta={lastImportAt:null,lastFile:"Dados iniciais SolarView 22–28/09/2026"};saveState();renderSolarProduction();toast("Dados iniciais SolarView restaurados.");
+  state.solarImportMeta={lastImportAt:null,lastFile:"Produção diária limpa"};saveState();renderSolarProduction();toast("Produção diária limpa.");
 }
 function deleteSolarDay(date){
   if(!confirm("Excluir o registro de "+solarDateBR(date)+"?"))return;
@@ -1977,18 +2058,18 @@ function renderSmartAppliances(){
   box.innerHTML=smartData().appliances.map(function(a){
     const count=smartData().sessions.filter(x=>x.applianceId===a.id).length;
     return '<div class="summary-row"><div><b>'+htmlEscape(a.name)+'</b><small>'+count+' uso(s) registrado(s)</small></div>'+
-      (a.id==="washer"?'':'<button class="btn tiny danger" type="button" onclick="removeSmartAppliance(\''+a.id+'\')">Excluir</button>')+'</div>';
+      (a.id==="washer"?'':'<button class="btn tiny danger" type="button" data-action="removeSmartAppliance" data-value="'+htmlEscape(a.id)+'">Excluir</button>')+'</div>';
   }).join("");
 }
 function renderSmartTimer(){
   const su=smartData(),a=su.activeSession,clock=document.getElementById("smartTimerClock"),sub=document.getElementById("smartTimerSub"),actions=document.getElementById("smartTimerActions");
   if(!a){
     clock.textContent="Nenhum ciclo em andamento";sub.textContent="Selecione o aparelho e clique em “Iniciar agora”.";
-    actions.innerHTML='<button class="btn primary" type="button" onclick="startSmartNow()">▶ Iniciar agora</button>';
+    actions.innerHTML='<button class="btn primary" type="button" data-action="startSmartNow">▶ Iniciar agora</button>';
   }else{
     const mins=Math.max(0,Math.floor((Date.now()-new Date(a.start).getTime())/60000));
     clock.textContent=smartDurationText(mins);sub.textContent=smartApplianceName(a.applianceId)+(a.cycle?" • "+a.cycle:"")+" • iniciado em "+smartDisplayDateTime(a.start);
-    actions.innerHTML='<button class="btn primary" type="button" onclick="finishSmartNow(true)">✓ Finalizar com sucesso</button><button class="btn danger" type="button" onclick="finishSmartNow(false)">Encerrar sem sucesso</button>';
+    actions.innerHTML='<button class="btn primary" type="button" data-action="finishSuccess">✓ Finalizar com sucesso</button><button class="btn danger" type="button" data-action="finishFailure">Encerrar sem sucesso</button>';
   }
   const advice=document.getElementById("smartNowAdvice"),id=(a&&a.applianceId)||document.getElementById("smartTimerAppliance").value,st=smartStats(id);
   if(st.lastStart){
@@ -2025,7 +2106,7 @@ function renderSmartHistory(){
       '<td>'+smartDisplayDateTime(x.start)+'</td><td>'+smartDisplayDateTime(x.end)+'</td><td>'+smartDurationText(dur)+'</td>'+
       '<td><span class="smart-pill '+(x.success?"ok":"fail")+'">'+(x.success?"Sim":"Não")+'</span></td>'+
       '<td><span class="smart-pill '+sc.key+'">'+sc.label+'</span></td><td>'+htmlEscape(x.note||"—")+'</td>'+
-      '<td><button class="btn tiny danger" type="button" onclick="deleteSmartSession(\''+x.id+'\')">Excluir</button></td></tr>';
+      '<td><button class="btn tiny danger" type="button" data-action="deleteSmartSession" data-value="'+htmlEscape(x.id)+'">Excluir</button></td></tr>';
   }).join("");
 }
 function saveSmartSettings(){
@@ -2333,7 +2414,12 @@ function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t
 
 document.getElementById("meterForm").addEventListener("submit",saveMeterReading);
 clearMeterForm();
-renderAll();if(window.Android&&Android.panelReady)Android.panelReady(PANEL_VERSION);fillForm(state.entries.find(e=>e.month==="2026-09")||null);
+
+document.getElementById('recoveryBackup').hidden=!localStorage.getItem(STORAGE_KEY+'.recovery');document.getElementById('recoveryBackup').addEventListener('click',()=>downloadFile('controle-solar-recuperacao.json',localStorage.getItem(STORAGE_KEY+'.recovery'),'application/json'));
+const trustedClicks={h0:function(event){window.print()},h1:function(event){newPrimaryEntry()},h2:function(event){goTo('entries')},h3:function(event){goTo('cloud')},h4:function(event){clearForm()},h5:function(event){document.getElementById('solarFile').click()},h6:function(event){document.getElementById('solarFile').click()},h7:function(event){loadSolarSample()},h8:function(event){clearMeterForm()},h9:function(event){saveSmartSettings()},h10:function(event){addSmartAppliance()},h11:function(event){exportData('reports')},h12:function(event){exportEncryptedBackup()},h13:function(event){exportBackup()},h14:function(event){document.getElementById('backupInput').click()},h15:function(event){exportData('entries')},h16:function(event){resetApp()},h17:function(event){unlockCloud()},h18:function(event){lockCloud()},h19:function(event){cloudAutoSync(true)},h20:function(event){cloudForcePull()},h21:function(event){cloudForcePush()},h22:function(event){saveCloudSettings(true)},h23:function(event){clearCloudSettings()},h24:function(event){checkPanelUpdate()},h25:function(event){applyPanelUpdate()}};
+document.addEventListener('click',event=>{const el=event.target.closest('[data-click],[data-action]');if(!el)return;if(el.dataset.click){trustedClicks[el.dataset.click]?.call(el,event);return;}const actions={editEntry,deleteEntry,deleteSolarDay,removeSmartAppliance,deleteSmartSession,startSmartNow,finishSuccess:()=>finishSmartNow(true),finishFailure:()=>finishSmartNow(false)};actions[el.dataset.action]?.(el.dataset.value);});
+document.addEventListener('change',event=>{const key=event.target.dataset.param;if(['prudenceFactor','creditReserve'].includes(key))updateParam(key,event.target.value);});
+migrateCredentials().then(()=>cloudAutoSync(false));renderAll();if(window.Android&&Android.panelReady)Android.panelReady(PANEL_VERSION);fillForm(state.entries.find(e=>e.month==="2026-09")||null);
 window.addEventListener("online",()=>{cloudAutoSync(false);if(window.Android&&Android.checkUpdate)Android.checkUpdate();});
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)cloudAutoSync(false)});
 setTimeout(()=>cloudAutoSync(false),700);

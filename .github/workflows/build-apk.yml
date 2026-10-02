@@ -82,7 +82,14 @@ jobs:
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-        run: gradle :app:assembleRelease --no-daemon
+        run: |
+          cd ..
+          python3 prepare-pages.py
+          mkdir -p android-app/app/src/androidTest/assets
+          cp public/panel-update.json android-app/app/src/androidTest/assets/signed-test.json
+          cd android-app
+          gradle :app:assembleRelease :app:assembleDebugAndroidTest --no-daemon
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" sign --ks "$ANDROID_KEYSTORE_PATH" --ks-pass env:ANDROID_KEYSTORE_PASSWORD --ks-key-alias "$ANDROID_KEY_ALIAS" --key-pass env:ANDROID_KEY_PASSWORD app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
 
       - name: Verificar assinatura do APK
         if: steps.signing.outputs.configured == 'true'
@@ -92,15 +99,15 @@ jobs:
 
       - name: Preparar APK
         if: steps.signing.outputs.configured == 'true'
-        run: cp android-app/app/build/outputs/apk/release/app-release.apk android-app/Controle-Solar-v2.7.0.apk
+        run: cp android-app/app/build/outputs/apk/release/app-release.apk android-app/Controle-Solar-v2.8.0.apk
 
       - name: Recuperar APK anterior para teste de atualização
         continue-on-error: true
         if: steps.signing.outputs.configured == 'true'
         uses: actions/download-artifact@v4
         with:
-          name: Controle-Solar-v2.6.3-PERMANENTE
-          run-id: 37026939036
+          name: Controle-Solar-v2.7.0-PERMANENTE
+          run-id: 37042319862
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: previous-apk
 
@@ -120,18 +127,23 @@ jobs:
           arch: x86_64
           profile: pixel_2
           disable-animations: true
-          script: bash android-app/check-install.sh
+          script: |
+            bash android-app/check-install.sh
+            adb install -r android-app/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+            adb shell am instrument -w br.com.controlesolar.residencia.test/androidx.test.runner.AndroidJUnitRunner | tee security-instrumentation.log
+            grep -q "OK (2 tests)" security-instrumentation.log
 
       - name: Guardar diagnóstico do teste Android
         if: always() && steps.signing.outputs.configured == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: diagnostico-android-2.7.0
+          name: diagnostico-android-2.8.0
           path: |
             solar-ui.xml
             solar-screen.png
             panel-runtime.log
             android-runtime.log
+            security-instrumentation.log
           if-no-files-found: warn
           retention-days: 7
 
@@ -139,8 +151,8 @@ jobs:
         if: steps.signing.outputs.configured == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: Controle-Solar-v2.7.0-PERMANENTE
-          path: android-app/Controle-Solar-v2.7.0.apk
+          name: Controle-Solar-v2.8.0-PERMANENTE
+          path: android-app/Controle-Solar-v2.8.0.apk
           if-no-files-found: error
           retention-days: 30
 

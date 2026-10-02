@@ -33,6 +33,15 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.security.KeyStore;
+import java.security.Signature;
+import java.security.cert.CertificateFactory;
+import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyProperties;
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.GCMParameterSpec;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -41,7 +50,7 @@ public class MainActivity extends Activity {
     private static final String PANEL_URL="file:///android_asset/index.html";
     private static final String HOST="rogeriosgondim-hub.github.io";
     private static final String SITE="https://"+HOST+"/painel-controle-solar/";
-    private static final int NATIVE_CODE=10, BUNDLED_REVISION=2700;
+    private static final int NATIVE_CODE=11, BUNDLED_REVISION=2800;
     private WebView webView, printView;
     private ValueCallback<Uri[]> filePathCallback;
     private byte[] pendingBytes;
@@ -69,9 +78,10 @@ public class MainActivity extends Activity {
         panelCache=new AtomicFile(new File(getFilesDir(),"solar-panel.json"));
         try{
             JSONObject cached=new JSONObject(new String(panelCache.readFully(),StandardCharsets.UTF_8));
-            int revision=cached.getInt("revision");
+            JSONObject manifest=verifyManifest(cached.getJSONObject("manifest"));
+            int revision=manifest.getInt("revision");
             String html=cached.getString("html");
-            if(revision>=BUNDLED_REVISION&&validHtml(html,cached.getString("version"))){activeHtml=html.getBytes(StandardCharsets.UTF_8);activeRevision=revision;}
+            if(revision>=BUNDLED_REVISION&&validHtml(html,manifest.getString("version"))&&sha256(html.getBytes(StandardCharsets.UTF_8)).equals(manifest.getString("sha256"))){activeHtml=html.getBytes(StandardCharsets.UTF_8);activeRevision=revision;}
         }catch(Exception ignored){}
         webView=new WebView(this);setContentView(webView);
         WebSettings settings=webView.getSettings();
@@ -136,11 +146,33 @@ public class MainActivity extends Activity {
     private String sha256(byte[] bytes)throws Exception{
         StringBuilder result=new StringBuilder();for(byte b:MessageDigest.getInstance("SHA-256").digest(bytes))result.append(String.format("%02x",b&255));return result.toString();
     }
+    @SuppressWarnings("deprecation")
+    private JSONObject verifyManifest(JSONObject wrapper)throws Exception{
+        byte[] payload=Base64.decode(wrapper.getString("signedPayload"),Base64.DEFAULT);
+        byte[] signature=Base64.decode(wrapper.getString("signature"),Base64.DEFAULT);
+        byte[] cert=getPackageManager().getPackageInfo(getPackageName(),android.content.pm.PackageManager.GET_SIGNATURES).signatures[0].toByteArray();
+        Signature verifier=Signature.getInstance("SHA256withRSA");
+        verifier.initVerify(CertificateFactory.getInstance("X.509").generateCertificate(new ByteArrayInputStream(cert)).getPublicKey());
+        verifier.update(payload);if(!verifier.verify(signature))throw new Exception("Assinatura inválida");
+        JSONObject manifest=new JSONObject(new String(payload,StandardCharsets.UTF_8));
+        if(manifest.getInt("schema")!=1||manifest.getInt("minNativeVersionCode")>NATIVE_CODE)throw new Exception("Atualize o aplicativo Android");
+        return manifest;
+    }
+    private synchronized SecretKey vaultKey()throws Exception{
+        KeyStore store=KeyStore.getInstance("AndroidKeyStore");store.load(null);
+        if(!store.containsAlias("solar-cloud-v1")){
+            KeyGenerator generator=KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES,"AndroidKeyStore");
+            generator.init(new KeyGenParameterSpec.Builder("solar-cloud-v1",KeyProperties.PURPOSE_ENCRYPT|KeyProperties.PURPOSE_DECRYPT)
+                    .setBlockModes(KeyProperties.BLOCK_MODE_GCM).setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE).setKeySize(256).build());generator.generateKey();
+        }
+        return (SecretKey)store.getKey("solar-cloud-v1",null);
+    }
     private synchronized void checkForUpdate(){
         if(checking||isFinishing())return;lastCheck=System.currentTimeMillis();checking=true;updateStatus="Buscando novidades…";notifyStatus();
         worker.execute(()->{
             try{
-                JSONObject manifest=new JSONObject(new String(fetch("panel-update.json",16384),StandardCharsets.UTF_8));
+                JSONObject wrapper=new JSONObject(new String(fetch("panel-update.json",16384),StandardCharsets.UTF_8));
+                JSONObject manifest=verifyManifest(wrapper);
                 if(manifest.getInt("schema")!=1)throw new Exception("Formato não suportado");
                 if(manifest.getInt("minNativeVersionCode")>NATIVE_CODE){updateStatus="Há novidades que precisam de uma nova versão do app Android.";}
                 else if(manifest.getInt("revision")<=activeRevision){updateStatus="Painel atualizado. A cópia deste aparelho funciona sem internet.";updateAvailable=false;}
@@ -148,7 +180,7 @@ public class MainActivity extends Activity {
                     byte[] bytes=fetch("index.html",2*1024*1024);
                     String version=manifest.getString("version"),html=new String(bytes,StandardCharsets.UTF_8);
                     if(!sha256(bytes).equals(manifest.getString("sha256"))||!validHtml(html,version))throw new Exception("Verificação do painel falhou");
-                    JSONObject payload=new JSONObject();payload.put("version",version);payload.put("revision",manifest.getInt("revision"));payload.put("html",html);
+                    JSONObject payload=new JSONObject();payload.put("manifest",wrapper);payload.put("html",html);
                     FileOutputStream out=null;
                     try{out=panelCache.startWrite();out.write(payload.toString().getBytes(StandardCharsets.UTF_8));panelCache.finishWrite(out);}
                     catch(Exception e){if(out!=null)panelCache.failWrite(out);throw e;}
@@ -171,6 +203,20 @@ public class MainActivity extends Activity {
         });
     }
     public class AndroidBridge{
+        @JavascriptInterface public boolean storeCloudSecrets(String json){
+            try{JSONObject value=new JSONObject(json);if(value.getString("token").length()>1000||value.getString("passphrase").length()>4000)return false;
+                Cipher cipher=Cipher.getInstance("AES/GCM/NoPadding");cipher.init(Cipher.ENCRYPT_MODE,vaultKey());
+                JSONObject encrypted=new JSONObject();encrypted.put("iv",Base64.encodeToString(cipher.getIV(),Base64.NO_WRAP));encrypted.put("data",Base64.encodeToString(cipher.doFinal(json.getBytes(StandardCharsets.UTF_8)),Base64.NO_WRAP));
+                return getSharedPreferences("solar-vault",MODE_PRIVATE).edit().putString("credentials",encrypted.toString()).commit();
+            }catch(Exception e){return false;}
+        }
+        @JavascriptInterface public String getCloudSecrets(){
+            try{String stored=getSharedPreferences("solar-vault",MODE_PRIVATE).getString("credentials",null);if(stored==null)return "{}";
+                JSONObject e=new JSONObject(stored);Cipher cipher=Cipher.getInstance("AES/GCM/NoPadding");cipher.init(Cipher.DECRYPT_MODE,vaultKey(),new GCMParameterSpec(128,Base64.decode(e.getString("iv"),Base64.DEFAULT)));
+                return new String(cipher.doFinal(Base64.decode(e.getString("data"),Base64.DEFAULT)),StandardCharsets.UTF_8);
+            }catch(Exception e){return "{}";}
+        }
+        @JavascriptInterface public void clearCloudSecrets(){getSharedPreferences("solar-vault",MODE_PRIVATE).edit().clear().commit();}
         @JavascriptInterface public void downloadText(String filename,String content,String mime){saveDocument(filename,content.getBytes(StandardCharsets.UTF_8),mime);}
         @JavascriptInterface public void downloadBase64(String filename,String base64,String mime){
             try{saveDocument(filename,Base64.decode(base64,Base64.DEFAULT),mime);}catch(Exception e){runOnUiThread(()->Toast.makeText(MainActivity.this,"Arquivo inválido.",Toast.LENGTH_SHORT).show());}
@@ -182,7 +228,7 @@ public class MainActivity extends Activity {
         @JavascriptInterface public void checkUpdate(){checkForUpdate();}
         @JavascriptInterface public void applyUpdate(){
             runOnUiThread(()->{
-                try{JSONObject cache=new JSONObject(new String(panelCache.readFully(),StandardCharsets.UTF_8));activeHtml=cache.getString("html").getBytes(StandardCharsets.UTF_8);activeRevision=cache.getInt("revision");updateAvailable=false;ready=false;updateStatus="Painel atualizado. Cópia disponível sem internet.";webView.reload();}
+                try{JSONObject cache=new JSONObject(new String(panelCache.readFully(),StandardCharsets.UTF_8));JSONObject manifest=verifyManifest(cache.getJSONObject("manifest"));byte[] html=cache.getString("html").getBytes(StandardCharsets.UTF_8);if(!sha256(html).equals(manifest.getString("sha256")))throw new Exception("Painel inválido");activeHtml=html;activeRevision=manifest.getInt("revision");updateAvailable=false;ready=false;updateStatus="Painel atualizado. Cópia disponível sem internet.";webView.reload();}
                 catch(Exception e){Toast.makeText(MainActivity.this,"Atualização ainda não disponível.",Toast.LENGTH_SHORT).show();}
             });
         }
