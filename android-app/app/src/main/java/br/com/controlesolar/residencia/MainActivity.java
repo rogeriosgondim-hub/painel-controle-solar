@@ -3,6 +3,12 @@ package br.com.controlesolar.residencia;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.ClipData;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.provider.MediaStore;
+import android.webkit.PermissionRequest;
+import androidx.core.content.FileProvider;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -46,16 +52,23 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MainActivity extends Activity {
-    private static final int REQUEST_FILE_CHOOSER=1001, REQUEST_SAVE_FILE=1002;
+    private static final int REQUEST_FILE_CHOOSER=1001, REQUEST_SAVE_FILE=1002, REQUEST_CAMERA_PHOTO=1003, REQUEST_CAMERA_PERMISSION=1004;
     private static final String LEGACY_URL="file:///android_asset/index.html";
     private static final String PANEL_URL="https://appassets.androidplatform.net/assets/index.html";
     private static final String HOST="rogeriosgondim-hub.github.io";
     private static final String SITE="https://"+HOST+"/painel-controle-solar/";
-    private static final int NATIVE_CODE=13, BUNDLED_REVISION=2804;
-    private static final String BUNDLED_VERSION="2.8.3";
+    private static final int NATIVE_CODE=14, BUNDLED_REVISION=21000;
+    private static final String BUNDLED_VERSION="2.10.0";
     private WebView webView, printView;
     private ValueCallback<Uri[]> filePathCallback;
     private byte[] pendingBytes;
+    private PermissionRequest pendingCameraPermission;
+    private boolean pendingPhotoPermission=false;
+    private File capturedPhoto;
+    private Uri capturedPhotoUri;
+    private static final java.util.Set<String> OCR_ASSETS=new java.util.HashSet<>(java.util.Arrays.asList(
+        "tesseract.min.js","worker.min.js","tesseract-core.wasm.js","tesseract-core-simd.wasm.js",
+        "tesseract-core-lstm.wasm.js","tesseract-core-simd-lstm.wasm.js","eng.traineddata","por.traineddata"));
     private final ExecutorService worker=Executors.newSingleThreadExecutor();
     private final Handler handler=new Handler(Looper.getMainLooper());
     private AtomicFile panelCache;
@@ -102,9 +115,10 @@ public class MainActivity extends Activity {
                         InputStream in;String mime;
                         if(PANEL_URL.equals(url)){in=activeHtml!=null?new ByteArrayInputStream(activeHtml):getAssets().open("panel.html");mime="text/html";}
                         else if(("https://appassets.androidplatform.net/assets/vendor/xlsx.full.min.js").equals(url)){in=getAssets().open("vendor/xlsx.full.min.js");mime="application/javascript";}
+                        else if(url.startsWith("https://appassets.androidplatform.net/assets/vendor/ocr/")&&OCR_ASSETS.contains(request.getUrl().getLastPathSegment())&&request.getUrl().getQuery()==null&&request.getUrl().getFragment()==null){in=getAssets().open("vendor/ocr/"+request.getUrl().getLastPathSegment());mime=url.endsWith(".js")?"application/javascript":"application/octet-stream";}
                         else return new WebResourceResponse("text/plain","UTF-8",404,"Not Found",java.util.Collections.emptyMap(),new ByteArrayInputStream(new byte[0]));
-                        return new WebResourceResponse(mime,"UTF-8",200,"OK",java.util.Collections.singletonMap("Cache-Control","no-store"),in);
-                    }catch(Exception e){return new WebResourceResponse("text/plain","UTF-8",500,"Unavailable",java.util.Collections.emptyMap(),new ByteArrayInputStream(new byte[0]));}
+                        return new WebResourceResponse(mime,mime.equals("application/octet-stream")?null:"UTF-8",200,"OK",java.util.Collections.singletonMap("Cache-Control","no-store"),in);
+                    }catch(Exception e){Log.e("SolarPanel","Local asset unavailable: "+request.getUrl().getLastPathSegment()+" "+e.getClass().getSimpleName());return new WebResourceResponse("text/plain","UTF-8",500,"Unavailable",java.util.Collections.emptyMap(),new ByteArrayInputStream(new byte[0]));}
                 }
                 return null;
             }
@@ -121,12 +135,23 @@ public class MainActivity extends Activity {
             @Override public void onPageFinished(WebView view,String url){if(!legacyMode){handler.removeCallbacks(verifyReady);handler.postDelayed(verifyReady,20000);notifyStatus();}}
         });
         webView.setWebChromeClient(new WebChromeClient(){
+            @Override public void onPermissionRequest(PermissionRequest request){runOnUiThread(()->{
+                if(!trustedCameraRequest(request)){request.deny();return;}
+                if(pendingCameraPermission!=null)pendingCameraPermission.deny();
+                if(checkSelfPermission(Manifest.permission.CAMERA)==PackageManager.PERMISSION_GRANTED)request.grant(new String[]{PermissionRequest.RESOURCE_VIDEO_CAPTURE});
+                else{pendingCameraPermission=request;requestPermissions(new String[]{Manifest.permission.CAMERA},REQUEST_CAMERA_PERMISSION);}
+            });}
+            @Override public void onPermissionRequestCanceled(PermissionRequest request){if(pendingCameraPermission==request)pendingCameraPermission=null;}
             @Override public boolean onConsoleMessage(ConsoleMessage message){
                 if(message.messageLevel()==ConsoleMessage.MessageLevel.ERROR)Log.e("SolarPanel",message.message()+" (linha "+message.lineNumber()+")");return true;
             }
             @Override public boolean onShowFileChooser(WebView view,ValueCallback<Uri[]> callback,FileChooserParams params){
                 if(filePathCallback!=null)filePathCallback.onReceiveValue(null);
                 filePathCallback=callback;
+                if(params.isCaptureEnabled()&&java.util.Arrays.stream(params.getAcceptTypes()).anyMatch(type->type.startsWith("image/"))){
+                    if(checkSelfPermission(Manifest.permission.CAMERA)==PackageManager.PERMISSION_GRANTED)launchCameraPhoto();
+                    else {pendingPhotoPermission=true;requestPermissions(new String[]{Manifest.permission.CAMERA},REQUEST_CAMERA_PERMISSION);}return true;
+                }
                 try{startActivityForResult(params.createIntent(),REQUEST_FILE_CHOOSER);return true;}
                 catch(Exception e){filePathCallback.onReceiveValue(null);filePathCallback=null;Toast.makeText(MainActivity.this,"Não foi possível abrir o seletor de arquivos.",Toast.LENGTH_LONG).show();return false;}
             }
@@ -135,6 +160,25 @@ public class MainActivity extends Activity {
                 &&!getSharedPreferences("solar-migration",MODE_PRIVATE).contains("snapshot");
         if(legacyMode)webView.loadUrl(LEGACY_URL);else loadPanel();
         checkForUpdate();
+    }
+    private boolean trustedCameraRequest(PermissionRequest request){
+        Uri origin=request.getOrigin();return !legacyMode&&"https".equals(origin.getScheme())&&"appassets.androidplatform.net".equals(origin.getHost())&&(origin.getPort()==-1||origin.getPort()==443)&&java.util.Arrays.asList(request.getResources()).contains(PermissionRequest.RESOURCE_VIDEO_CAPTURE);
+    }
+    private void clearCapturedPhoto(){if(capturedPhotoUri!=null)revokeUriPermission(capturedPhotoUri,Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION);if(capturedPhoto!=null)capturedPhoto.delete();capturedPhoto=null;capturedPhotoUri=null;}
+    private void launchCameraPhoto(){
+        clearCapturedPhoto();try{
+            File folder=new File(getCacheDir(),"ocr-camera");folder.mkdirs();capturedPhoto=File.createTempFile("capture-",".jpg",folder);
+            capturedPhotoUri=FileProvider.getUriForFile(this,getPackageName()+".camera",capturedPhoto);
+            Intent intent=new Intent(MediaStore.ACTION_IMAGE_CAPTURE);intent.putExtra(MediaStore.EXTRA_OUTPUT,capturedPhotoUri);
+            intent.setClipData(ClipData.newRawUri("Foto da leitura",capturedPhotoUri));intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            startActivityForResult(intent,REQUEST_CAMERA_PHOTO);
+        }catch(Exception error){clearCapturedPhoto();if(filePathCallback!=null){filePathCallback.onReceiveValue(null);filePathCallback=null;}Toast.makeText(this,"Câmera indisponível. Use Selecionar foto.",Toast.LENGTH_LONG).show();}
+    }
+    @Override public void onRequestPermissionsResult(int requestCode,String[] permissions,int[] grantResults){
+        super.onRequestPermissionsResult(requestCode,permissions,grantResults);if(requestCode!=REQUEST_CAMERA_PERMISSION)return;
+        boolean allowed=grantResults.length>0&&grantResults[0]==PackageManager.PERMISSION_GRANTED;
+        if(pendingCameraPermission!=null){PermissionRequest request=pendingCameraPermission;pendingCameraPermission=null;if(allowed&&trustedCameraRequest(request))request.grant(new String[]{PermissionRequest.RESOURCE_VIDEO_CAPTURE});else request.deny();}
+        if(pendingPhotoPermission){pendingPhotoPermission=false;if(allowed)launchCameraPhoto();else if(filePathCallback!=null){filePathCallback.onReceiveValue(null);filePathCallback=null;}}
     }
     private void loadPanel(){ready=false;webView.getSettings().setAllowFileAccess(false);webView.clearCache(true);webView.loadUrl(PANEL_URL);}
     private String encryptPrivate(String plain)throws Exception{
@@ -224,6 +268,8 @@ public class MainActivity extends Activity {
         });
     }
     public class AndroidBridge{
+        @JavascriptInterface public boolean cameraSupport(){return true;}
+        @JavascriptInterface public void clearCapturedPhoto(){runOnUiThread(()->MainActivity.this.clearCapturedPhoto());}
         @JavascriptInterface public boolean migrateLegacyStorage(String snapshot){
             if(!legacyMode||snapshot.length()>8*1024*1024)return false;
             try{JSONObject source=new JSONObject(snapshot);JSONObject safe=new JSONObject();for(String key:new String[]{"painelSolarResidencia.v1","painelSolarResidencia.v1.recovery","painelSolarCloud.v2","painelSolarCloudMeta.v2","painelSolarCredentials.v1"})if(source.has(key))safe.put(key,source.getString(key));
@@ -279,6 +325,11 @@ public class MainActivity extends Activity {
     }
     @Override protected void onActivityResult(int requestCode,int resultCode,Intent data){
         super.onActivityResult(requestCode,resultCode,data);
+        if(requestCode==REQUEST_CAMERA_PHOTO){
+            boolean success=resultCode==RESULT_OK&&capturedPhoto!=null&&capturedPhoto.length()>0;
+            if(filePathCallback!=null){filePathCallback.onReceiveValue(success?new Uri[]{capturedPhotoUri}:null);filePathCallback=null;}
+            if(!success)clearCapturedPhoto();return;
+        }
         if(requestCode==REQUEST_FILE_CHOOSER){if(filePathCallback!=null){filePathCallback.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(resultCode,data));filePathCallback=null;}return;}
         if(requestCode==REQUEST_SAVE_FILE){
             if(resultCode==RESULT_OK&&data!=null&&data.getData()!=null&&pendingBytes!=null){
@@ -291,5 +342,6 @@ public class MainActivity extends Activity {
     }
     @Override protected void onResume(){super.onResume();if(webView!=null&&System.currentTimeMillis()-lastCheck>300000)checkForUpdate();}
     @Override public void onBackPressed(){if(webView!=null&&webView.canGoBack())webView.goBack();else super.onBackPressed();}
-    @Override protected void onDestroy(){handler.removeCallbacksAndMessages(null);worker.shutdownNow();if(webView!=null){webView.removeJavascriptInterface("Android");webView.destroy();webView=null;}if(printView!=null)printView.destroy();super.onDestroy();}
+    @Override protected void onDestroy(){clearCapturedPhoto();if(pendingCameraPermission!=null){pendingCameraPermission.deny();pendingCameraPermission=null;}if(filePathCallback!=null){filePathCallback.onReceiveValue(null);filePathCallback=null;}handler.removeCallbacksAndMessages(null);worker.shutdownNow();if(webView!=null){webView.removeJavascriptInterface("Android");webView.destroy();webView=null;}if(printView!=null)printView.destroy();super.onDestroy();}
 }
+

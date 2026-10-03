@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-apk=android-app/Controle-Solar-v2.8.3.apk
+apk=android-app/Controle-Solar-v2.10.0.apk
 adb shell input keyevent KEYCODE_WAKEUP
 adb shell wm dismiss-keyguard
 adb shell input keyevent 82
@@ -27,7 +27,7 @@ python3 - <<'PY'
 from pathlib import Path
 s=Path('solar-ui.xml').read_text()
 logs=Path('panel-runtime.log').read_text()
-assert 'Painel pronto: 2.8.3' in logs, 'O painel offline não concluiu sua inicialização'
+assert 'Painel pronto: 2.10.0' in logs, 'O painel offline não concluiu sua inicialização'
 assert 'android.webkit.WebView' in s, 'A tela WebView não está visível'
 print('PASS: atualização do APK anterior com mesma assinatura e painel offline visível')
 PY
@@ -36,3 +36,4 @@ if grep -q 'Process: br.com.controlesolar.residencia' android-runtime.log; then
   cat android-runtime.log
   exit 1
 fi
+

@@ -69,4 +69,17 @@ public class SecurityTest {
   assertEquals("migration-test-token",new JSONObject(app.new AndroidBridge().getCloudSecrets()).getString("token"));
   assertFalse(app.getSharedPreferences("solar-migration",Context.MODE_PRIVATE).contains("snapshot"));
  }
+
+ @Test public void offlineOcrLoadsWasmAndRecognizesMeterWithoutSaving()throws Exception{
+  MainActivity app=activity.getActivity();waitFor(app,"typeof parseMeterOcr==='function'");
+  String before=evaluate(app,"JSON.stringify(state)");
+  evaluate(app,"window.ocrTestDone=false;window.ocrTestResult=null;window.ocrTestError=null;(async()=>{try{const c=document.createElement('canvas');c.width=900;c.height=240;const x=c.getContext('2d');x.fillStyle='white';x.fillRect(0,0,900,240);x.fillStyle='black';x.font='64px sans-serif';x.fillText('03 158.123 kWh',30,140);const w=await getOcrWorker();await w.setParameters({tessedit_pageseg_mode:'6'});const r=await w.recognize(c,{}, {text:true,blocks:true});window.ocrTestResult=parseMeterOcr(r.data,'03');await w.terminate();ocrWorkerPromise=null;}catch(e){window.ocrTestError=String(e)}finally{window.ocrTestDone=true}})();true");
+  boolean done=false;for(int i=0;i<180;i++){if("true".equals(evaluate(app,"window.ocrTestDone"))){done=true;break;}Thread.sleep(500);}
+  assertTrue("Offline OCR timeout: "+evaluate(app,"window.ocrTestError"),done);
+  assertEquals("null",evaluate(app,"window.ocrTestError"));
+  assertEquals("158.123",evaluate(app,"window.ocrTestResult.values.reading"));
+  assertEquals(before,evaluate(app,"JSON.stringify(state)"));
+  assertTrue(app.new AndroidBridge().cameraSupport());
+ }
 }
+
