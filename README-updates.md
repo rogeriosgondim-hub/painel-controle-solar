@@ -1,3 +1,9 @@
+# Painel 2.8.3 — edição de registros
+
+Produção diária e histórico de uso inteligente possuem Editar, Salvar alterações e Cancelar. O nome dos equipamentos também pode ser alterado, mantendo os vínculos com os usos. Correções manuais ficam identificadas e a importação pede confirmação antes de substituí-las. Datas duplicadas e intervalos inválidos são bloqueados. As ações permanecem visíveis ao percorrer as tabelas no celular. Relógio Enel e lançamentos mensais usam o rótulo Salvar alterações durante a edição.
+
+Atualização compatível com APK 2.8.2 (código 12): Sobre → Buscar atualização → Aplicar atualização. A versão do painel passa a 2.8.3; o aplicativo Android pode continuar mostrando 2.8.2. Armazenamento, sincronização e assinatura continuam no fluxo existente.
+
 # Painel e Android 2.8.2 — carregamento corrigido
 
 O Android usa uma origem HTTPS virtual atendida somente pelos arquivos locais do APK ou pelo HTML com assinatura verificada. A primeira abertura lê os dados na origem file original, guarda uma cópia de migração criptografada pelo Keystore e transfere os registros para a nova origem. Credenciais antigas em texto aberto são retiradas da origem anterior depois que a cópia protegida é gravada. A migração não requer internet e não substitui dados que já existam na nova origem. A versão exibida precisa corresponder ao manifesto; divergência mantém a cópia offline e não informa atualização concluída.
@@ -32,3 +38,4 @@ Atualizar versão/data e revision em panel-update.json. Manter minNativeVersionC
 ## Administração pendente
 
 Consulte SECURITY.md. A proteção da branch exige que o titular configure o GitHub. A assinatura dos painéis não substitui a proteção do repositório e da conta: a automação assina o conteúdo aprovado na main.
+
