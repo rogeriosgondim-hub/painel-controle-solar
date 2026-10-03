@@ -2,10 +2,10 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-3P1FcE9r3pLR/iim5xOmyiY2Chs8MAPKkxZT9wjy6jI='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src https://api.github.com; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-+7/0apfQiabgUVPNtVJyqMj7WM4c3YUMO+iBIQT+P+Q='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src https://api.github.com; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0F5F8C">
-<title>Controle Solar v2.8.2</title>
+<title>Controle Solar v2.8.3</title>
 <style>
 :root{
   --navy:#153955; --navy2:#1f5876; --blue:#dcecf7; --blue2:#c8dfef;
@@ -541,6 +541,10 @@ table{font-size:12px}
 
 
 .export-control{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px;border:1px solid var(--line);border-radius:12px;background:#f5f9fd;width:100%}.export-control label{font-size:13px;font-weight:700}.export-control select{padding:9px;border:1px solid var(--line);border-radius:8px;background:white;min-height:40px}.export-help{font-size:13px;line-height:1.5;color:var(--muted)}.about-grid{grid-template-columns:1fr 1fr}.about-name{font-size:24px;font-weight:800;color:var(--navy)}.about-details{display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:15px}.about-details dd{margin:0;font-weight:700}.about-news{line-height:1.8}.about-grid p,#aboutOffline,#panelUpdateStatus{line-height:1.6;font-size:14px}#about a{display:inline-block;text-decoration:none}[hidden]{display:none!important}@media(max-width:760px){.about-grid{grid-template-columns:1fr}.export-control{align-items:stretch;flex-direction:column}.export-control .btn{width:100%}.about-details{font-size:14px}}
+/* Ações sempre visíveis ao percorrer a tabela no celular. */
+.row-actions{position:sticky;right:0;z-index:1;background:#e5f1f9;box-shadow:-3px 0 6px #17304212;text-align:center;white-space:nowrap}
+.row-actions button{min-height:36px;margin:2px}
+[hidden]{display:none!important}
 </style>
 </head>
 <body>
@@ -561,7 +565,7 @@ table{font-size:12px}
       <button data-view="example">✓ &nbsp; Exemplo preenchido</button>
       <button data-view="about">ℹ &nbsp; Sobre</button>
     </div>
-    <div class="side-foot">Dados armazenados localmente neste dispositivo.<br><br><b>App v2.8.2 • Cloud Sync</b></div>
+    <div class="side-foot">Dados armazenados localmente neste dispositivo.<br><br><b>App v2.8.3 • Cloud Sync</b></div>
   </aside>
 
   <main class="main">
@@ -665,7 +669,7 @@ table{font-size:12px}
               <div class="field"><label>Parcelamentos / outros (R$)</label><input type="number" id="fExtras" step="0.01" min="0"></div>
             </div>
             <div class="calc-preview" id="calcPreview"></div>
-            <div class="form-actions"><button type="button" class="btn" data-click="h4">Limpar</button><button type="submit" class="btn primary">Salvar mês</button></div>
+            <div class="form-actions"><button type="button" class="btn" data-click="h4">Limpar</button><button type="button" class="btn" id="monthCancel" data-action="clearForm" hidden>Cancelar edição</button><button type="submit" class="btn primary" id="monthSave">Salvar mês</button></div>
           </form>
         </div>
 
@@ -724,13 +728,13 @@ table{font-size:12px}
           </div>
 
           <div class="card">
-            <div class="section-head compact"><div><h3>Adicionar dia manualmente</h3><p>Alternativa caso um arquivo não esteja disponível.</p></div></div>
+            <div class="section-head compact"><div><h3 id="solarFormTitle">Adicionar dia manualmente</h3><p>Alternativa caso um arquivo não esteja disponível.</p></div></div>
             <form id="solarManualForm">
               <div class="solar-manual-grid">
                 <div class="field"><label>Data</label><input type="date" id="solarDate" required></div>
                 <div class="field"><label>Produzida (kWh)</label><input type="number" id="solarProduced" min="0" step="0.001" required></div>
                 <div class="field"><label>Esperada (kWh)</label><input type="number" id="solarExpected" min="0" step="0.001" required></div>
-                <button class="btn primary" type="submit">Salvar dia</button>
+                <div class="form-actions"><button class="btn" type="button" data-action="cancelSolarEdit" id="solarCancel" hidden>Cancelar</button><button class="btn primary" type="submit" id="solarSave">Salvar dia</button></div>
               </div>
             </form>
             <div class="section-head compact" style="margin-top:18px"><div><h3>Conferência mensal</h3><p>Diário importado × lançamento mensal</p></div></div>
@@ -769,7 +773,7 @@ table{font-size:12px}
               <div class="field"><label for="meterNote">Observação (opcional)</label><input type="text" id="meterNote" maxlength="300" placeholder="Ex.: chuva, ar-condicionado, leitura inicial"></div>
             </div>
             <div id="meterError" class="notice" role="alert" hidden></div>
-            <div class="form-actions"><button class="btn" type="button" data-click="h8">Cancelar / nova leitura</button><button class="btn primary" type="submit">Salvar leitura</button></div>
+            <div class="form-actions"><button class="btn" type="button" data-click="h8">Cancelar / nova leitura</button><button class="btn primary" type="submit" id="meterSave">Salvar leitura</button></div>
           </form>
         </div>
         <div class="grid kpis" id="meterKpis"></div>
@@ -871,7 +875,7 @@ table{font-size:12px}
 
         <div class="grid smart-layout" style="margin-top:16px">
           <div class="card">
-            <div class="section-head compact"><div><h3>Registrar uso manualmente</h3><p>Para usos passados ou quando você não utilizar o cronômetro.</p></div></div>
+            <div class="section-head compact"><div><h3 id="smartFormTitle">Registrar uso manualmente</h3><p>Para usos passados ou quando você não utilizar o cronômetro.</p></div></div>
             <form id="smartManualForm">
               <div class="smart-form-grid">
                 <div class="field"><label>Eletrodoméstico</label><select id="smartManualAppliance" required></select></div>
@@ -881,7 +885,7 @@ table{font-size:12px}
                 <div class="field"><label>Finalizou com sucesso?</label><select id="smartManualSuccess"><option value="true">Sim</option><option value="false">Não</option></select></div>
                 <div class="field"><label>Observação</label><input id="smartManualNote" placeholder="Opcional"></div>
               </div>
-              <div class="smart-form-actions"><button class="btn primary" type="submit">Salvar uso</button></div>
+              <div class="smart-form-actions"><button class="btn" type="button" data-action="cancelSmartEdit" id="smartCancel" hidden>Cancelar</button><button class="btn primary" type="submit" id="smartSave">Salvar uso</button></div>
             </form>
           </div>
 
@@ -1042,8 +1046,8 @@ table{font-size:12px}
 <section class="view" id="about">
  <div class="premium-head"><div><div class="eyebrow">SOBRE O PROJETO</div><h3>Painel de Controle Solar da Residência</h3><p>Controle de geração, consumo e leituras do relógio Enel.</p></div></div>
  <div class="grid about-grid"><div class="card"><h3>Criador do projeto</h3><p class="about-name">Rogerio Sampaio</p><p>Projeto pessoal para acompanhar a energia solar da residência.</p></div>
- <div class="card"><h3>Versões e atualização</h3><dl class="about-details"><dt>Painel</dt><dd>2.8.2</dd><dt>Data desta versão</dt><dd>02/10/2026</dd><dt>Aplicativo Android</dt><dd id="aboutNativeVersion">Acesso pelo navegador</dd></dl><p id="panelUpdateStatus" role="status">No navegador, recarregue a página para buscar as novidades.</p><div class="backup-box"><button class="btn primary" data-click="h24">Buscar atualização</button><button class="btn" id="applyPanelUpdate" hidden data-click="h25">Aplicar atualização</button></div></div></div>
- <div class="card" style="margin-top:16px"><h3>Novidades da versão 2.8.2</h3><ul class="about-news"><li>Backup com senha e validação dos arquivos importados.</li><li>Credenciais protegidas no Android e no navegador.</li><li>Atualizações do painel com assinatura verificada e funcionamento offline.</li></ul><p id="aboutOffline">Os lançamentos ficam salvos neste aparelho. A sincronização na nuvem precisa de internet.</p><a class="btn" href="https://rogeriosgondim-hub.github.io/painel-controle-solar/" target="_blank" rel="noopener">Abrir painel web</a></div>
+ <div class="card"><h3>Versões e atualização</h3><dl class="about-details"><dt>Painel</dt><dd>2.8.3</dd><dt>Data desta versão</dt><dd>02/10/2026</dd><dt>Aplicativo Android</dt><dd id="aboutNativeVersion">Acesso pelo navegador</dd></dl><p id="panelUpdateStatus" role="status">No navegador, recarregue a página para buscar as novidades.</p><div class="backup-box"><button class="btn primary" data-click="h24">Buscar atualização</button><button class="btn" id="applyPanelUpdate" hidden data-click="h25">Aplicar atualização</button></div></div></div>
+ <div class="card" style="margin-top:16px"><h3>Novidades da versão 2.8.3</h3><ul class="about-news"><li>Edição da produção solar diária, dos usos registrados e dos nomes dos eletrodomésticos.</li><li>Salvar alterações e cancelar edição, sem duplicar registros.</li><li>Ações do histórico mais acessíveis no celular.</li><li>Confirmação antes de substituir correções manuais na importação SolarView.</li></ul><p id="aboutOffline">Os lançamentos ficam salvos neste aparelho. A sincronização na nuvem precisa de internet.</p><a class="btn" href="https://rogeriosgondim-hub.github.io/painel-controle-solar/" target="_blank" rel="noopener">Abrir painel web</a></div>
  </section>
       <section class="view" id="example">
         <div class="notice"><b>Exemplo simulado.</b> Os números abaixo servem apenas para explicar o preenchimento e não representam geração real nem futura fatura.</div>
@@ -1166,7 +1170,7 @@ function lockCloud(){cloudSecrets=null;clearTimeout(cloudTimer);renderCloud();to
 let state = loadState();
 let editingMonth = null;
 
-const PANEL_VERSION="2.8.2";
+const PANEL_VERSION="2.8.3";
 const PANEL_BUILD_DATE="2026-10-02";
 const titles = {
  about:["Sobre","Autoria, versões e novidades"],
@@ -1405,6 +1409,7 @@ function syncMonthPicker(){
 function fillForm(e){
   editingMonth=e?.month||null;
   setMonthPicker(e?.month||suggestMonth());
+  document.getElementById("monthCancel").hidden=!e;document.getElementById("monthSave").textContent=e?"Salvar alterações":"Salvar mês";
   document.getElementById("fGeneration").value=e?.generation??"";
   document.getElementById("fGrid").value=e?.gridImported??"";
   document.getElementById("fInjected").value=e?.injected??"";
@@ -1588,7 +1593,7 @@ async function cloudFetchFile(cfg){
 }
 async function cloudWriteFile(cfg,envelope,sha){
   const bytes=new TextEncoder().encode(JSON.stringify(envelope,null,2));
-  const body={message:"Sincroniza dados do Controle Solar v2.8.2",content:bytesToB64(bytes),branch:cfg.branch};
+  const body={message:"Sincroniza dados do Controle Solar v2.8.3",content:bytesToB64(bytes),branch:cfg.branch};
   if(sha)body.sha=sha;
   const r=await fetch(cloudApiUrl(cfg),{method:"PUT",headers:cloudHeaders(cfg),body:JSON.stringify(body)});
   if(r.status===401)throw new Error("Token GitHub inválido ou expirado.");
@@ -1798,37 +1803,37 @@ document.getElementById("reportPeriod").addEventListener("change",renderReports)
 document.getElementById("solarPeriod").addEventListener("change",renderSolarProduction);
 document.getElementById("smartStatsAppliance").addEventListener("change",function(){renderSmartStats();renderSmartTimer();});
 document.getElementById("smartTimerAppliance").addEventListener("change",renderSmartTimer);
+let editingSolarDate=null,editingSmartId=null,solarEditSnapshot=null,smartEditSnapshot=null;
+function cancelSolarEdit(){editingSolarDate=null;solarEditSnapshot=null;document.getElementById("solarManualForm").reset();document.getElementById("solarFormTitle").textContent="Adicionar dia manualmente";document.getElementById("solarSave").textContent="Salvar dia";document.getElementById("solarCancel").hidden=true;}
+function editSolarDay(date){const row=(state.dailyProduction||[]).find(x=>x.date===date);if(!row)return;editingSolarDate=date;solarEditSnapshot=JSON.stringify(row);document.getElementById("solarDate").value=row.date;document.getElementById("solarProduced").value=row.produced;document.getElementById("solarExpected").value=row.expected??"";document.getElementById("solarFormTitle").textContent="Editar produção diária";document.getElementById("solarSave").textContent="Salvar alterações";document.getElementById("solarCancel").hidden=false;document.getElementById("solarManualForm").scrollIntoView({behavior:"smooth",block:"center"});}
+function cancelSmartEdit(){editingSmartId=null;smartEditSnapshot=null;document.getElementById("smartManualForm").reset();document.getElementById("smartFormTitle").textContent="Registrar uso manualmente";document.getElementById("smartSave").textContent="Salvar uso";document.getElementById("smartCancel").hidden=true;}
+function editSmartSession(id){const row=smartData().sessions.find(x=>x.id===id);if(!row)return;editingSmartId=id;smartEditSnapshot=JSON.stringify(row);document.getElementById("smartManualAppliance").value=row.applianceId;document.getElementById("smartManualCycle").value=row.cycle||"";document.getElementById("smartManualStart").value=smartLocalDateTimeValue(row.start);document.getElementById("smartManualEnd").value=smartLocalDateTimeValue(row.end);document.getElementById("smartManualSuccess").value=String(row.success);document.getElementById("smartManualNote").value=row.note||"";document.getElementById("smartFormTitle").textContent="Editar uso registrado";document.getElementById("smartSave").textContent="Salvar alterações";document.getElementById("smartCancel").hidden=false;document.getElementById("smartManualForm").scrollIntoView({behavior:"smooth",block:"center"});}
+function editSmartAppliance(id){const row=smartData().appliances.find(x=>x.id===id);if(!row)return;const value=prompt("Editar nome do eletrodoméstico:",row.name);if(value===null)return;const name=value.trim();if(!name||name.length>100){alert("Informe um nome de até 100 caracteres.");return;}if(smartData().appliances.some(x=>x.id!==id&&x.name.toLocaleLowerCase()===name.toLocaleLowerCase())){alert("Já existe um equipamento com esse nome.");return;}row.name=name;saveState();renderSmartUse();toast("Nome atualizado.");}
 document.getElementById("smartManualForm").addEventListener("submit",function(ev){
-  ev.preventDefault();
-  const start=document.getElementById("smartManualStart").value,end=document.getElementById("smartManualEnd").value;
-  if(!start||!end){return;}
-  if(new Date(end)<=new Date(start)){alert("O horário de fim precisa ser posterior ao início.");return;}
-  smartData().sessions.push({
-    id:"use-"+Date.now().toString(36),
-    applianceId:document.getElementById("smartManualAppliance").value,
-    cycle:document.getElementById("smartManualCycle").value.trim(),
-    start:new Date(start).toISOString(),
-    end:new Date(end).toISOString(),
-    success:document.getElementById("smartManualSuccess").value==="true",
-    note:document.getElementById("smartManualNote").value.trim()
-  });
-  saveState();ev.target.reset();renderSmartUse();toast("Uso registrado.");
+ ev.preventDefault();const start=document.getElementById("smartManualStart").value,end=document.getElementById("smartManualEnd").value;
+ if(!Number.isFinite(Date.parse(start))||!Number.isFinite(Date.parse(end))||new Date(end)<=new Date(start)){alert("O horário de fim precisa ser posterior ao início.");return;}
+ const sessions=smartData().sessions,old=sessions.find(x=>x.id===editingSmartId);
+ if(editingSmartId&&(!old||JSON.stringify(old)!==smartEditSnapshot)){alert("Este registro mudou desde o início da edição. Abra Editar novamente para conferir os dados atuais.");return;}
+ const row={...old,id:editingSmartId||(crypto.randomUUID?crypto.randomUUID():"use-"+Date.now().toString(36)),applianceId:document.getElementById("smartManualAppliance").value,cycle:document.getElementById("smartManualCycle").value.trim(),start:old&&start===smartLocalDateTimeValue(old.start)?old.start:new Date(start).toISOString(),end:old&&end===smartLocalDateTimeValue(old.end)?old.end:new Date(end).toISOString(),success:document.getElementById("smartManualSuccess").value==="true",note:document.getElementById("smartManualNote").value.trim()};
+ if(!smartData().appliances.some(x=>x.id===row.applianceId)||row.cycle.length>4000||row.note.length>4000){alert("Confira o equipamento e reduza os textos para até 4.000 caracteres.");return;}
+ if(old)Object.assign(old,row);else sessions.push(row);saveState();cancelSmartEdit();renderSmartUse();toast(old?"Alterações salvas.":"Uso registrado.");
 });
 document.getElementById("solarFile").addEventListener("change",function(ev){const f=ev.target.files&&ev.target.files[0];if(f)importSolarViewFile(f);ev.target.value="";});
 document.getElementById("solarManualForm").addEventListener("submit",function(ev){
-  ev.preventDefault();
-  const date=document.getElementById("solarDate").value,produced=n(document.getElementById("solarProduced").value),expected=n(document.getElementById("solarExpected").value);
-  if(!date||produced==null||expected==null)return;
-  state.dailyProduction=state.dailyProduction||[];
-  const ex=state.dailyProduction.find(function(x){return x.date===date;});
-  if(ex){ex.produced=produced;ex.expected=expected;ex.source="Manual";}
-  else state.dailyProduction.push({date:date,produced:produced,expected:expected,source:"Manual"});
-  state.dailyProduction.sort(function(a,b){return a.date.localeCompare(b.date);});saveState();renderSolarProduction();ev.target.reset();toast("Produção diária salva.");
+ ev.preventDefault();const date=document.getElementById("solarDate").value,produced=n(document.getElementById("solarProduced").value),expected=n(document.getElementById("solarExpected").value);
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!Number.isFinite(Date.parse(date))||new Date(date).toISOString().slice(0,10)!==date||produced==null||expected==null||produced<0||expected<0||produced>1e9||expected>1e9){alert("Confira a data e informe valores de energia válidos, positivos ou zero.");return;}
+ state.dailyProduction=state.dailyProduction||[];const old=state.dailyProduction.find(x=>x.date===editingSolarDate),collision=state.dailyProduction.find(x=>x.date===date&&x!==old);
+ if(editingSolarDate&&(!old||JSON.stringify(old)!==solarEditSnapshot)){alert("Este registro mudou desde o início da edição. Abra Editar novamente para conferir os dados atuais.");return;}
+ if(collision){alert("Já existe produção nessa data. Use Editar no registro existente ou escolha outra data.");return;}
+ const row={...old,date,produced,expected,source:old?.source||"Manual",manualCorrection:true};if(old)Object.assign(old,row);else state.dailyProduction.push(row);
+ state.dailyProduction.sort((a,b)=>a.date.localeCompare(b.date));saveState();cancelSolarEdit();renderSolarProduction();toast(old?"Alterações salvas.":"Produção diária salva.");
 });
 document.getElementById("entryForm").addEventListener("input",updatePreview);
 document.getElementById("entryForm").addEventListener("submit",ev=>{
   ev.preventDefault();const e=formEntry();if(!e.month){alert("Informe o mês.");return}
+  const original=state.entries.find(x=>x.month===editingMonth);
   let target=state.entries.find(x=>x.month===e.month);
+  if(original&&editingMonth!==e.month){if(target){alert("Já existe um lançamento nesse mês. Escolha outro mês ou edite o registro existente.");return;}Object.assign(original,e);target=original;state.entries.sort((a,b)=>a.month.localeCompare(b.month));}
   if(target)Object.assign(target,e);else{state.entries.push(e);state.entries.sort((a,b)=>a.month.localeCompare(b.month))}
   saveState();editingMonth=e.month;renderAll();toast("Lançamento salvo.");
 });
@@ -1909,7 +1914,7 @@ function renderSolarProduction(){
     const p=solarPerformance(x),diff=(n(x.produced)??0)-(n(x.expected)??0),cls=p==null?"":(p>=1?"above":"below");
     return '<tr><td><b>'+solarDateBR(x.date)+'</b></td><td>'+num(n(x.produced),3)+' kWh</td><td>'+num(n(x.expected),3)+' kWh</td>'+
       '<td class="'+cls+'">'+(p==null?"—":pct(p))+'</td><td>'+((diff>=0?"+":"")+num(diff,3))+' kWh</td>'+
-      '<td class="solar-source">'+htmlEscape(x.source||"Manual")+'</td><td><button class="btn tiny danger" type="button" data-action="deleteSolarDay" data-value="'+htmlEscape(x.date)+'">Excluir</button></td></tr>';
+      '<td class="solar-source">'+htmlEscape(x.source||"Manual")+(x.manualCorrection?' • corrigido manualmente':'')+'</td><td class="row-actions"><button class="btn tiny" type="button" data-action="editSolarDay" data-value="'+htmlEscape(x.date)+'">Editar</button> <button class="btn tiny danger" type="button" data-action="deleteSolarDay" data-value="'+htmlEscape(x.date)+'">Excluir</button></td></tr>';
   }).join("");
 
   const meta=state.solarImportMeta||{};
@@ -1953,7 +1958,7 @@ function loadSolarSample(){
 }
 function deleteSolarDay(date){
   if(!confirm("Excluir o registro de "+solarDateBR(date)+"?"))return;
-  state.dailyProduction=(state.dailyProduction||[]).filter(function(x){return x.date!==date;});saveState();renderSolarProduction();toast("Dia excluído.");
+  if(editingSolarDate===date)cancelSolarEdit();state.dailyProduction=(state.dailyProduction||[]).filter(function(x){return x.date!==date;});saveState();renderSolarProduction();toast("Dia excluído.");
 }
 function solarParseDate(v){
   if(v instanceof Date&&!isNaN(v))return v.getFullYear()+"-"+String(v.getMonth()+1).padStart(2,"0")+"-"+String(v.getDate()).padStart(2,"0");
@@ -2001,9 +2006,12 @@ async function importSolarViewFile(file){
       if(solarMonthKey(range.end)===mk){state.solarMonthlyTargets=state.solarMonthlyTargets||{};state.solarMonthlyTargets[mk]=p.expected;}
     }else{
       state.dailyProduction=state.dailyProduction||[];
+      const corrected=parsed.filter(p=>state.dailyProduction.some(x=>x.date===p.date&&x.manualCorrection));
+      const overwriteManual=corrected.length?confirm("A planilha contém "+corrected.length+" dia(s) corrigido(s) manualmente. OK substitui as correções pelos valores SolarView; Cancelar preserva essas correções e importa os demais dias."):false;
       parsed.forEach(function(p){
         const ex=state.dailyProduction.find(function(x){return x.date===p.date;});
-        if(ex){ex.produced=p.produced;ex.expected=p.expected;ex.source="SolarView";updated++;}
+        if(ex&&ex.manualCorrection&&!overwriteManual)return;
+        if(ex){delete ex.manualCorrection;ex.produced=p.produced;ex.expected=p.expected;ex.source="SolarView";updated++;}
         else{state.dailyProduction.push(p);added++;}
       });
       state.dailyProduction.sort(function(a,b){return a.date.localeCompare(b.date);});
@@ -2012,7 +2020,7 @@ async function importSolarViewFile(file){
     saveState();renderSolarProduction();
     result.innerHTML=mode==="consolidado"
       ?'<b>Referência mensal importada.</b> Expectativa de '+num(parsed[0].expected,3)+' kWh registrada para '+monthLabel(solarMonthKey(range.start))+'.'
-      :'<b>Importação concluída.</b> '+added+' dia(s) novo(s) e '+updated+' dia(s) atualizado(s).';
+      :'<b>Importação concluída.</b> '+added+' dia(s) novo(s) e '+updated+' dia(s) atualizado(s). Correções manuais não autorizadas para substituição foram preservadas.';
     toast("Planilha SolarView importada.");
   }catch(err){result.textContent="Não foi possível importar: "+(err&&err.message?err.message:String(err));}
 }
@@ -2079,7 +2087,7 @@ function renderSmartAppliances(){
   box.innerHTML=smartData().appliances.map(function(a){
     const count=smartData().sessions.filter(x=>x.applianceId===a.id).length;
     return '<div class="summary-row"><div><b>'+htmlEscape(a.name)+'</b><small>'+count+' uso(s) registrado(s)</small></div>'+
-      (a.id==="washer"?'':'<button class="btn tiny danger" type="button" data-action="removeSmartAppliance" data-value="'+htmlEscape(a.id)+'">Excluir</button>')+'</div>';
+      '<span><button class="btn tiny" type="button" data-action="editSmartAppliance" data-value="'+htmlEscape(a.id)+'">Editar</button> '+(a.id==="washer"?'':'<button class="btn tiny danger" type="button" data-action="removeSmartAppliance" data-value="'+htmlEscape(a.id)+'">Excluir</button>')+'</span></div>';
   }).join("");
 }
 function renderSmartTimer(){
@@ -2127,7 +2135,7 @@ function renderSmartHistory(){
       '<td>'+smartDisplayDateTime(x.start)+'</td><td>'+smartDisplayDateTime(x.end)+'</td><td>'+smartDurationText(dur)+'</td>'+
       '<td><span class="smart-pill '+(x.success?"ok":"fail")+'">'+(x.success?"Sim":"Não")+'</span></td>'+
       '<td><span class="smart-pill '+sc.key+'">'+sc.label+'</span></td><td>'+htmlEscape(x.note||"—")+'</td>'+
-      '<td><button class="btn tiny danger" type="button" data-action="deleteSmartSession" data-value="'+htmlEscape(x.id)+'">Excluir</button></td></tr>';
+      '<td class="row-actions"><button class="btn tiny" type="button" data-action="editSmartSession" data-value="'+htmlEscape(x.id)+'">Editar</button> <button class="btn tiny danger" type="button" data-action="deleteSmartSession" data-value="'+htmlEscape(x.id)+'">Excluir</button></td></tr>';
   }).join("");
 }
 function saveSmartSettings(){
@@ -2154,7 +2162,7 @@ function finishSmartNow(success){
   smartData().sessions.push(s);smartData().activeSession=null;saveState();renderSmartUse();toast(success?"Ciclo finalizado com sucesso.":"Ciclo encerrado sem sucesso.");
 }
 function deleteSmartSession(id){
-  if(!confirm("Excluir este registro de uso?"))return;smartData().sessions=smartData().sessions.filter(x=>x.id!==id);saveState();renderSmartUse();toast("Registro excluído.");
+  if(!confirm("Excluir este registro de uso?"))return;if(editingSmartId===id)cancelSmartEdit();smartData().sessions=smartData().sessions.filter(x=>x.id!==id);saveState();renderSmartUse();toast("Registro excluído.");
 }
 
 function reportFilledEntries(){
@@ -2352,7 +2360,7 @@ function meterDaily(rows){
   });
 }
 function clearMeterForm(){
-  editingMeterId=null;document.getElementById("meterForm").reset();
+  editingMeterId=null;document.getElementById("meterSave").textContent="Salvar leitura";document.getElementById("meterForm").reset();
   const parts=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Sao_Paulo",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).formatToParts(new Date());
   const p=Object.fromEntries(parts.map(x=>[x.type,x.value]));
   document.getElementById("meterDate").value=p.year+"-"+p.month+"-"+p.day;
@@ -2385,7 +2393,7 @@ function saveMeterReading(event){
 }
 function editMeterReading(id){
   const row=meterRows().find(r=>r.id===id);if(!row)return;
-  editingMeterId=id;document.getElementById("meterDate").value=row.at.slice(0,10);document.getElementById("meterTime").value=row.at.slice(11,16);
+  editingMeterId=id;document.getElementById("meterSave").textContent="Salvar alterações";document.getElementById("meterDate").value=row.at.slice(0,10);document.getElementById("meterTime").value=row.at.slice(11,16);
   document.getElementById("meterPeriod").value=row.period;document.getElementById("meterImported").value=String(row.imported).replace(".",",");document.getElementById("meterInjected").value=String(row.injected).replace(".",",");document.getElementById("meterNote").value=row.note||"";
   document.getElementById("meterFormTitle").textContent="Editar leitura";document.getElementById("meterError").hidden=true;document.getElementById("meterFormTitle").scrollIntoView({behavior:"smooth",block:"center"});
 }
@@ -2439,7 +2447,7 @@ clearMeterForm();
 document.getElementById('recoveryBackup').hidden=!localStorage.getItem(STORAGE_KEY+'.recovery');document.getElementById('recoveryBackup').addEventListener('click',()=>downloadFile('controle-solar-recuperacao.json',localStorage.getItem(STORAGE_KEY+'.recovery'),'application/json'));
 document.getElementById('recoverCloudAccess').addEventListener('click',recoverCloudAccess);
 const trustedClicks={h0:function(event){window.print()},h1:function(event){newPrimaryEntry()},h2:function(event){goTo('entries')},h3:function(event){goTo('cloud')},h4:function(event){clearForm()},h5:function(event){document.getElementById('solarFile').click()},h6:function(event){document.getElementById('solarFile').click()},h7:function(event){loadSolarSample()},h8:function(event){clearMeterForm()},h9:function(event){saveSmartSettings()},h10:function(event){addSmartAppliance()},h11:function(event){exportData('reports')},h12:function(event){exportEncryptedBackup()},h13:function(event){exportBackup()},h14:function(event){document.getElementById('backupInput').click()},h15:function(event){exportData('entries')},h16:function(event){resetApp()},h17:function(event){unlockCloud()},h18:function(event){lockCloud()},h19:function(event){cloudAutoSync(true)},h20:function(event){cloudForcePull()},h21:function(event){cloudForcePush()},h22:function(event){saveCloudSettings(true)},h23:function(event){clearCloudSettings()},h24:function(event){checkPanelUpdate()},h25:function(event){applyPanelUpdate()}};
-document.addEventListener('click',event=>{const el=event.target.closest('[data-click],[data-action]');if(!el)return;if(el.dataset.click){trustedClicks[el.dataset.click]?.call(el,event);return;}const actions={editEntry,deleteEntry,deleteSolarDay,removeSmartAppliance,deleteSmartSession,startSmartNow,finishSuccess:()=>finishSmartNow(true),finishFailure:()=>finishSmartNow(false)};actions[el.dataset.action]?.(el.dataset.value);});
+document.addEventListener('click',event=>{const el=event.target.closest('[data-click],[data-action]');if(!el)return;if(el.dataset.click){trustedClicks[el.dataset.click]?.call(el,event);return;}const actions={editSolarDay,cancelSolarEdit,editSmartSession,cancelSmartEdit,editSmartAppliance,clearForm,editEntry,deleteEntry,deleteSolarDay,removeSmartAppliance,deleteSmartSession,startSmartNow,finishSuccess:()=>finishSmartNow(true),finishFailure:()=>finishSmartNow(false)};actions[el.dataset.action]?.(el.dataset.value);});
 document.addEventListener('change',event=>{const key=event.target.dataset.param;if(['prudenceFactor','creditReserve'].includes(key))updateParam(key,event.target.value);});
 migrateCredentials().then(ok=>{if(ok&&window.Android?.completeLegacyMigration)Android.completeLegacyMigration();cloudAutoSync(false)});renderAll();if(window.Android&&Android.panelReady)Android.panelReady(PANEL_VERSION);fillForm(state.entries.find(e=>e.month==="2026-09")||null);
 window.addEventListener("online",()=>{cloudAutoSync(false);if(window.Android&&Android.checkUpdate)Android.checkUpdate();});
@@ -2449,3 +2457,4 @@ setTimeout(()=>cloudAutoSync(false),700);
 </script>
 </body>
 </html>
+
