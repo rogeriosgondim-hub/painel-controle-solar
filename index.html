@@ -2,10 +2,10 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-+7/0apfQiabgUVPNtVJyqMj7WM4c3YUMO+iBIQT+P+Q='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src https://api.github.com; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-3QmGHi+MaaCpM9yopm7G0RxhajFKvu6BdZqWz2pG6os='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src https://api.github.com; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0F5F8C">
-<title>Controle Solar v2.8.3</title>
+<title>Controle Solar v2.9.0</title>
 <style>
 :root{
   --navy:#153955; --navy2:#1f5876; --blue:#dcecf7; --blue2:#c8dfef;
@@ -546,6 +546,12 @@ table{font-size:12px}
 .row-actions{position:sticky;right:0;z-index:1;background:#e5f1f9;box-shadow:-3px 0 6px #17304212;text-align:center;white-space:nowrap}
 .row-actions button{min-height:36px;margin:2px}
 [hidden]{display:none!important}
+.billing-cycle{margin:20px 0 0;padding:18px;border:1px solid var(--line);border-radius:14px;background:#f2f8fc}
+.billing-cycle h4{margin:0 0 8px;font-size:18px}.cycle-help{font-size:14px;line-height:1.5;color:var(--muted);margin:8px 0 14px}
+.billing-cycle label,.cycle-summary .calc-item span{font-size:14px}.cycle-checkbox{display:flex;align-items:flex-start;gap:10px;margin:16px 0;font-size:14px;line-height:1.5}.cycle-checkbox input{margin-top:4px;min-width:18px;min-height:18px}
+.cycle-summary{margin-top:18px}.cycle-summary h3{margin:0 0 8px}.cycle-summary p{font-size:14px;line-height:1.5}.cycle-summary .calc-preview{grid-template-columns:repeat(3,minmax(0,1fr))}.cycle-error{color:var(--danger);font-weight:700;font-size:14px;line-height:1.5}.cycle-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.cycle-summary .calc-item{min-width:0}.cycle-summary .calc-item b{overflow-wrap:anywhere}.cycle-help code{white-space:normal}
+@media(max-width:760px){.billing-cycle{padding:14px}.cycle-summary .calc-preview{grid-template-columns:1fr 1fr}.billing-cycle .form-grid{grid-template-columns:1fr 1fr}.billing-cycle .field input{min-width:0;font-size:14px}.cycle-summary .calc-item b{font-size:15px}.cycle-actions .btn{width:100%}}
+@media(max-width:400px){.billing-cycle .form-grid,.cycle-summary .calc-preview{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -566,7 +572,7 @@ table{font-size:12px}
       <button data-view="example">✓ &nbsp; Exemplo preenchido</button>
       <button data-view="about">ℹ &nbsp; Sobre</button>
     </div>
-    <div class="side-foot">Dados armazenados localmente neste dispositivo.<br><br><b>App v2.8.3 • Cloud Sync</b></div>
+    <div class="side-foot">Dados armazenados localmente neste dispositivo.<br><br><b>App v2.9.0 • Cloud Sync</b></div>
   </aside>
 
   <main class="main">
@@ -589,6 +595,7 @@ table{font-size:12px}
           <div class="month-control"><span>Período</span><strong id="dashMonth">Set/2026</strong></div>
         </div>
 
+        <div class="card cycle-summary" id="cycleDashboard"></div>
         <div class="grid kpis premium-kpis" id="kpiGrid"></div>
 
         <div class="card chart-feature">
@@ -645,7 +652,7 @@ table{font-size:12px}
         <div class="card">
           <form id="entryForm">
             <div class="form-grid">
-              <div class="field month-field"><label>Mês</label>
+              <div class="field month-field"><label>Referência da fatura</label>
   <input type="hidden" id="fMonth" required>
   <div class="month-year-picker">
     <select id="fMonthName" aria-label="Mês">
@@ -661,7 +668,7 @@ table{font-size:12px}
   </div>
 </div>
               <div class="field"><label>Geração solar (kWh)</label><input type="number" id="fGeneration" step="0.01" min="0"></div>
-              <div class="field"><label>Rede importada (kWh)</label><input type="number" id="fGrid" step="0.01" min="0"></div>
+              <div class="field"><label>Rede importada (kWh)</label><input type="number" id="fGrid" step="0.001" min="0"></div>
               <div class="field"><label>Energia injetada (kWh)</label><input type="number" id="fInjected" step="0.01" min="0"></div>
               <div class="field"><label>Créditos usados (kWh)</label><input type="number" id="fCreditsUsed" step="0.01" min="0"></div>
               <div class="field"><label>Saldo créditos fim (kWh)</label><input type="number" id="fBalance" step="0.01" min="0"></div>
@@ -669,11 +676,32 @@ table{font-size:12px}
               <div class="field"><label>CIP (R$)</label><input type="number" id="fCip" step="0.01" min="0"></div>
               <div class="field"><label>Parcelamentos / outros (R$)</label><input type="number" id="fExtras" step="0.01" min="0"></div>
             </div>
+            <div class="billing-cycle">
+              <h4>Ciclo de leitura e cobrança</h4>
+              <p class="cycle-help">Copie as datas e leituras da fatura. A leitura atual é o fechamento efetivo do ciclo; o vencimento é a data de pagamento. Este bloco é opcional para os lançamentos antigos.</p>
+              <div class="cycle-actions"><button class="btn" type="button" data-action="prefillPreviousCycle">Usar fechamento anterior</button><button class="btn" type="button" data-action="clearCycleForm">Limpar campos do ciclo</button></div>
+              <div class="form-grid">
+                <div class="field"><label for="fCycleStart">Início do ciclo — data anterior</label><input type="date" id="fCycleStart"></div>
+                <div class="field"><label for="fCycleStartReading">Leitura anterior</label><input type="number" id="fCycleStartReading" min="0" max="1000000000" step="0.001"></div>
+                <div class="field"><label for="fCycleEnd">Fechamento do ciclo — data atual</label><input type="date" id="fCycleEnd"></div>
+                <div class="field"><label for="fCycleEndReading">Leitura atual</label><input type="number" id="fCycleEndReading" min="0" max="1000000000" step="0.001"></div>
+                <div class="field"><label for="fCycleMultiplier">Multiplicador da fatura</label><input type="number" id="fCycleMultiplier" min="0.001" max="1000000" step="0.001" value="1"></div>
+                <div class="field"><label for="fCycleDue">Vencimento da fatura</label><input type="date" id="fCycleDue"></div>
+                <div class="field"><label for="fCycleNext">Próximo fechamento previsto</label><input type="date" id="fCycleNext"></div>
+              </div>
+              <p class="cycle-help">Consumo da rede = (leitura atual − leitura anterior) × multiplicador. Confira o fator na fatura; use 1 quando a leitura já estiver em kWh. Deixe o fechamento efetivo em branco enquanto o ciclo estiver aberto.</p>
+              <label class="cycle-checkbox"><input type="checkbox" id="fCycleMeter"><span>Acompanhar este ciclo pelas leituras do Relógio Enel.<br>Ative somente se forem do mesmo medidor e da mesma escala das leituras acima. Se o medidor foi trocado, registre um novo início.</span></label>
+              <div id="cycleFormError" class="cycle-error" role="alert" hidden></div>
+              <div class="cycle-summary" id="cyclePreview" aria-live="polite"></div>
+              <div class="cycle-actions"><button class="btn" type="button" id="cycleUseConsumption" data-action="useCycleConsumption" disabled>Usar consumo calculado em Rede importada</button></div>
+            </div>
             <div class="calc-preview" id="calcPreview"></div>
             <div class="form-actions"><button type="button" class="btn" data-click="h4">Limpar</button><button type="button" class="btn" id="monthCancel" data-action="clearForm" hidden>Cancelar edição</button><button type="submit" class="btn primary" id="monthSave">Salvar mês</button></div>
           </form>
         </div>
 
+        <div class="section-head"><div><h3>Histórico dos ciclos</h3><p>Início, fechamento efetivo, consumo e próxima leitura de cada fatura.</p></div></div>
+        <div class="card table-card"><div class="table-scroll"><table id="cyclesTable"><thead><tr><th>Referência</th><th>Início</th><th>Fechamento efetivo</th><th>Dias</th><th>Leitura anterior</th><th>Leitura atual</th><th>Multiplicador</th><th>Consumo da rede (kWh)</th><th>Vencimento</th><th>Próximo fechamento previsto</th><th>Ações</th></tr></thead><tbody></tbody></table></div></div>
         <div class="section-head"><div><h3>Lançamentos registrados</h3><p>Campos em vermelho correspondem ao preenchimento manual da planilha original.</p></div></div>
         <div class="card table-card"><div class="table-scroll"><table id="entriesTable"><thead><tr>
           <th>Mês</th><th>Geração</th><th>Rede</th><th>Injetada</th><th>Créd. usados</th><th>Saldo</th><th>Conta total</th><th>CIP</th><th>Outros</th>
@@ -1047,8 +1075,8 @@ table{font-size:12px}
 <section class="view" id="about">
  <div class="premium-head"><div><div class="eyebrow">SOBRE O PROJETO</div><h3>Painel de Controle Solar da Residência</h3><p>Controle de geração, consumo e leituras do relógio Enel.</p></div></div>
  <div class="grid about-grid"><div class="card"><h3>Criador do projeto</h3><p class="about-name">Rogerio Sampaio</p><p>Projeto pessoal para acompanhar a energia solar da residência.</p></div>
- <div class="card"><h3>Versões e atualização</h3><dl class="about-details"><dt>Painel</dt><dd>2.8.3</dd><dt>Data desta versão</dt><dd>02/10/2026</dd><dt>Aplicativo Android</dt><dd id="aboutNativeVersion">Acesso pelo navegador</dd></dl><p id="panelUpdateStatus" role="status">No navegador, recarregue a página para buscar as novidades.</p><div class="backup-box"><button class="btn primary" data-click="h24">Buscar atualização</button><button class="btn" id="applyPanelUpdate" hidden data-click="h25">Aplicar atualização</button></div></div></div>
- <div class="card" style="margin-top:16px"><h3>Novidades da versão 2.8.3</h3><ul class="about-news"><li>Edição da produção solar diária, dos usos registrados e dos nomes dos eletrodomésticos.</li><li>Salvar alterações e cancelar edição, sem duplicar registros.</li><li>Ações do histórico mais acessíveis no celular.</li><li>Confirmação antes de substituir correções manuais na importação SolarView.</li></ul><p id="aboutOffline">Os lançamentos ficam salvos neste aparelho. A sincronização na nuvem precisa de internet.</p><a class="btn" href="https://rogeriosgondim-hub.github.io/painel-controle-solar/" target="_blank" rel="noopener">Abrir painel web</a></div>
+ <div class="card"><h3>Versões e atualização</h3><dl class="about-details"><dt>Painel</dt><dd>2.9.0</dd><dt>Data desta versão</dt><dd>03/10/2026</dd><dt>Aplicativo Android</dt><dd id="aboutNativeVersion">Acesso pelo navegador</dd></dl><p id="panelUpdateStatus" role="status">No navegador, recarregue a página para buscar as novidades.</p><div class="backup-box"><button class="btn primary" data-click="h24">Buscar atualização</button><button class="btn" id="applyPanelUpdate" hidden data-click="h25">Aplicar atualização</button></div></div></div>
+ <div class="card" style="margin-top:16px"><h3>Novidades da versão 2.9.0</h3><ul class="about-news"><li>Ciclo de leitura e cobrança: início, fechamento efetivo, vencimento e próxima leitura prevista.</li><li>Cálculo de dias, diferença das leituras e consumo com multiplicador da fatura.</li><li>Histórico editável dos ciclos e preenchimento a partir do fechamento anterior.</li><li>Acompanhamento do ciclo no Painel, consumo parcial e projeção identificada como estimativa.</li><li>Produção solar diária no período, com indicação dos dias disponíveis.</li><li>Ciclos incluídos no backup, na sincronização e nas exportações Excel, CSV e PDF.</li></ul><p id="aboutOffline">Os lançamentos ficam salvos neste aparelho. A sincronização na nuvem precisa de internet.</p><a class="btn" href="https://rogeriosgondim-hub.github.io/painel-controle-solar/" target="_blank" rel="noopener">Abrir painel web</a></div>
  </section>
       <section class="view" id="example">
         <div class="notice"><b>Exemplo simulado.</b> Os números abaixo servem apenas para explicar o preenchimento e não representam geração real nem futura fatura.</div>
@@ -1094,7 +1122,7 @@ function validateState(input){
  const date=v=>{if(typeof v!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(v)||!Number.isFinite(Date.parse(v))||new Date(v).toISOString().slice(0,10)!==v)fail();};
  const timestamp=v=>{if(typeof v!=='string'||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(v)||!Number.isFinite(Date.parse(v)))fail();};
  for(const [k,v] of Object.entries(input.parameters)){if(k==='uc'){if(typeof v!=='string'||!/^\d{0,30}$/.test(v))fail();}else number(v,true);}
- input.entries.forEach(x=>{month(x.month);for(const k of ['generation','gridImported','injected','creditsUsed','creditBalance','totalBill','cip','extras'])if(k in x)number(x[k],true);});
+ input.entries.forEach(x=>{month(x.month);for(const k of ['generation','gridImported','injected','creditsUsed','creditBalance','totalBill','cip','extras'])if(k in x)number(x[k],true);if(x.billingCycle!=null&&cycleValidationError(x.billingCycle))fail();});
  input.history.forEach(x=>{month(x.month);number(x.consumption);if(typeof x.label!=='string')fail();});
  (input.dailyProduction||[]).forEach(x=>{date(x.date);number(x.produced);number(x.expected,true);});
  for(const [m,v] of Object.entries(input.solarMonthlyTargets||{})){month(m);number(v);}
@@ -1171,8 +1199,8 @@ function lockCloud(){cloudSecrets=null;clearTimeout(cloudTimer);renderCloud();to
 let state = loadState();
 let editingMonth = null;
 
-const PANEL_VERSION="2.8.3";
-const PANEL_BUILD_DATE="2026-10-02";
+const PANEL_VERSION="2.9.0";
+const PANEL_BUILD_DATE="2026-10-03";
 const titles = {
  about:["Sobre","Autoria, versões e novidades"],
  dashboard:["Painel de Controle Solar","Visão geral da residência"],
@@ -1256,6 +1284,93 @@ function num(v,d=1){return v==null?"—":new Intl.NumberFormat("pt-BR",{maximumF
 function pct(v){return v==null?"—":new Intl.NumberFormat("pt-BR",{style:"percent",maximumFractionDigits:1}).format(v)}
 function monthLabel(ym){if(!ym)return"—";const [y,m]=ym.split("-").map(Number);return monthNames[m-1]+"/"+y}
 function htmlEscape(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+
+// Ciclo da fatura: datas civis, sem depender do fuso horário do aparelho.
+function validCycleDate(value){return typeof value==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(value)&&Number.isFinite(Date.parse(value))&&new Date(value).toISOString().slice(0,10)===value;}
+function cycleDays(start,end){return validCycleDate(start)&&validCycleDate(end)?Math.round((Date.parse(end)-Date.parse(start))/86400000):null;}
+function cycleToday(){const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const p=Object.fromEntries(parts.map(x=>[x.type,x.value]));return p.year+'-'+p.month+'-'+p.day;}
+function cycleDateLabel(value){return validCycleDate(value)?value.split('-').reverse().join('/'):'—';}
+function cycleValidationError(c){
+ if(!c||typeof c!=='object'||Array.isArray(c))return 'Confira os dados do ciclo.';
+ for(const key of ['startDate','endDate','dueDate','nextReadingDate'])if(c[key]!=null&&!validCycleDate(c[key]))return 'Informe datas válidas para o ciclo.';
+ for(const key of ['startReading','endReading'])if(c[key]!=null&&(typeof c[key]!=='number'||!Number.isFinite(c[key])||c[key]<0||c[key]>1e9))return 'Informe leituras positivas ou zero, sem separador de milhar.';
+ if(!c.startDate||c.startReading==null)return 'Informe o início do ciclo e a leitura anterior. Para um lançamento sem ciclo, limpe os campos deste bloco.';
+ if(typeof c.multiplier!=='number'||!Number.isFinite(c.multiplier)||c.multiplier<=0||c.multiplier>1e6)return 'Confira o multiplicador na fatura e informe um valor maior que zero.';
+ if(c.useMeterReadings!=null&&typeof c.useMeterReadings!=='boolean')return 'Confira a opção de acompanhamento pelo Relógio Enel.';
+ if(Boolean(c.endDate)!==(c.endReading!=null))return 'Para fechar o ciclo, informe a data de fechamento e a leitura atual. Deixe ambos em branco enquanto ele estiver aberto.';
+ if(c.endDate&&cycleDays(c.startDate,c.endDate)<=0)return 'O fechamento precisa ocorrer depois do início do ciclo.';
+ if(c.endReading!=null&&c.endReading<c.startReading)return 'A leitura atual não pode ser menor que a anterior. Confira os números; se houve troca de medidor, registre um novo início.';
+ if(c.nextReadingDate&&c.nextReadingDate<=(c.endDate||c.startDate))return 'O próximo fechamento previsto precisa ocorrer depois do início ou do fechamento efetivo informado.';
+ return null;
+}
+function cycleFromForm(){
+ const c={startDate:document.getElementById('fCycleStart').value||null,startReading:n(document.getElementById('fCycleStartReading').value),endDate:document.getElementById('fCycleEnd').value||null,endReading:n(document.getElementById('fCycleEndReading').value),multiplier:n(document.getElementById('fCycleMultiplier').value),dueDate:document.getElementById('fCycleDue').value||null,nextReadingDate:document.getElementById('fCycleNext').value||null,useMeterReadings:document.getElementById('fCycleMeter').checked};
+ return ['startDate','startReading','endDate','endReading','dueDate','nextReadingDate'].some(k=>c[k]!=null)||c.useMeterReadings?c:null;
+}
+function fillCycleForm(c){
+ const fields={fCycleStart:'startDate',fCycleStartReading:'startReading',fCycleEnd:'endDate',fCycleEndReading:'endReading',fCycleMultiplier:'multiplier',fCycleDue:'dueDate',fCycleNext:'nextReadingDate'};
+ for(const [id,key] of Object.entries(fields))document.getElementById(id).value=c?.[key]??(key==='multiplier'?1:'');
+ document.getElementById('fCycleMeter').checked=c?.useMeterReadings===true;
+}
+function clearCycleForm(){fillCycleForm(null);updatePreview();}
+function prefillPreviousCycle(){
+ const month=document.getElementById('fMonth').value;
+ const previous=state.entries.filter(e=>e.month<month&&e.billingCycle?.endDate&&!cycleValidationError(e.billingCycle)).sort((a,b)=>a.billingCycle.endDate.localeCompare(b.billingCycle.endDate)).slice(-1)[0];
+ if(!previous){toast('Nenhum fechamento anterior registrado para esta referência.');return;}
+ if(cycleFromForm()&&!confirm('Substituir os campos do ciclo pelo fechamento de '+monthLabel(previous.month)+'? Os demais dados do lançamento serão mantidos.'))return;
+ const c=previous.billingCycle;fillCycleForm({startDate:c.endDate,startReading:c.endReading,multiplier:c.multiplier,nextReadingDate:c.nextReadingDate,useMeterReadings:c.useMeterReadings});updatePreview();toast('Início preenchido. Informe o fechamento efetivo quando a leitura ocorrer.');
+}
+function cycleMetrics(c,today=cycleToday()){
+ const closed=Boolean(c.endDate),days=closed?cycleDays(c.startDate,c.endDate):null;
+ const difference=closed?Math.round((c.endReading-c.startReading)*1000)/1000:null;
+ const consumed=difference==null?null:Math.round(difference*c.multiplier*1000)/1000;
+ const until=closed?c.endDate:(c.nextReadingDate&&c.nextReadingDate<today?c.nextReadingDate:today);
+ const coverageDays=Math.max(0,cycleDays(c.startDate,until)||0);
+ const solar=(state.dailyProduction||[]).filter(r=>r.date>c.startDate&&r.date<=until);
+ const solarDays=new Set(solar.map(r=>r.date)).size,solarTotal=solarDays?solar.reduce((sum,r)=>sum+r.produced,0):null;
+ const scheduledDays=c.nextReadingDate?cycleDays(c.startDate,c.nextReadingDate):null;
+ const elapsed=Math.max(0,cycleDays(c.startDate,today)||0),remaining=c.nextReadingDate?cycleDays(today,c.nextReadingDate):null;
+ let partial=null,partialDays=null,projection=null,readingDate=null,meterWarning=null;
+ if(!closed&&c.useMeterReadings){
+  const rows=meterRows().filter(r=>r.at.slice(0,10)>c.startDate&&r.at.slice(0,10)<=until);
+  const latest=rows.slice(-1)[0];
+  if(latest){
+   if(rows.some(r=>r.imported<c.startReading))meterWarning='As leituras do Relógio Enel são menores que a leitura inicial. Confira o medidor e a escala antes de acompanhar este ciclo.';
+   else{readingDate=latest.at.slice(0,10);partialDays=cycleDays(c.startDate,readingDate);partial=Math.round((latest.imported-c.startReading)*c.multiplier*1000)/1000;if(scheduledDays>0&&partialDays>0)projection=partial/partialDays*scheduledDays;}
+  }
+ }
+ return {closed,days,difference,consumed,solarDays,solarTotal,coverageDays,scheduledDays,elapsed,remaining,partial,partialDays,projection,readingDate,meterWarning};
+}
+function cycleSummaryHtml(c){
+ const error=cycleValidationError(c);if(error)return '<p class="cycle-error">'+htmlEscape(error)+'</p>';
+ const m=cycleMetrics(c),values=[['Início do ciclo',cycleDateLabel(c.startDate)],['Fechamento efetivo',c.endDate?cycleDateLabel(c.endDate):'Em aberto'],['Dias do ciclo',m.closed?m.days+' dias':m.scheduledDays!=null?m.scheduledDays+' dias previstos':'Sem previsão'],['Diferença das leituras',num(m.difference,3)],['Multiplicador',num(c.multiplier,3)],['Consumo da rede',m.consumed==null?'Aguardando fechamento':num(m.consumed,3)+' kWh'],['Vencimento',cycleDateLabel(c.dueDate)],['Próximo fechamento previsto',cycleDateLabel(c.nextReadingDate)]];
+ if(!m.closed){values.push(['Dias decorridos',m.elapsed+' dias'],['Dias até o fechamento',m.remaining==null?'Sem previsão':m.remaining<0?'Previsão ultrapassada há '+Math.abs(m.remaining)+' dias':m.remaining+' dias']);if(c.useMeterReadings){values.push(['Consumo parcial da rede',m.partial==null?'Aguardando leitura compatível':num(m.partial,3)+' kWh'],['Projeção da rede no fechamento',m.projection==null?'Aguardando dados':num(m.projection,1)+' kWh — estimativa']);}}
+ values.push(['Produção solar no período',m.solarTotal==null?'Sem dados diários':num(m.solarTotal,2)+' kWh'],['Cobertura dos dados solares',m.solarDays+' de '+m.coverageDays+' dias']);
+ let notes='<p class="cycle-help">A produção solar considera os dias após a leitura inicial até '+cycleDateLabel(m.closed?c.endDate:(c.nextReadingDate&&c.nextReadingDate<cycleToday()?c.nextReadingDate:cycleToday()))+'. Se faltarem dias, o total é parcial. O consumo da rede não inclui a energia solar usada diretamente na residência.</p>';
+ if(!m.closed&&c.useMeterReadings)notes+='<p class="cycle-help">'+(m.readingDate?'Última leitura usada: '+cycleDateLabel(m.readingDate)+'. A projeção usa a média diária da rede observada até essa leitura.':'Registre leituras no Relógio Enel para acompanhar o consumo parcial.')+' O horário da leitura pode afetar a estimativa.</p>';
+ if(m.meterWarning)notes+='<p class="cycle-error">'+htmlEscape(m.meterWarning)+'</p>';
+ return '<div class="calc-preview">'+values.map(([label,value])=>'<div class="calc-item"><span>'+htmlEscape(label)+'</span><b>'+htmlEscape(value)+'</b></div>').join('')+'</div>'+notes;
+}
+function updateCyclePreview(){
+ const c=cycleFromForm(),error=c?cycleValidationError(c):null;
+ const err=document.getElementById('cycleFormError');err.hidden=!error;err.textContent=error||'';
+ document.getElementById('cyclePreview').innerHTML=c&&!error?cycleSummaryHtml(c):'<p class="cycle-help">Informe o início e a leitura anterior para acompanhar um ciclo aberto. Acrescente o fechamento e a leitura atual para calcular o consumo final.</p>';
+ document.getElementById('cycleUseConsumption').disabled=!c||Boolean(error)||!c.endDate;
+ if(c&&!error&&c.endDate){const consumed=cycleMetrics(c).consumed,grid=n(document.getElementById('fGrid').value);if(grid!=null&&Math.abs(grid-consumed)>0.01)document.getElementById('cyclePreview').innerHTML+='<p class="cycle-error">Rede importada está em '+num(grid,3)+' kWh, diferente dos '+num(consumed,3)+' kWh calculados neste ciclo. Confira o multiplicador e use o botão abaixo se quiser transferir o consumo.</p>';}
+}
+function useCycleConsumption(){const c=cycleFromForm();if(!c||cycleValidationError(c)||!c.endDate)return;const consumption=cycleMetrics(c).consumed,old=n(document.getElementById('fGrid').value);if(old!=null&&Math.abs(old-consumption)>0.01&&!confirm('Substituir Rede importada por '+num(consumption,3)+' kWh calculados pelas leituras e pelo multiplicador?'))return;document.getElementById('fGrid').value=consumption;updatePreview();toast('Consumo transferido. Salve o lançamento para registrar a alteração.');}
+function deleteBillingCycle(month){const e=state.entries.find(x=>x.month===month);if(!e?.billingCycle||!confirm('Remover somente o ciclo de '+monthLabel(month)+'? Os valores mensais serão mantidos.'))return;e.billingCycle=null;saveState();renderAll();if(editingMonth===month)fillCycleForm(null);updatePreview();toast('Ciclo removido; valores mensais mantidos.');}
+function renderBillingCycles(){
+ const entries=state.entries.filter(e=>e.billingCycle&&!cycleValidationError(e.billingCycle)).sort((a,b)=>b.billingCycle.startDate.localeCompare(a.billingCycle.startDate));
+ document.querySelector('#cyclesTable tbody').innerHTML=entries.length?entries.map(e=>{const c=e.billingCycle,m=cycleMetrics(c);return '<tr><td><b>'+htmlEscape(monthLabel(e.month))+'</b></td>'+[cycleDateLabel(c.startDate),c.endDate?cycleDateLabel(c.endDate):'Em aberto',m.days==null?'—':m.days,num(c.startReading,3),num(c.endReading,3),num(c.multiplier,3),num(m.consumed,3),cycleDateLabel(c.dueDate),cycleDateLabel(c.nextReadingDate)].map(v=>'<td>'+htmlEscape(v)+'</td>').join('')+'<td class="row-actions"><button type="button" data-action="editEntry" data-value="'+htmlEscape(e.month)+'">Editar</button><button type="button" data-action="deleteBillingCycle" data-value="'+htmlEscape(e.month)+'">Remover ciclo</button></td></tr>';}).join(''):'<tr><td colspan="11" class="empty">Nenhum ciclo registrado. Preencha o bloco acima e salve o lançamento.</td></tr>';
+ const panel=document.getElementById('cycleDashboard');
+ if(!entries.length){panel.innerHTML='<h3>Ciclo de leitura e cobrança</h3><p>Registre o início, as leituras e a próxima leitura prevista em Lançamentos para acompanhar o período de consumo.</p><button class="btn" type="button" data-action="openCycleEntries">Registrar ciclo</button>';return;}
+ const e=entries[0],c=e.billingCycle,today=cycleToday();
+ let active=c,title=c.endDate?'Último ciclo fechado — '+monthLabel(e.month):'Ciclo em andamento — '+monthLabel(e.month),previous='';
+ if(c.endDate&&c.endDate<=today&&c.nextReadingDate){active={...c,startDate:c.endDate,startReading:c.endReading,endDate:null,endReading:null,dueDate:null};title='Acompanhamento do próximo ciclo';previous='<p>Último fechamento: '+cycleDateLabel(c.endDate)+' · '+cycleMetrics(c).days+' dias · '+num(cycleMetrics(c).consumed,3)+' kWh da rede. O início abaixo foi obtido desse fechamento; registre a nova fatura para confirmar o próximo ciclo.</p>';}
+ panel.innerHTML='<h3>'+htmlEscape(title)+'</h3>'+previous+cycleSummaryHtml(active)+'<button class="btn" type="button" data-action="editEntry" data-value="'+htmlEscape(e.month)+'">Abrir lançamento da fatura</button>';
+}
+function openCycleEntries(){goTo('entries');document.getElementById('fCycleStart').focus();}
 
 function calc(e){
   const p=state.parameters;
@@ -1419,6 +1534,7 @@ function fillForm(e){
   document.getElementById("fBill").value=e?.totalBill??"";
   document.getElementById("fCip").value=e?.cip??state.parameters.referenceCip;
   document.getElementById("fExtras").value=e?.extras??0;
+  fillCycleForm(e?.billingCycle||null);
   updatePreview();
 }
 function suggestMonth(){
@@ -1431,9 +1547,10 @@ function formEntry(){
     generation:n(document.getElementById("fGeneration").value),gridImported:n(document.getElementById("fGrid").value),
     injected:n(document.getElementById("fInjected").value),creditsUsed:n(document.getElementById("fCreditsUsed").value),
     creditBalance:n(document.getElementById("fBalance").value),totalBill:n(document.getElementById("fBill").value),
-    cip:n(document.getElementById("fCip").value),extras:n(document.getElementById("fExtras").value)};
+    cip:n(document.getElementById("fCip").value),extras:n(document.getElementById("fExtras").value),billingCycle:cycleFromForm()};
 }
 function updatePreview(){
+  updateCyclePreview();
   const c=calc(formEntry());
   const items=[["Autoconsumo",num(c.autoconsumption,1)+" kWh"],["Consumo total",num(c.totalConsumption,1)+" kWh"],["Conta recorrente",money(c.recurringBill)],["Custo energia",money(c.energyCost)],["Autoconsumo",pct(c.autoconsumptionPct)],["Meta sustentável",num(c.target,1)+" kWh"],["Margem conforto",num(c.margin,1)+" kWh"],["Status",c.status]];
   document.getElementById("calcPreview").innerHTML=items.map((x,i)=>`<div class="calc-item"><span>${x[0]}</span><b>${i===7?statusPill(x[1]):htmlEscape(x[1])}</b></div>`).join("");
@@ -1443,7 +1560,7 @@ function editEntry(month){const e=state.entries.find(x=>x.month===month);if(e){f
 function deleteEntry(month){
   const e=state.entries.find(x=>x.month===month);if(!e)return;
   if(!confirm("Limpar os dados de "+monthLabel(month)+"?"))return;
-  Object.assign(e,{generation:null,gridImported:null,injected:null,creditsUsed:null,creditBalance:null,totalBill:null,cip:null,extras:null});
+  Object.assign(e,{generation:null,gridImported:null,injected:null,creditsUsed:null,creditBalance:null,totalBill:null,cip:null,extras:null,billingCycle:null});
   saveState();renderAll();toast("Dados do mês limpos.");
 }
 function renderEntries(){
@@ -1509,7 +1626,12 @@ function updateParam(key,value){
 
 function renderGuide(){
   const steps=[
-    "No início de cada mês, selecione o mês em “Lançamentos”.",
+    "Em Lançamentos, selecione a referência da fatura. Ela é diferente do vencimento e do período de leitura.",
+    "No bloco Ciclo de leitura e cobrança, copie o início/data anterior e a leitura anterior. Para continuar um ciclo já fechado, use Usar fechamento anterior.",
+    "A data atual da fatura é o fechamento efetivo. Informe também a leitura atual e confira o multiplicador: consumo da rede = diferença das leituras × fator da fatura. Dias do ciclo = fechamento − início, sem somar um dia extra.",
+    "Preencha vencimento e próximo fechamento previsto separadamente. Enquanto o ciclo estiver aberto, deixe data de fechamento efetivo e leitura atual em branco. Salve o lançamento.",
+    "Para acompanhar o consumo parcial, ative a opção do Relógio Enel apenas quando as leituras forem do mesmo medidor e escala. A projeção é uma estimativa; confirme o fechamento pela próxima fatura.",
+    "Use Usar consumo calculado em Rede importada para transferir o resultado após conferência. A produção diária no período mostra quantos dias estão disponíveis; dados incompletos não representam todo o ciclo.",
     "Ao longo do mês, consulte o aplicativo dos inversores para acompanhar a geração acumulada.",
     "No fechamento, preencha geração solar, energia importada, energia injetada e saldo de créditos.",
     "Copie da fatura: conta total, CIP e parcelamentos/outros.",
@@ -1594,7 +1716,7 @@ async function cloudFetchFile(cfg){
 }
 async function cloudWriteFile(cfg,envelope,sha){
   const bytes=new TextEncoder().encode(JSON.stringify(envelope,null,2));
-  const body={message:"Sincroniza dados do Controle Solar v2.8.3",content:bytesToB64(bytes),branch:cfg.branch};
+  const body={message:"Sincroniza dados do Controle Solar v2.9.0",content:bytesToB64(bytes),branch:cfg.branch};
   if(sha)body.sha=sha;
   const r=await fetch(cloudApiUrl(cfg),{method:"PUT",headers:cloudHeaders(cfg),body:JSON.stringify(body)});
   if(r.status===401)throw new Error("Token GitHub inválido ou expirado.");
@@ -1733,9 +1855,13 @@ function downloadFile(filename,content,mime,binary=false){
  const url=URL.createObjectURL(new Blob([data],{type:mime})),a=document.createElement('a');a.href=url;a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 function exportBackup(){downloadFile('backup_painel_solar_'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(state,null,2),'application/json');}
-function exportRows(entries){
+function cycleExportRows(entries){
+ return [['Referência','Início do ciclo','Fechamento efetivo','Dias do ciclo','Leitura anterior','Leitura atual','Multiplicador','Consumo da rede (kWh)','Vencimento','Próximo fechamento previsto','Acompanhamento pelo Relógio Enel'],...entries.filter(e=>e.billingCycle&&!cycleValidationError(e.billingCycle)).map(e=>{const c=e.billingCycle,m=cycleMetrics(c);return [monthLabel(e.month),cycleDateLabel(c.startDate),c.endDate?cycleDateLabel(c.endDate):'Em aberto',m.days,c.startReading,c.endReading,c.multiplier,m.consumed,cycleDateLabel(c.dueDate),cycleDateLabel(c.nextReadingDate),c.useMeterReadings?'Sim':'Não'];})];
+}
+function exportRows(entries,includeCycles=true){
  const rows=[["Mês","Geração solar (kWh)","Rede importada (kWh)","Energia injetada (kWh)","Créditos usados (kWh)","Saldo créditos (kWh)","Conta total (R$)","CIP (R$)","Parcel./outros (R$)","Autoconsumo (kWh)","Consumo total (kWh)","Conta recorrente (R$)","Custo energia (R$)","Autoconsumo (%)","Meta sustentável (kWh)","Margem conforto (kWh)","Status"]];
- entries.forEach(e=>{const c=calc(e);rows.push([monthLabel(e.month),e.generation,e.gridImported,e.injected,e.creditsUsed,e.creditBalance,e.totalBill,e.cip,e.extras,c.autoconsumption,c.totalConsumption,c.recurringBill,c.energyCost,c.autoconsumptionPct==null?null:c.autoconsumptionPct*100,c.target,c.margin,c.status]);});return rows;
+ const cycleHeaders=cycleExportRows([])[0].slice(1);if(includeCycles)rows[0].push(...cycleHeaders);
+ entries.forEach(e=>{const c=calc(e);const row=[monthLabel(e.month),e.generation,e.gridImported,e.injected,e.creditsUsed,e.creditBalance,e.totalBill,e.cip,e.extras,c.autoconsumption,c.totalConsumption,c.recurringBill,c.energyCost,c.autoconsumptionPct==null?null:c.autoconsumptionPct*100,c.target,c.margin,c.status];if(includeCycles)row.push(...(e.billingCycle?cycleExportRows([e])[1]?.slice(1)||Array(cycleHeaders.length).fill(null):Array(cycleHeaders.length).fill(null)));rows.push(row);});return rows;
 }
 function exportCsv(entries=state.entries,filename='lancamentos_solar.csv'){
  const safe=v=>typeof v==='string'&&/^[=+@\-]/.test(v)?"'"+v:v;
@@ -1743,9 +1869,10 @@ function exportCsv(entries=state.entries,filename='lancamentos_solar.csv'){
 }
 function exportWorkbook(entries,scope){
  if(!window.XLSX){toast('Leitor Excel indisponível. Reabra o painel.');return;}
- const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet(exportRows(entries));ws['!cols']=Array.from({length:17},(_,i)=>({wch:i===16?22:i===0?13:24}));
+ const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet(exportRows(entries,false));ws['!cols']=Array.from({length:17},(_,i)=>({wch:i===16?22:i===0?13:24}));
  for(let r=1;r<=entries.length;r++)for(let c=1;c<16;c++){const cell=ws[XLSX.utils.encode_cell({r,c})];if(cell&&cell.t==='n')cell.z=c>=6&&c<=8||c===11||c===12?'"R$" #,##0.00':'#,##0.00';}
  ws['!autofilter']={ref:ws['!ref']};XLSX.utils.book_append_sheet(wb,ws,'Lançamentos');
+ const cs=XLSX.utils.aoa_to_sheet(cycleExportRows(entries));cs['!cols']=Array.from({length:11},(_,i)=>({wch:i===10?32:25}));cs['!autofilter']={ref:cs['!ref']};XLSX.utils.book_append_sheet(wb,cs,'Ciclos de leitura');
  if(scope==='entries'){
   const meter=[['Data e hora','Momento','03 — rede recebida (kWh)','103 — energia injetada (kWh)','Observação'],...meterRows().map(r=>[r.at,meterPeriods[r.period],r.imported,r.injected,r.note||''])];
   const ms=XLSX.utils.aoa_to_sheet(meter);ms['!cols']=[{wch:22},{wch:20},{wch:28},{wch:30},{wch:55}];XLSX.utils.book_append_sheet(wb,ms,'Relógio Enel');
@@ -1760,9 +1887,10 @@ function exportPrintHtml(entries,scope){
  let body='';
  if(scope==='reports'){renderReports();body=document.getElementById('reports').innerHTML;}
  else {
-  const rows=exportRows(entries);body='<p>Lançamentos mensais: '+entries.length+'</p><div class="table-scroll"><table><thead><tr>'+rows[0].map(v=>'<th>'+htmlEscape(v)+'</th>').join('')+'</tr></thead><tbody>'+rows.slice(1).map(r=>'<tr>'+r.map(v=>'<td>'+htmlEscape(typeof v==='number'?num(v,2):v==null?'—':v)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+  const rows=exportRows(entries,false);body='<p>Lançamentos mensais: '+entries.length+'</p><div class="table-scroll"><table><thead><tr>'+rows[0].map(v=>'<th>'+htmlEscape(v)+'</th>').join('')+'</tr></thead><tbody>'+rows.slice(1).map(r=>'<tr>'+r.map(v=>'<td>'+htmlEscape(typeof v==='number'?num(v,2):v==null?'—':v)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
   const readings=meterRows();if(readings.length)body+='<h2>Leituras do relógio Enel</h2><table><thead><tr><th>Data e hora</th><th>Momento</th><th>03 — recebida (kWh)</th><th>103 — injetada (kWh)</th><th>Observação</th></tr></thead><tbody>'+readings.map(r=>'<tr>'+[meterDateLabel(r.at),meterPeriods[r.period],num(r.imported,3),num(r.injected,3),r.note||'—'].map(v=>'<td>'+htmlEscape(v)+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
  }
+ const cycles=cycleExportRows(entries);if(cycles.length>1)body+='<h2>Ciclos de leitura e cobrança</h2><table><thead><tr>'+cycles[0].map(v=>'<th>'+htmlEscape(v)+'</th>').join('')+'</tr></thead><tbody>'+cycles.slice(1).map(r=>'<tr>'+r.map(v=>'<td>'+htmlEscape(v==null?'—':typeof v==='number'?num(v,3):v)+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
  const css=Array.from(document.querySelectorAll('style')).map(x=>x.textContent).join('\n');
  return '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><title>'+title+'</title><style>'+css+'\n@page{size:A4 landscape;margin:10mm}body{background:white;font:11px Arial;color:#173042}header{border-bottom:2px solid #0f5f8c;margin-bottom:12px}h1{font-size:22px}header p{font-size:11px}.no-print,.report-filter,.report-toolbar{display:none!important}.table-scroll{overflow:visible;max-height:none}table{font-size:8px;width:100%}thead th{position:static;white-space:normal;padding:6px 3px}tbody td{white-space:normal;padding:5px 3px}.card{box-shadow:none;break-inside:avoid}.report-kpis{display:grid;grid-template-columns:repeat(4,1fr)}.chart{min-width:0}.kpi .value{font-size:22px}.export-footer{margin-top:16px;font-size:10px}</style></head><body>'+header+body+'<p class="export-footer">Referência gerencial. A fatura da Enel é a referência oficial. Este PDF não substitui o backup .json.</p></body></html>';
 }
@@ -1827,11 +1955,13 @@ document.getElementById("solarManualForm").addEventListener("submit",function(ev
  if(editingSolarDate&&(!old||JSON.stringify(old)!==solarEditSnapshot)){alert("Este registro mudou desde o início da edição. Abra Editar novamente para conferir os dados atuais.");return;}
  if(collision){alert("Já existe produção nessa data. Use Editar no registro existente ou escolha outra data.");return;}
  const row={...old,date,produced,expected,source:old?.source||"Manual",manualCorrection:true};if(old)Object.assign(old,row);else state.dailyProduction.push(row);
- state.dailyProduction.sort((a,b)=>a.date.localeCompare(b.date));saveState();cancelSolarEdit();renderSolarProduction();toast(old?"Alterações salvas.":"Produção diária salva.");
+ state.dailyProduction.sort((a,b)=>a.date.localeCompare(b.date));saveState();cancelSolarEdit();renderSolarProduction();renderBillingCycles();updateCyclePreview();toast(old?"Alterações salvas.":"Produção diária salva.");
 });
 document.getElementById("entryForm").addEventListener("input",updatePreview);
+document.getElementById("fCycleMeter").addEventListener("change",updatePreview);
 document.getElementById("entryForm").addEventListener("submit",ev=>{
   ev.preventDefault();const e=formEntry();if(!e.month){alert("Informe o mês.");return}
+  if(e.billingCycle){const error=cycleValidationError(e.billingCycle);if(error){document.getElementById('cycleFormError').textContent=error;document.getElementById('cycleFormError').hidden=false;document.getElementById('cycleFormError').scrollIntoView({behavior:'smooth',block:'center'});return;}}
   const original=state.entries.find(x=>x.month===editingMonth);
   let target=state.entries.find(x=>x.month===e.month);
   if(original&&editingMonth!==e.month){if(target){alert("Já existe um lançamento nesse mês. Escolha outro mês ou edite o registro existente.");return;}Object.assign(original,e);target=original;state.entries.sort((a,b)=>a.month.localeCompare(b.month));}
@@ -1955,11 +2085,11 @@ function renderSolarMonthCompare(mk,monthProduced,target){
 function loadSolarSample(){
   if(!confirm("Apagar os registros de produção diária? Exporte um backup antes de continuar."))return;
   state.dailyProduction=deepClone(SOLAR_INITIAL_DAILY);state.solarMonthlyTargets=deepClone(SOLAR_INITIAL_TARGETS);
-  state.solarImportMeta={lastImportAt:null,lastFile:"Produção diária limpa"};saveState();renderSolarProduction();toast("Produção diária limpa.");
+  state.solarImportMeta={lastImportAt:null,lastFile:"Produção diária limpa"};saveState();renderSolarProduction();renderBillingCycles();updateCyclePreview();toast("Produção diária limpa.");
 }
 function deleteSolarDay(date){
   if(!confirm("Excluir o registro de "+solarDateBR(date)+"?"))return;
-  if(editingSolarDate===date)cancelSolarEdit();state.dailyProduction=(state.dailyProduction||[]).filter(function(x){return x.date!==date;});saveState();renderSolarProduction();toast("Dia excluído.");
+  if(editingSolarDate===date)cancelSolarEdit();state.dailyProduction=(state.dailyProduction||[]).filter(function(x){return x.date!==date;});saveState();renderSolarProduction();renderBillingCycles();updateCyclePreview();toast("Dia excluído.");
 }
 function solarParseDate(v){
   if(v instanceof Date&&!isNaN(v))return v.getFullYear()+"-"+String(v.getMonth()+1).padStart(2,"0")+"-"+String(v.getDate()).padStart(2,"0");
@@ -2018,7 +2148,7 @@ async function importSolarViewFile(file){
       state.dailyProduction.sort(function(a,b){return a.date.localeCompare(b.date);});
     }
     state.solarImportMeta={lastImportAt:new Date().toISOString(),lastFile:file.name};
-    saveState();renderSolarProduction();
+    saveState();renderSolarProduction();renderBillingCycles();updateCyclePreview();
     result.innerHTML=mode==="consolidado"
       ?'<b>Referência mensal importada.</b> Expectativa de '+num(parsed[0].expected,3)+' kWh registrada para '+monthLabel(solarMonthKey(range.start))+'.'
       :'<b>Importação concluída.</b> '+added+' dia(s) novo(s) e '+updated+' dia(s) atualizado(s). Correções manuais não autorizadas para substituição foram preservadas.';
@@ -2390,7 +2520,7 @@ function saveMeterReading(event){
   if(error){el.textContent=error;el.hidden=false;return;}
   const readings=state.meter.readings,index=readings.findIndex(r=>r.id===row.id);
   if(index<0)readings.push(row);else readings[index]=row;
-  saveState();clearMeterForm();renderMeter();toast("Leitura salva.");
+  saveState();clearMeterForm();renderMeter();renderBillingCycles();updateCyclePreview();toast("Leitura salva.");
 }
 function editMeterReading(id){
   const row=meterRows().find(r=>r.id===id);if(!row)return;
@@ -2400,7 +2530,7 @@ function editMeterReading(id){
 }
 function deleteMeterReading(id){
   if(!confirm("Excluir esta leitura do relógio? As diferenças serão recalculadas."))return;
-  state.meter.readings=state.meter.readings.filter(r=>r.id!==id);if(editingMeterId===id)clearMeterForm();saveState();renderMeter();toast("Leitura excluída.");
+  state.meter.readings=state.meter.readings.filter(r=>r.id!==id);if(editingMeterId===id)clearMeterForm();saveState();renderMeter();renderBillingCycles();updateCyclePreview();toast("Leitura excluída.");
 }
 function renderMeter(){
   const box=document.getElementById("meterKpis");if(!box)return;
@@ -2425,7 +2555,7 @@ function renderMeter(){
   if(!rows.length)history.innerHTML='<tr><td colspan="8" class="empty">Nenhuma leitura cadastrada. O exemplo abaixo é somente ilustrativo.</td></tr>';
 }
 
-function renderAll(){renderDashboard();renderEntries();renderSolarProduction();renderSmartUse();renderMeter();renderReports();renderHistory();renderParams();renderCloud();renderGuide();renderExample();renderAbout()}
+function renderAll(){renderDashboard();renderEntries();renderBillingCycles();renderSolarProduction();renderSmartUse();renderMeter();renderReports();renderHistory();renderParams();renderCloud();renderGuide();renderExample();renderAbout()}
 function newPrimaryEntry(){
   if(document.getElementById("meter").classList.contains("active")){clearMeterForm();document.getElementById("meterFormTitle").scrollIntoView({behavior:"smooth",block:"center"});}
   else goTo("entries");
@@ -2448,7 +2578,7 @@ clearMeterForm();
 document.getElementById('recoveryBackup').hidden=!localStorage.getItem(STORAGE_KEY+'.recovery');document.getElementById('recoveryBackup').addEventListener('click',()=>downloadFile('controle-solar-recuperacao.json',localStorage.getItem(STORAGE_KEY+'.recovery'),'application/json'));
 document.getElementById('recoverCloudAccess').addEventListener('click',recoverCloudAccess);
 const trustedClicks={h0:function(event){window.print()},h1:function(event){newPrimaryEntry()},h2:function(event){goTo('entries')},h3:function(event){goTo('cloud')},h4:function(event){clearForm()},h5:function(event){document.getElementById('solarFile').click()},h6:function(event){document.getElementById('solarFile').click()},h7:function(event){loadSolarSample()},h8:function(event){clearMeterForm()},h9:function(event){saveSmartSettings()},h10:function(event){addSmartAppliance()},h11:function(event){exportData('reports')},h12:function(event){exportEncryptedBackup()},h13:function(event){exportBackup()},h14:function(event){document.getElementById('backupInput').click()},h15:function(event){exportData('entries')},h16:function(event){resetApp()},h17:function(event){unlockCloud()},h18:function(event){lockCloud()},h19:function(event){cloudAutoSync(true)},h20:function(event){cloudForcePull()},h21:function(event){cloudForcePush()},h22:function(event){saveCloudSettings(true)},h23:function(event){clearCloudSettings()},h24:function(event){checkPanelUpdate()},h25:function(event){applyPanelUpdate()}};
-document.addEventListener('click',event=>{const el=event.target.closest('[data-click],[data-action]');if(!el)return;if(el.dataset.click){trustedClicks[el.dataset.click]?.call(el,event);return;}const actions={editSolarDay,cancelSolarEdit,editSmartSession,cancelSmartEdit,editSmartAppliance,clearForm,editEntry,deleteEntry,deleteSolarDay,removeSmartAppliance,deleteSmartSession,startSmartNow,finishSuccess:()=>finishSmartNow(true),finishFailure:()=>finishSmartNow(false)};actions[el.dataset.action]?.(el.dataset.value);});
+document.addEventListener('click',event=>{const el=event.target.closest('[data-click],[data-action]');if(!el)return;if(el.dataset.click){trustedClicks[el.dataset.click]?.call(el,event);return;}const actions={prefillPreviousCycle,clearCycleForm,useCycleConsumption,deleteBillingCycle,openCycleEntries,editSolarDay,cancelSolarEdit,editSmartSession,cancelSmartEdit,editSmartAppliance,clearForm,editEntry,deleteEntry,deleteSolarDay,removeSmartAppliance,deleteSmartSession,startSmartNow,finishSuccess:()=>finishSmartNow(true),finishFailure:()=>finishSmartNow(false)};actions[el.dataset.action]?.(el.dataset.value);});
 document.addEventListener('change',event=>{const key=event.target.dataset.param;if(['prudenceFactor','creditReserve'].includes(key))updateParam(key,event.target.value);});
 migrateCredentials().then(ok=>{if(ok&&window.Android?.completeLegacyMigration)Android.completeLegacyMigration();cloudAutoSync(false)});renderAll();if(window.Android&&Android.panelReady)Android.panelReady(PANEL_VERSION);fillForm(state.entries.find(e=>e.month==="2026-09")||null);
 window.addEventListener("online",()=>{cloudAutoSync(false);if(window.Android&&Android.checkUpdate)Android.checkUpdate();});
@@ -2458,4 +2588,3 @@ setTimeout(()=>cloudAutoSync(false),700);
 </script>
 </body>
 </html>
-

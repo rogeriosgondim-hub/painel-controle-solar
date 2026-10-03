@@ -1,3 +1,13 @@
+# Painel 2.9.0 — ciclos de leitura e cobrança
+
+Lançamentos inclui um bloco opcional com início/data anterior, leitura anterior, fechamento efetivo/data atual, leitura atual, multiplicador, vencimento e próxima leitura prevista. Os dias são a diferença entre as datas; o consumo da rede é a diferença das leituras multiplicada pelo fator da fatura. O botão de transferência permite conferir antes de preencher Rede importada. Datas previstas não fecham automaticamente um ciclo.
+
+Histórico dos ciclos permite editar e remover somente o ciclo, preservando os valores mensais. Usar fechamento anterior reaproveita a data e leitura finais como novo início. O Painel exibe início, fechamento previsto e dias decorridos/restantes. Acompanhamento pelas leituras 03 precisa ser habilitado pelo usuário para o mesmo medidor e escala; mostra consumo parcial e projeção explicitamente estimada. Leituras incompatíveis bloqueiam a estimativa. A produção solar considera os dias após a leitura inicial até o fechamento, com cobertura dos dias disponíveis; dados incompletos permanecem identificados como parciais.
+
+Ciclos fazem parte do mesmo armazenamento, backup e envelope de sincronização. Backups antigos sem ciclos continuam válidos. CSV inclui os campos; Excel possui a aba Ciclos de leitura; PDF inclui uma tabela de ciclos. Valores existentes não são preenchidos nem modificados automaticamente. Nenhum dado pessoal da fatura de referência foi incluído nos padrões publicados.
+
+Atualização do painel compatível com Android de código 12 ou superior: Sobre → Buscar atualização → Aplicar atualização. O painel passa a 2.9.0; a versão nativa do APK permanece a instalada. Não há alteração da ponte Android nem necessidade de novo APK para este recurso. A leitura por câmera/OCR continua como proposta para uma próxima etapa e não foi incluída nesta versão.
+
 # Painel 2.8.3 — edição de registros
 
 Produção diária e histórico de uso inteligente possuem Editar, Salvar alterações e Cancelar. O nome dos equipamentos também pode ser alterado, mantendo os vínculos com os usos. Correções manuais ficam identificadas e a importação pede confirmação antes de substituí-las. Datas duplicadas e intervalos inválidos são bloqueados. As ações permanecem visíveis ao percorrer as tabelas no celular. Relógio Enel e lançamentos mensais usam o rótulo Salvar alterações durante a edição.
@@ -38,4 +48,5 @@ Atualizar versão/data e revision em panel-update.json. Manter minNativeVersionC
 ## Administração pendente
 
 Consulte SECURITY.md. A proteção da branch exige que o titular configure o GitHub. A assinatura dos painéis não substitui a proteção do repositório e da conta: a automação assina o conteúdo aprovado na main.
+
 
