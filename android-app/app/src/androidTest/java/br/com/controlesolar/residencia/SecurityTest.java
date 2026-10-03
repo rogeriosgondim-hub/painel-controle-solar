@@ -31,7 +31,7 @@ public class SecurityTest {
   MainActivity app=activity.getActivity();
   String text=new String(InstrumentationRegistry.getInstrumentation().getContext().getAssets().open("signed-test.json").readAllBytes(),StandardCharsets.UTF_8);
   JSONObject wrapper=new JSONObject(text);Method method=MainActivity.class.getDeclaredMethod("verifyManifest",JSONObject.class);method.setAccessible(true);
-  JSONObject verified=(JSONObject)method.invoke(app,wrapper);assertEquals("2.8.2",verified.getString("version"));
+  JSONObject verified=(JSONObject)method.invoke(app,wrapper);assertEquals(BuildConfig.VERSION_NAME,verified.getString("version"));
   wrapper.put("signedPayload",Base64.encodeToString("{\"schema\":1}".getBytes(StandardCharsets.UTF_8),Base64.NO_WRAP));
   try{method.invoke(app,wrapper);fail("Tampered signature accepted");}catch(InvocationTargetException expected){assertNotNull(expected.getCause());}
  }
@@ -49,11 +49,11 @@ public class SecurityTest {
   String fixture=new String(InstrumentationRegistry.getInstrumentation().getContext().getAssets().open("update-test.json").readAllBytes(),StandardCharsets.UTF_8);
   Field field=MainActivity.class.getDeclaredField("panelCache");field.setAccessible(true);AtomicFile cache=(AtomicFile)field.get(app);FileOutputStream out=cache.startWrite();out.write(fixture.getBytes(StandardCharsets.UTF_8));cache.finishWrite(out);
   app.new AndroidBridge().applyUpdate();waitFor(app,"!!document.getElementById('update-fixture')&&typeof state!=='undefined'");
-  assertEquals("\"2.8.3\"",evaluate(app,"PANEL_VERSION"));
+  assertEquals(JSONObject.quote(new JSONObject(fixture).getJSONObject("manifest").getString("version")),evaluate(app,"PANEL_VERSION"));
   assertEquals(before,evaluate(app,"JSON.stringify(state)"));assertEquals("true",evaluate(app,"window.isSecureContext&&!!crypto.subtle&&typeof XLSX==='object'"));
   InstrumentationRegistry.getInstrumentation().runOnMainSync(app::finish);InstrumentationRegistry.getInstrumentation().waitForIdleSync();app=activity.launchActivity(null);
   waitFor(app,"!!document.getElementById('update-fixture')&&typeof state!=='undefined'");assertEquals(before,evaluate(app,"JSON.stringify(state)"));
-  assertEquals("\"2.8.3\"",evaluate(app,"PANEL_VERSION"));
+  assertEquals(JSONObject.quote(new JSONObject(fixture).getJSONObject("manifest").getString("version")),evaluate(app,"PANEL_VERSION"));
  }
  @Test public void migratesOriginalFileStorageAndCredentialsWithoutDeletingRecords()throws Exception{
   MainActivity app=activity.getActivity();waitFor(app,"typeof state!=='undefined'");
