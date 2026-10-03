@@ -90,14 +90,22 @@ function loadOcrLibrary(){
  if(!ocrLoadPromise)ocrLoadPromise=new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='vendor/ocr/tesseract.min.js';script.integrity='sha256-EP/3hIQGd1nEMCigKnLXbQuQ6xcwK7I7WKnsVBC8kos=';script.crossOrigin='anonymous';script.onload=()=>window.Tesseract?resolve(window.Tesseract):reject(new Error('Reconhecimento indisponível.'));script.onerror=()=>{script.remove();ocrLoadPromise=null;reject(new Error('Não foi possível carregar o leitor. No navegador, conecte-se para a primeira leitura; no app, instale a versão Android 2.10.0.'));};document.head.appendChild(script);});return ocrLoadPromise;
 }
 async function getOcrWorker(){
- if(!ocrWorkerPromise)ocrWorkerPromise=(async()=>{const T=await loadOcrLibrary(),base=new URL('vendor/ocr/',location.href).href;return T.createWorker('por+eng',1,{workerPath:base+'worker.min.js',corePath:base.replace(/\/$/,''),langPath:base.replace(/\/$/,''),workerBlobURL:false,gzip:true,cacheMethod:'write',logger:m=>{if(!ocrBusy)return;const labels={'loading tesseract core':'Preparando reconhecimento','initializing tesseract':'Preparando reconhecimento','loading language traineddata':'Carregando leitura em português','initializing api':'Preparando leitor','recognizing text':'Reconhecendo imagem'};if(labels[m.status])ocrSetStatus(labels[m.status]+'… '+Math.round((m.progress||0)*100)+'%');}});})();
+ if(!ocrWorkerPromise)ocrWorkerPromise=(async()=>{
+  const T=await loadOcrLibrary(),base=new URL('vendor/ocr/',location.href).href;
+  return new Promise((resolve,reject)=>{
+   let settled=false;const fail=error=>{if(settled)return;settled=true;clearTimeout(timer);reject(error);};
+   const timer=setTimeout(()=>fail(new Error('O leitor demorou para iniciar. Feche esta tela e tente novamente.')),90000);
+   const task=T.createWorker('por+eng',1,{workerPath:base+'worker.min.js',corePath:base.replace(/\/$/,''),langPath:base.replace(/\/$/,''),workerBlobURL:false,gzip:!window.Android,cacheMethod:'write',errorHandler:error=>fail(new Error(String(error))),logger:m=>{if(!ocrBusy)return;const labels={'loading tesseract core':'Preparando reconhecimento','initializing tesseract':'Preparando reconhecimento','loading language traineddata':'Carregando leitura em português','initializing api':'Preparando leitor','recognizing text':'Reconhecendo imagem'};if(labels[m.status])ocrSetStatus(labels[m.status]+'… '+Math.round((m.progress||0)*100)+'%');}});
+   task.then(worker=>{clearTimeout(timer);if(settled){worker.terminate();return;}settled=true;resolve(worker);},fail);
+  });
+ })();
  try{return await ocrWorkerPromise;}catch(error){ocrWorkerPromise=null;throw error;}
 }
 function ocrCopyCanvas(source){const c=document.createElement('canvas');const scale=Math.min(1,2200/Math.max(source.width,source.height));c.width=Math.round(source.width*scale);c.height=Math.round(source.height*scale);c.getContext('2d').drawImage(source,0,0,c.width,c.height);return c;}
 function drawOcrPhoto(){const canvas=document.getElementById('ocrCanvas');if(!ocrImage)return;canvas.width=ocrImage.width;canvas.height=ocrImage.height;const ctx=canvas.getContext('2d');ctx.drawImage(ocrImage,0,0);if(ocrSelection){const r=ocrSelection;ctx.strokeStyle='#1684d6';ctx.lineWidth=Math.max(3,canvas.width/300);ctx.strokeRect(r.x,r.y,r.w,r.h);}canvas.hidden=false;}
 async function readOcrPhoto(file){
  const token=ocrToken;if(!file)return;if(file.size>20*1024*1024){ocrSetStatus('A imagem é muito grande. Escolha uma foto de até 20 MB.');return;}
- try{if(!/^image\//.test(file.type)){throw new Error('Selecione uma foto JPEG, PNG ou outra imagem compatível.');}
+ try{if(file.type&&!/^image\//.test(file.type)){throw new Error('Selecione uma foto JPEG, PNG ou outra imagem compatível.');}
   const bitmap=await createImageBitmap(file,{imageOrientation:'from-image'});if(token!==ocrToken){bitmap.close();return;}if(bitmap.width*bitmap.height>50000000){bitmap.close();throw new Error('A foto tem resolução excessiva. Use uma imagem menor.');}
   const c=document.createElement('canvas');const scale=Math.min(1,2200/Math.max(bitmap.width,bitmap.height));c.width=Math.round(bitmap.width*scale);c.height=Math.round(bitmap.height*scale);c.getContext('2d').drawImage(bitmap,0,0,c.width,c.height);bitmap.close();ocrOriginal=c;ocrImage=ocrCopyCanvas(c);drawOcrPhoto();for(const id of ['ocrCrop','ocrRotate','ocrReset','ocrRetry'])document.getElementById(id).hidden=false;if(window.Android?.clearCapturedPhoto)Android.clearCapturedPhoto();await recognizeOcrImage(ocrImage,token,false);
  }catch(error){if(token===ocrToken)ocrSetStatus(error.message||'Não foi possível abrir a imagem. Tente uma foto JPEG bem iluminada.');}

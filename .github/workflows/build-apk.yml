@@ -94,6 +94,7 @@ jobs:
           mkdir -p android-app/app/src/main/assets/vendor
           cp index.html android-app/app/src/main/assets/panel.html
           cp -r vendor/ocr android-app/app/src/main/assets/vendor/ocr
+          gzip -d android-app/app/src/main/assets/vendor/ocr/*.traineddata.gz
           node test-ocr.cjs
           python3 prepare-update-test.py
           mkdir -p android-app/app/src/androidTest/assets

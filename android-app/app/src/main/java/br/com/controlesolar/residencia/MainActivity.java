@@ -68,7 +68,7 @@ public class MainActivity extends Activity {
     private Uri capturedPhotoUri;
     private static final java.util.Set<String> OCR_ASSETS=new java.util.HashSet<>(java.util.Arrays.asList(
         "tesseract.min.js","worker.min.js","tesseract-core.wasm.js","tesseract-core-simd.wasm.js",
-        "tesseract-core-lstm.wasm.js","tesseract-core-simd-lstm.wasm.js","eng.traineddata.gz","por.traineddata.gz"));
+        "tesseract-core-lstm.wasm.js","tesseract-core-simd-lstm.wasm.js","eng.traineddata","por.traineddata"));
     private final ExecutorService worker=Executors.newSingleThreadExecutor();
     private final Handler handler=new Handler(Looper.getMainLooper());
     private AtomicFile panelCache;
@@ -118,7 +118,7 @@ public class MainActivity extends Activity {
                         else if(url.startsWith("https://appassets.androidplatform.net/assets/vendor/ocr/")&&OCR_ASSETS.contains(request.getUrl().getLastPathSegment())&&request.getUrl().getQuery()==null&&request.getUrl().getFragment()==null){in=getAssets().open("vendor/ocr/"+request.getUrl().getLastPathSegment());mime=url.endsWith(".js")?"application/javascript":"application/octet-stream";}
                         else return new WebResourceResponse("text/plain","UTF-8",404,"Not Found",java.util.Collections.emptyMap(),new ByteArrayInputStream(new byte[0]));
                         return new WebResourceResponse(mime,mime.equals("application/octet-stream")?null:"UTF-8",200,"OK",java.util.Collections.singletonMap("Cache-Control","no-store"),in);
-                    }catch(Exception e){return new WebResourceResponse("text/plain","UTF-8",500,"Unavailable",java.util.Collections.emptyMap(),new ByteArrayInputStream(new byte[0]));}
+                    }catch(Exception e){Log.e("SolarPanel","Local asset unavailable: "+request.getUrl().getLastPathSegment()+" "+e.getClass().getSimpleName());return new WebResourceResponse("text/plain","UTF-8",500,"Unavailable",java.util.Collections.emptyMap(),new ByteArrayInputStream(new byte[0]));}
                 }
                 return null;
             }
