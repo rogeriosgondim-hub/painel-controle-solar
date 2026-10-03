@@ -31,7 +31,7 @@ public class SecurityTest {
   MainActivity app=activity.getActivity();
   String text=new String(InstrumentationRegistry.getInstrumentation().getContext().getAssets().open("signed-test.json").readAllBytes(),StandardCharsets.UTF_8);
   JSONObject wrapper=new JSONObject(text);Method method=MainActivity.class.getDeclaredMethod("verifyManifest",JSONObject.class);method.setAccessible(true);
-  JSONObject verified=(JSONObject)method.invoke(app,wrapper);assertEquals(BuildConfig.VERSION_NAME,verified.getString("version"));
+  JSONObject verified=(JSONObject)method.invoke(app,wrapper);assertEquals(app.getPackageManager().getPackageInfo(app.getPackageName(),0).versionName,verified.getString("version"));
   wrapper.put("signedPayload",Base64.encodeToString("{\"schema\":1}".getBytes(StandardCharsets.UTF_8),Base64.NO_WRAP));
   try{method.invoke(app,wrapper);fail("Tampered signature accepted");}catch(InvocationTargetException expected){assertNotNull(expected.getCause());}
  }
