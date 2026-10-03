@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-R0KT6GZP6j9TZw1MLEmrh9QUdX75gmxCr8LbJoZblJI=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://api.github.com; worker-src 'self'; media-src 'self' blob:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-edhnfHfxZe0aXUdvRw/ijbBjGV9sJzP0UazVhktTPS0=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://api.github.com; worker-src 'self'; media-src 'self' blob:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0F5F8C">
 <title>Controle Solar v2.10.0</title>
@@ -1410,8 +1410,9 @@ function updateCyclePreview(){
  const c=cycleFromForm(),error=c?cycleValidationError(c):null,m=c&&!error?cycleMetrics(c):null;
  const err=document.getElementById('cycleFormError');err.hidden=!error;err.textContent=error||'';
  const ready=Boolean(m?.closed),button=document.getElementById('cycleUseConsumption');
- button.disabled=!ready;button.textContent=ready?'Preencher Rede importada com '+num(m.consumed,3)+' kWh':'Preencher Rede importada';
- document.getElementById('cycleConsumptionValue').textContent=ready?num(m.consumed,3)+' kWh':'— kWh';
+ const consumptionLabel=ready?m.consumed.toLocaleString('pt-BR',{maximumFractionDigits:3})+' kWh':'— kWh';
+ button.disabled=!ready;button.textContent=ready?'Preencher Rede importada com '+consumptionLabel:'Preencher Rede importada';
+ document.getElementById('cycleConsumptionValue').textContent=consumptionLabel;
  let next='Preencha a data anterior e a leitura anterior para começar.';
  if(c){
   if(!c.startDate)next='Preencha a data anterior da fatura para começar.';
