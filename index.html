@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-1XpGMYWS98e4MjpRiZKbfTG6dQD3/wYzRsohc5yPD6E=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://api.github.com; worker-src 'self'; media-src 'self' blob:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-edhnfHfxZe0aXUdvRw/ijbBjGV9sJzP0UazVhktTPS0=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://api.github.com; worker-src 'self'; media-src 'self' blob:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0F5F8C">
 <title>Controle Solar v2.10.0</title>
@@ -564,6 +564,18 @@ table{font-size:12px}
 #ocrConfirmationLabel{display:block;margin:16px 0;font-size:14px;line-height:1.5}#ocrConfirmationLabel[hidden]{display:none}#ocrText{white-space:pre-wrap;font-size:12px;max-height:180px;overflow:auto}
 #ocrDialog button{min-height:44px;margin:4px}#ocrApply{width:100%;margin-top:14px}
 
+
+.cycle-task{margin:16px 0 0;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+.cycle-task h5{font-size:17px;line-height:1.4;margin:0 0 8px;color:var(--navy)}
+.cycle-task-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.cycle-task-heading h5{margin:0}
+.cycle-optional{font-size:12px;font-weight:700;color:var(--muted);background:var(--bg);padding:5px 10px;border-radius:20px}
+.cycle-result{margin-top:16px;padding:18px;border:1px solid #a9cadb;border-radius:12px;background:#eef7fc;display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+.cycle-result-label{font-size:14px;font-weight:600;color:var(--navy)}.cycle-result strong{font-size:30px;line-height:1.2;color:var(--navy)}
+.cycle-result p{margin:0;font-size:14px;line-height:1.5}.cycle-result .btn{min-height:46px;margin:4px 0;width:100%;white-space:normal;text-align:center}.cycle-save-hint{color:var(--muted)}
+.cycle-tracking .cycle-checkbox{font-size:15px;font-weight:600;margin:14px 0 8px}.cycle-tracking-status{font-size:14px;line-height:1.5;padding:10px 12px;border-radius:10px;background:var(--bg);margin:10px 0}
+.cycle-explanation{margin-top:14px;font-size:14px}.cycle-explanation>summary{cursor:pointer;color:var(--navy);font-weight:600;line-height:1.5;padding:8px 0;min-height:40px}.cycle-explanation[hidden]{display:none}.cycle-explanation .cycle-help{margin-bottom:6px}
+@media(max-width:760px){.cycle-task{padding:12px}.cycle-result{padding:14px}.cycle-result strong{font-size:28px}}
+
 </style>
 </head>
 <body>
@@ -691,7 +703,7 @@ table{font-size:12px}
             <div class="billing-cycle">
               <h4>Ciclo de leitura e cobrança</h4>
               <div class="ocr-entry"><p>Preencher pela fatura</p><div class="cycle-actions"><button class="btn" type="button" data-ocr="invoice" data-ocr-mode="photo">Fotografar fatura</button><button class="btn" type="button" data-ocr="invoice" data-ocr-mode="live">Câmera ao vivo</button><button class="btn" type="button" data-ocr="invoice" data-ocr-mode="file">Selecionar foto</button></div><small>Reconhecimento neste aparelho. Confira os dados antes de usar e salvar.</small></div>
-              <p class="cycle-help">Copie as datas e leituras da fatura. A leitura atual é o fechamento efetivo do ciclo; o vencimento é a data de pagamento. Este bloco é opcional para os lançamentos antigos.</p>
+              <section class="cycle-task" aria-labelledby="cycleInvoiceTitle"><h5 id="cycleInvoiceTitle">📄 Fechar o ciclo pela fatura</h5><p class="cycle-help">Informe as datas e leituras anterior e atual da fatura. Confira o consumo calculado abaixo. O vencimento é a data de pagamento.</p>
               <div class="cycle-actions"><button class="btn" type="button" data-action="prefillPreviousCycle">Usar fechamento anterior</button><button class="btn" type="button" data-action="clearCycleForm">Limpar campos do ciclo</button></div>
               <div class="form-grid">
                 <div class="field"><label for="fCycleStart">Início do ciclo — data anterior</label><input type="date" id="fCycleStart"></div>
@@ -702,11 +714,25 @@ table{font-size:12px}
                 <div class="field"><label for="fCycleDue">Vencimento da fatura</label><input type="date" id="fCycleDue"></div>
                 <div class="field"><label for="fCycleNext">Próximo fechamento previsto</label><input type="date" id="fCycleNext"></div>
               </div>
-              <p class="cycle-help">Consumo da rede = (leitura atual − leitura anterior) × multiplicador. Confira o fator na fatura; use 1 quando a leitura já estiver em kWh. Deixe o fechamento efetivo em branco enquanto o ciclo estiver aberto.</p>
-              <label class="cycle-checkbox"><input type="checkbox" id="fCycleMeter"><span>Acompanhar este ciclo pelas leituras do Relógio Enel.<br>Ative somente se forem do mesmo medidor e da mesma escala das leituras acima. Se o medidor foi trocado, registre um novo início.</span></label>
               <div id="cycleFormError" class="cycle-error" role="alert" hidden></div>
-              <div class="cycle-summary" id="cyclePreview" aria-live="polite"></div>
-              <div class="cycle-actions"><button class="btn" type="button" id="cycleUseConsumption" data-action="useCycleConsumption" disabled>Usar consumo calculado em Rede importada</button></div>
+              <div class="cycle-result" aria-live="polite">
+                <span class="cycle-result-label">Consumo do ciclo</span>
+                <strong id="cycleConsumptionValue">— kWh</strong>
+                <p id="cycleNextAction">Preencha a data anterior e a leitura anterior para começar.</p>
+                <button class="btn primary" type="button" id="cycleUseConsumption" data-action="useCycleConsumption" disabled>Preencher Rede importada</button>
+                <p class="cycle-save-hint">Este botão preenche o campo Rede importada. Depois, toque em Salvar mês para registrar.</p>
+                <p id="cycleTransferNote" class="cycle-help" hidden></p>
+              </div>
+              <details class="cycle-explanation"><summary>Como o consumo é calculado</summary><p class="cycle-help">Consumo da rede = (leitura atual − leitura anterior) × multiplicador. Confira o fator na fatura; use 1 quando a leitura já estiver em kWh. Esse consumo é a energia recebida da Enel e não inclui a energia solar usada diretamente na residência.</p></details>
+              </section>
+              <section class="cycle-task cycle-tracking" aria-labelledby="cycleTrackingTitle">
+                <div class="cycle-task-heading"><h5 id="cycleTrackingTitle">📊 Acompanhar o ciclo em andamento</h5><span class="cycle-optional">Opcional</span></div>
+                <label class="cycle-checkbox"><input type="checkbox" id="fCycleMeter" aria-describedby="cycleMeterHelp"><span>Usar minhas leituras 03 para acompanhar o consumo</span></label>
+                <p class="cycle-help" id="cycleMeterHelp">Durante o ciclo, registre suas leituras em Relógio Enel. Preencha a data e a leitura de fechamento quando receber a próxima fatura.</p>
+                <p class="cycle-tracking-status" id="cycleTrackingStatus" aria-live="polite">Para acompanhar, preencha a data anterior e a leitura anterior acima.</p>
+                <details class="cycle-explanation"><summary>Quando posso usar as leituras 03?</summary><p class="cycle-help">Use leituras do mesmo medidor da fatura. Os números precisam seguir a mesma unidade e o mesmo fator das leituras anterior e atual informadas acima. Se o visor já mostra kWh e a fatura usa uma leitura com multiplicador, confira essa correspondência antes de ativar. Se o medidor foi trocado, registre um novo início.</p></details>
+              </section>
+              <details class="cycle-explanation cycle-full-details" id="cycleDetails" hidden><summary>Ver detalhes do ciclo e produção solar</summary><div class="cycle-summary" id="cyclePreview"></div></details>
             </div>
             <div class="calc-preview" id="calcPreview"></div>
             <div class="form-actions"><button type="button" class="btn" data-click="h4">Limpar</button><button type="button" class="btn" id="monthCancel" data-action="clearForm" hidden>Cancelar edição</button><button type="submit" class="btn primary" id="monthSave">Salvar mês</button></div>
@@ -1381,11 +1407,37 @@ function cycleSummaryHtml(c){
  return '<div class="calc-preview">'+values.map(([label,value])=>'<div class="calc-item"><span>'+htmlEscape(label)+'</span><b>'+htmlEscape(value)+'</b></div>').join('')+'</div>'+notes;
 }
 function updateCyclePreview(){
- const c=cycleFromForm(),error=c?cycleValidationError(c):null;
+ const c=cycleFromForm(),error=c?cycleValidationError(c):null,m=c&&!error?cycleMetrics(c):null;
  const err=document.getElementById('cycleFormError');err.hidden=!error;err.textContent=error||'';
- document.getElementById('cyclePreview').innerHTML=c&&!error?cycleSummaryHtml(c):'<p class="cycle-help">Informe o início e a leitura anterior para acompanhar um ciclo aberto. Acrescente o fechamento e a leitura atual para calcular o consumo final.</p>';
- document.getElementById('cycleUseConsumption').disabled=!c||Boolean(error)||!c.endDate;
- if(c&&!error&&c.endDate){const consumed=cycleMetrics(c).consumed,grid=n(document.getElementById('fGrid').value);if(grid!=null&&Math.abs(grid-consumed)>0.01)document.getElementById('cyclePreview').innerHTML+='<p class="cycle-error">Rede importada está em '+num(grid,3)+' kWh, diferente dos '+num(consumed,3)+' kWh calculados neste ciclo. Confira o multiplicador e use o botão abaixo se quiser transferir o consumo.</p>';}
+ const ready=Boolean(m?.closed),button=document.getElementById('cycleUseConsumption');
+ const consumptionLabel=ready?m.consumed.toLocaleString('pt-BR',{maximumFractionDigits:3})+' kWh':'— kWh';
+ button.disabled=!ready;button.textContent=ready?'Preencher Rede importada com '+consumptionLabel:'Preencher Rede importada';
+ document.getElementById('cycleConsumptionValue').textContent=consumptionLabel;
+ let next='Preencha a data anterior e a leitura anterior para começar.';
+ if(c){
+  if(!c.startDate)next='Preencha a data anterior da fatura para começar.';
+  else if(c.startReading==null)next='Preencha a leitura anterior da fatura para começar.';
+  else if(!c.endDate&&c.endReading==null)next='Ciclo em aberto. Informe a data de fechamento e a leitura atual quando receber a próxima fatura.';
+  else if(!c.endDate)next='Preencha a data de fechamento da fatura para calcular.';
+  else if(c.endReading==null)next='Preencha a leitura atual da fatura para calcular.';
+  else if(error)next='Confira os campos indicados acima para calcular o consumo.';
+  else next='Fechamento em '+cycleDateLabel(c.endDate)+' · '+m.days+' dias de consumo. Confira o resultado antes de preencher Rede importada.';
+ }
+ document.getElementById('cycleNextAction').textContent=next;
+ const note=document.getElementById('cycleTransferNote'),grid=n(document.getElementById('fGrid').value);
+ note.hidden=!ready||grid==null||Math.abs(grid-m.consumed)<=0.01;
+ note.textContent=note.hidden?'':'Rede importada está em '+num(grid,3)+' kWh. O botão acima permite substituir esse valor pelos '+num(m.consumed,3)+' kWh calculados; você confirma a substituição antes de transferir.';
+ document.getElementById('cycleDetails').hidden=!m;
+ document.getElementById('cyclePreview').innerHTML=m?cycleSummaryHtml(c):'';
+ let tracking='Para acompanhar, preencha a data anterior e a leitura anterior acima.';
+ if(m){
+  if(m.closed)tracking='Este ciclo já foi fechado. Para acompanhar outro período, use o fechamento anterior como início no próximo lançamento.';
+  else if(!c.useMeterReadings)tracking='Ative a opção acima se quiser acompanhar o consumo antes do fechamento. Ela não é necessária para preencher a fatura.';
+  else if(m.meterWarning)tracking=m.meterWarning;
+  else if(m.partial!=null)tracking='Consumo parcial: '+num(m.partial,3)+' kWh até '+cycleDateLabel(m.readingDate)+(m.projection!=null?' · Previsão no fechamento: '+num(m.projection,1)+' kWh (estimativa).':'.');
+  else tracking='Acompanhamento ativado. Salve o lançamento e registre a leitura 03 em Relógio Enel para ver o consumo parcial.';
+ }
+ document.getElementById('cycleTrackingStatus').textContent=tracking;
 }
 function useCycleConsumption(){const c=cycleFromForm();if(!c||cycleValidationError(c)||!c.endDate)return;const consumption=cycleMetrics(c).consumed,old=n(document.getElementById('fGrid').value);if(old!=null&&Math.abs(old-consumption)>0.01&&!confirm('Substituir Rede importada por '+num(consumption,3)+' kWh calculados pelas leituras e pelo multiplicador?'))return;document.getElementById('fGrid').value=consumption;updatePreview();toast('Consumo transferido. Salve o lançamento para registrar a alteração.');}
 function deleteBillingCycle(month){const e=state.entries.find(x=>x.month===month);if(!e?.billingCycle||!confirm('Remover somente o ciclo de '+monthLabel(month)+'? Os valores mensais serão mantidos.'))return;e.billingCycle=null;saveState();renderAll();if(editingMonth===month)fillCycleForm(null);updatePreview();toast('Ciclo removido; valores mensais mantidos.');}
