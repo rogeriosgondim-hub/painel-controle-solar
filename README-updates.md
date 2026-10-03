@@ -1,3 +1,9 @@
+# Refinamento visual do ciclo — painel 2.10.0, revisão 21001
+
+Separa Fechar o ciclo pela fatura de Acompanhar o ciclo em andamento (opcional). Consumo calculado em destaque, botão com o valor exato a transferir, orientação conforme o campo ausente e lembrete de Salvar mês. Fórmula, compatibilidade das leituras 03 e detalhes completos ficam em expansões. O acompanhamento mostra consumo parcial e projeção como estimativa quando houver dados válidos. Mantém cálculo, confirmação de substituição, registros, OCR e sincronização.
+
+Atualização compatível com Android 2.10.0/código 14: Sobre → Buscar atualização → Aplicar atualização. Não exige novo APK. A revisão do painel passa a 21001; as versões do painel e do Android permanecem 2.10.0.
+
 # Painel e Android 2.10.0 — câmera e reconhecimento local
 
 Lançamentos: Fotografar fatura, Câmera ao vivo e Selecionar foto. Reconhece datas, leituras, multiplicador, referência e total quando identificáveis. O reconhecimento não presume o multiplicador nem deriva consumos de números incertos. Campos ausentes podem ser preenchidos manualmente ou em outra foto da mesma fatura.

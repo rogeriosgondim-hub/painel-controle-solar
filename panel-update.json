@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "minNativeVersionCode": 14,
-  "revision": 21000,
+  "revision": 21001,
   "version": "2.10.0",
   "date": "2026-10-03",
-  "sha256": "deabee6d3268b21e872a2ac50af577511d186e5078c16aa9b1fbde9f684a765e"
+  "sha256": "68f4b2c031606cc4adef4e6fbb13a474c2df3b714f0a5e9ae5f253853c5f3752"
 }
