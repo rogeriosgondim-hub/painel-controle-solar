@@ -3,9 +3,15 @@ name: Build Android APK
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches: ["main"]
   push:
     branches: ["main"]
     paths:
+      - "index.html"
+      - "camera-ocr.js"
+      - "prepare-ocr.py"
+      - "ocr-packages.json"
       - "android-app/**"
       - ".github/workflows/build-apk.yml"
 
@@ -85,6 +91,10 @@ jobs:
         run: |
           cd ..
           python3 prepare-pages.py
+          mkdir -p android-app/app/src/main/assets/vendor
+          cp index.html android-app/app/src/main/assets/panel.html
+          cp -r vendor/ocr android-app/app/src/main/assets/vendor/ocr
+          node test-ocr.cjs
           python3 prepare-update-test.py
           mkdir -p android-app/app/src/androidTest/assets
           cp public/panel-update.json android-app/app/src/androidTest/assets/signed-test.json
@@ -100,7 +110,7 @@ jobs:
 
       - name: Preparar APK
         if: steps.signing.outputs.configured == 'true'
-        run: cp android-app/app/build/outputs/apk/release/app-release.apk android-app/Controle-Solar-v2.8.3.apk
+        run: cp android-app/app/build/outputs/apk/release/app-release.apk android-app/Controle-Solar-v2.10.0.apk
 
       - name: Recuperar APK anterior para teste de atualização
         continue-on-error: true
@@ -133,13 +143,13 @@ jobs:
             adb install -r android-app/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
             adb shell am instrument -w br.com.controlesolar.residencia.test/androidx.test.runner.AndroidJUnitRunner | tee security-instrumentation.log
             adb logcat -d -s SolarPanel:I chromium:E AndroidRuntime:E > instrumentation-runtime.log
-            grep -q "OK (4 tests)" security-instrumentation.log
+            grep -q "OK (5 tests)" security-instrumentation.log
 
       - name: Guardar diagnóstico do teste Android
         if: always() && steps.signing.outputs.configured == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: diagnostico-android-2.8.3
+          name: diagnostico-android-2.10.0
           path: |
             solar-ui.xml
             solar-screen.png
@@ -154,8 +164,9 @@ jobs:
         if: steps.signing.outputs.configured == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: Controle-Solar-v2.8.3-PERMANENTE
-          path: android-app/Controle-Solar-v2.8.3.apk
+          name: Controle-Solar-v2.10.0-PERMANENTE
+          path: android-app/Controle-Solar-v2.10.0.apk
           if-no-files-found: error
           retention-days: 30
+
 

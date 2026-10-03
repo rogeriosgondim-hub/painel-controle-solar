@@ -1,3 +1,17 @@
+# Painel e Android 2.10.0 — câmera e reconhecimento local
+
+Lançamentos: Fotografar fatura, Câmera ao vivo e Selecionar foto. Reconhece datas, leituras, multiplicador, referência e total quando identificáveis. O reconhecimento não presume o multiplicador nem deriva consumos de números incertos. Campos ausentes podem ser preenchidos manualmente ou em outra foto da mesma fatura.
+
+Relógio Enel: captura separada de 03/rede recebida e 103/energia injetada. Código ausente, divergente ou múltiplos números sem candidato claro não preselecionam leitura. As casas decimais devem ser conferidas no visor. O modo ao vivo apresenta o resultado após duas leituras consistentes e confiantes; também há Ler quadro agora e Conferir resultado atual. A câmera é encerrada ao sair da tela ou fechar.
+
+Tela de conferência: imagem, texto reconhecido, valores corrigíveis e seleção individual de campos. Confirmação obrigatória antes de usar no formulário. Substituição de valores existentes exige confirmação. Nenhum registro é salvo pelo OCR; permanece necessário Salvar no formulário. Recortar, girar, restaurar a foto e reconhecer novamente ajudam em imagens difíceis. Fotos e texto ficam apenas em memória; foto da câmera Android usa arquivo temporário privado, removido após decodificação ou cancelamento.
+
+Tesseract 6.0.1, core 6.0.0 e modelos rápidos por/eng são gerados por prepare-ocr.py com URLs imutáveis e integridade verificada em ocr-packages.json. Assets locais no site e no APK; fotos não são enviadas a serviços externos. No navegador, a primeira leitura exige carregar os arquivos. No APK, o motor e modelos estão incluídos para uso offline. A câmera ao vivo exige permissão e suporte do navegador/aparelho. Reconhecimento depende de foco, iluminação e enquadramento; resultado é sempre conferido.
+
+Novo APK 2.10.0, código 14: instalar por cima do anterior, com a mesma assinatura permanente e pacote. Mantém dados, migração e credenciais protegidas. O manifesto do painel passa a exigir código 14 por depender dos novos assets e permissões nativas. Não desinstalar o app para atualizar. Runtime CAMERA restrito ao pedido de vídeo na origem HTTPS virtual confiável; nenhum áudio. Fotografia usa FileProvider limitado à pasta privada temporária da câmera, sem permissão de galeria.
+
+Validação: testes de parsing/cálculo/ambiguidade, casas decimais e ausência de salvamento automático; teste Android de OCR WASM real com imagem sintética offline, assinatura, migração, persistência e atualização. Câmera física requer verificação no aparelho.
+
 # Painel 2.9.0 — ciclos de leitura e cobrança
 
 Lançamentos inclui um bloco opcional com início/data anterior, leitura anterior, fechamento efetivo/data atual, leitura atual, multiplicador, vencimento e próxima leitura prevista. Os dias são a diferença entre as datas; o consumo da rede é a diferença das leituras multiplicada pelo fator da fatura. O botão de transferência permite conferir antes de preencher Rede importada. Datas previstas não fecham automaticamente um ciclo.
