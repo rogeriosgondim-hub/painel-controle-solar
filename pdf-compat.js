@@ -33,7 +33,7 @@ window.addEventListener('DOMContentLoaded',()=>{
  if(typeof parseInvoicePdf==='function'){
   const original=parseInvoicePdf;parseInvoicePdf=function(text,blocks=[]){return normalizeBillingResult(original(text,blocks));};
  }
- if(Array.isArray(window.ocrFields)&&ocrFields[0]?.key==='month')ocrFields[0].label='Mês do lançamento (pelo vencimento)';
+ if(typeof ocrFields!=='undefined'&&Array.isArray(ocrFields)&&ocrFields[0]?.key==='month')ocrFields[0].label='Mês do lançamento (pelo vencimento)';
  const apply=document.getElementById('ocrApply');
  if(apply)apply.addEventListener('click',event=>{
   if(!(typeof ocrInvoiceTarget==='function'&&ocrInvoiceTarget()))return;
