@@ -1,7 +1,7 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert'),crypto=require('crypto');
 const html=fs.readFileSync('index.html','utf8'),source=fs.readFileSync('camera-ocr.js','utf8');
 const elements=new Map();const el=id=>{if(!elements.has(id))elements.set(id,{value:'',checked:false,disabled:false,hidden:false,addEventListener(){},replaceChildren(){},close(){},getContext(){return {clearRect(){}}},checkValidity(){return true}});return elements.get(id)};
-let selections=[],saved=0;const context={console,URL,setTimeout,clearTimeout,window:{addEventListener(){}},document:{getElementById:el,addEventListener(){},querySelectorAll(){return selections}},validCycleDate:d=>/^\d{4}-\d{2}-\d{2}$/.test(d)&&new Date(d+'T00:00:00Z').toISOString().slice(0,10)===d,confirm:()=>true,toast(){},updatePreview(){},setMonthPicker(v){el('fMonth').value=v},saveState(){saved++}};
+let selections=[],saved=0;const context={state:{entries:[]},editingMonth:null,monthLabel:v=>v,fillForm(){},console,URL,setTimeout,clearTimeout,window:{addEventListener(){}},document:{getElementById:el,addEventListener(){},querySelectorAll(){return selections}},validCycleDate:d=>/^\d{4}-\d{2}-\d{2}$/.test(d)&&new Date(d+'T00:00:00Z').toISOString().slice(0,10)===d,confirm:()=>true,toast(){},updatePreview(){},setMonthPicker(v){el('fMonth').value=v},saveState(){saved++}};
 vm.createContext(context);vm.runInContext(source,context);
 assert.equal(context.ocrNumber('5.444'),5444);assert.equal(context.ocrNumber('507,71'),507.71);assert.equal(context.ocrMeterNumber('158.123'),158.123);
 const sample={text:'ANTERIOR ATUAL\n17/08/2026 15/09/2026\n5444 5466\nMULTIPLICADOR 10\nVENCIMENTO 10/10/2026\nPROXIMA LEITURA 16/10/2026\nSETEMBRO 2026\nTOTAL A PAGAR R$ 507,71',confidence:90};

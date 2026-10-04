@@ -11,6 +11,8 @@ const ocrFields=[
  {key:'nextReadingDate',label:'Próximo fechamento previsto',type:'date',id:'fCycleNext'},
  {key:'totalBill',label:'Conta total (R$)',type:'number',id:'fBill'}
 ];
+function ocrInvoiceTarget(){return ocrTarget==='invoice'||ocrTarget==='cycle';}
+function ocrReviewFields(){return ocrTarget==='cycle'?ocrFields.filter(field=>field.key!=='totalBill'):ocrFields;}
 function ocrNormalize(text){return String(text||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();}
 function ocrNumber(text){
  const s=String(text||'').trim().replace(/\s/g,'');if(!/^\d+(?:[.,]\d+)*$/.test(s))return null;
@@ -75,14 +77,14 @@ function ocrStopStream(){clearTimeout(ocrTimer);ocrTimer=null;if(ocrStream){ocrS
 function closeOcr(){ocrToken++;ocrStopStream();if(ocrWorkerPromise){ocrWorkerPromise.then(w=>w.terminate()).catch(()=>{});ocrWorkerPromise=null;}ocrBusy=false;ocrLastResult=null;ocrLastFrame=null;ocrOriginal=null;ocrImage=null;ocrSelection=null;ocrDrag=null;document.getElementById('ocrCanvas').getContext('2d').clearRect(0,0,document.getElementById('ocrCanvas').width,document.getElementById('ocrCanvas').height);document.getElementById('ocrReview').replaceChildren();document.getElementById('ocrText').textContent='';document.getElementById('ocrDialog').close();}
 function prepareOcr(target,mode){
  closeOcr();ocrTarget=target;ocrMode=mode;ocrStableKey='';ocrStableCount=0;const dialog=document.getElementById('ocrDialog');
- document.getElementById('ocrTitle').textContent=target==='invoice'?'Reconhecer fatura':'Reconhecer código '+target;
- document.getElementById('ocrHint').textContent=target==='invoice'?'Mantenha a fatura iluminada e sem reflexos. Para datas e leituras, aproxime o quadro Anterior/Atual. Você pode usar mais de uma foto da mesma fatura, sem substituir os campos não reconhecidos.':'Enquadre apenas o visor com o código '+target+' e o total acumulado. Aguarde a alternância do visor e confira as casas decimais.';
+ document.getElementById('ocrTitle').textContent=target==='cycle'?'Reconhecer fechamento do ciclo':target==='invoice'?'Reconhecer fatura':'Reconhecer código '+target;
+ document.getElementById('ocrHint').textContent=ocrInvoiceTarget()?'Mantenha a fatura iluminada e sem reflexos. Para datas e leituras, aproxime o quadro Anterior/Atual. Você pode usar mais de uma foto da mesma fatura, sem substituir os campos não reconhecidos.':'Enquadre apenas o visor com o código '+target+' e o total acumulado. Aguarde a alternância do visor e confira as casas decimais.';
  document.getElementById('ocrWarnings').textContent='';document.getElementById('ocrConfirm').checked=false;document.getElementById('ocrConfirmationLabel').hidden=true;document.getElementById('ocrTextDetails').hidden=true;document.getElementById('ocrApply').disabled=true;
  for(const id of ['ocrCanvas','ocrVideo','ocrReadFrame','ocrFinishLive','ocrCrop','ocrRotate','ocrReset','ocrRetry'])document.getElementById(id).hidden=true;
  ocrSetStatus(mode==='live'?'Solicitando acesso à câmera…':'Selecione ou capture uma imagem.');dialog.showModal();return ocrToken;
 }
 function openOcr(target,mode){
- if(!['invoice','03','103'].includes(target))return;prepareOcr(target,mode);
+ if(!['invoice','cycle','03','103'].includes(target))return;prepareOcr(target,mode);
  if(mode==='live')startOcrLive();else document.getElementById(mode==='photo'?'ocrCameraInput':'ocrFileInput').click();
 }
 function loadOcrLibrary(){
@@ -112,29 +114,44 @@ async function readOcrPhoto(file){
 }
 async function recognizeOcrImage(image,token,live){
  if(ocrBusy||token!==ocrToken)return null;ocrBusy=true;document.getElementById('ocrApply').disabled=true;ocrSetStatus('Preparando reconhecimento…');
- try{const worker=await getOcrWorker();if(token!==ocrToken)return null;await worker.setParameters({tessedit_pageseg_mode:live&&ocrTarget!=='invoice'?'6':'11',preserve_interword_spaces:'1'});const {data}=await worker.recognize(image,{}, {text:true,blocks:true});if(token!==ocrToken)return null;const result=ocrTarget==='invoice'?parseInvoiceOcr(data):parseMeterOcr(data,ocrTarget);ocrLastResult=result;ocrLastFrame=ocrCopyCanvas(image);
-  if(!live)renderOcrReview(result);else{const value=ocrTarget==='invoice'?Object.keys(result.values).length+' campo(s) identificado(s)':result.values.reading==null?'Enquadre somente o visor':String(result.values.reading);ocrSetStatus('Câmera ao vivo: '+value+'. Mantenha a imagem estável.');}
+ try{const worker=await getOcrWorker();if(token!==ocrToken)return null;await worker.setParameters({tessedit_pageseg_mode:live&&!ocrInvoiceTarget()?'6':'11',preserve_interword_spaces:'1'});const {data}=await worker.recognize(image,{}, {text:true,blocks:true});if(token!==ocrToken)return null;const result=ocrInvoiceTarget()?parseInvoiceOcr(data):parseMeterOcr(data,ocrTarget);ocrLastResult=result;ocrLastFrame=ocrCopyCanvas(image);
+  if(!live)renderOcrReview(result);else{const value=ocrInvoiceTarget()?Object.keys(result.values).length+' campo(s) identificado(s)':result.values.reading==null?'Enquadre somente o visor':String(result.values.reading);ocrSetStatus('Câmera ao vivo: '+value+'. Mantenha a imagem estável.');}
   return result;
  }catch(error){if(token===ocrToken){ocrStopStream();ocrSetStatus(error.message||'Não foi possível reconhecer a imagem. Tente novamente com melhor iluminação.');}return null;}
  finally{if(token===ocrToken){ocrBusy=false;refreshOcrApply();}}
 }
 function renderOcrReview(result){
  const box=document.getElementById('ocrReview');box.replaceChildren();document.getElementById('ocrWarnings').textContent=result.warnings.join(' ');document.getElementById('ocrText').textContent=result.text;document.getElementById('ocrTextDetails').hidden=false;
- const fields=ocrTarget==='invoice'?ocrFields:[{key:'reading',label:'Total acumulado do código '+ocrTarget+' (kWh)',type:'number'}];
+ const fields=ocrInvoiceTarget()?ocrReviewFields():[{key:'reading',label:'Total acumulado do código '+ocrTarget+' (kWh)',type:'number'}];
  for(const field of fields){const row=document.createElement('div');row.className='ocr-review-row';const checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.dataset.ocrField=field.key;checkbox.id='ocrCheck-'+field.key;checkbox.checked=result.values[field.key]!=null;checkbox.setAttribute('aria-label','Usar '+field.label);const label=document.createElement('label');label.htmlFor='ocrValue-'+field.key;label.textContent=field.label;const input=document.createElement('input');input.id='ocrValue-'+field.key;input.type=field.type;input.value=result.values[field.key]??'';if(field.type==='number'){input.min=field.key==='multiplier'?'0.001':'0';input.step='0.001';input.max=field.key==='multiplier'?'1000000':'1000000000';}input.addEventListener('input',()=>{checkbox.checked=input.value!=='';refreshOcrApply();});checkbox.addEventListener('change',refreshOcrApply);row.append(checkbox,label,input);box.appendChild(row);}
- if(ocrTarget!=='invoice'&&result.candidates?.length>1){const p=document.createElement('p');p.className='cycle-help';p.textContent='Números encontrados: '+result.candidates.map(x=>x.text).join(' · ')+'. Confira qual é o total acumulado do visor.';box.appendChild(p);}
- document.getElementById('ocrConfirmationText').textContent=ocrTarget==='invoice'?'Conferi os campos marcados na fatura, incluindo as leituras, casas decimais e o multiplicador.':'Conferi na foto o código '+ocrTarget+' e o total acumulado, incluindo as casas decimais.';
+ if(!ocrInvoiceTarget()&&result.candidates?.length>1){const p=document.createElement('p');p.className='cycle-help';p.textContent='Números encontrados: '+result.candidates.map(x=>x.text).join(' · ')+'. Confira qual é o total acumulado do visor.';box.appendChild(p);}
+ document.getElementById('ocrConfirmationText').textContent=ocrInvoiceTarget()?'Conferi os campos marcados na fatura, incluindo as leituras, casas decimais e o multiplicador.':'Conferi na foto o código '+ocrTarget+' e o total acumulado, incluindo as casas decimais.';
  document.getElementById('ocrConfirmationLabel').hidden=false;document.getElementById('ocrConfirm').checked=false;ocrSetStatus(Object.keys(result.values).some(k=>result.values[k]!=null)?'Confira os campos marcados. Você pode corrigir qualquer valor antes de usar.':'Não foi possível identificar os campos com segurança. Recorte a área desejada ou preencha após conferir a imagem.');refreshOcrApply();
 }
 function refreshOcrApply(){const selected=[...document.querySelectorAll('[data-ocr-field]')].some(x=>x.checked);document.getElementById('ocrApply').disabled=ocrBusy||Boolean(ocrStream)||!selected||!document.getElementById('ocrConfirm').checked;}
 function applyOcrReview(){
  if(!document.getElementById('ocrConfirm').checked||ocrBusy||ocrStream)return;const selected={};for(const check of document.querySelectorAll('[data-ocr-field]')){if(!check.checked)continue;const input=document.getElementById('ocrValue-'+check.dataset.ocrField);if(!input.value||!input.checkValidity()){input.reportValidity();return;}selected[check.dataset.ocrField]=input.type==='number'?Number(input.value):input.value;if(selected[check.dataset.ocrField]==null){ocrSetStatus('Confira os valores marcados.');return;}}
- if(!Object.keys(selected).length)return;const target=ocrTarget;let changesExisting=false;
- for(const [key,value] of Object.entries(selected)){const field=ocrFields.find(x=>x.key===key),id=target==='invoice'?field?.id:target==='03'?'meterImported':'meterInjected';const old=key==='month'?document.getElementById('fMonth').value:id?document.getElementById(id).value:'';if(old!==''&&String(old)!==String(value))changesExisting=true;}
- if(changesExisting&&!confirm('Substituir somente os campos marcados pelos valores conferidos? Os demais campos serão mantidos.'))return;
- if(target==='invoice'){if(selected.month)setMonthPicker(selected.month);for(const field of ocrFields)if(field.id&&Object.hasOwn(selected,field.key))document.getElementById(field.id).value=selected[field.key];updatePreview();}
- else document.getElementById(target==='03'?'meterImported':'meterInjected').value=selected.reading;
- closeOcr();toast('Dados transferidos. Confira o formulário e toque em Salvar para registrar.');
+ if(!Object.keys(selected).length)return;
+ const target=ocrTarget,isInvoice=ocrInvoiceTarget();
+ const month=isInvoice?(selected.month||document.getElementById('fMonth').value):null;
+ const existing=isInvoice?state.entries.find(entry=>entry.month===month):null;
+ const switchContext=isInvoice&&(month!==document.getElementById('fMonth').value||(existing&&editingMonth!==month)||(editingMonth&&editingMonth!==month));
+ if(switchContext){
+  const message=existing?'Já existe um lançamento de '+monthLabel(month)+'. Carregar esse mês e aplicar somente os campos marcados? Os demais dados salvos desse mês serão preservados.':'A fatura é de '+monthLabel(month)+'. Abrir um novo lançamento para esse mês e aplicar os campos marcados? O mês anterior não será alterado.';
+  if(!confirm(message+' Alterações ainda não salvas no formulário atual serão descartadas.'))return;
+ }else{
+  let changesExisting=false;
+  for(const [key,value] of Object.entries(selected)){const field=ocrFields.find(x=>x.key===key),id=isInvoice?field?.id:target==='03'?'meterImported':'meterInjected';const old=key==='month'?document.getElementById('fMonth').value:id?document.getElementById(id).value:'';if(old!==''&&String(old)!==String(value))changesExisting=true;}
+  if(changesExisting&&!confirm('Substituir somente os campos marcados pelos valores conferidos? Os demais campos serão mantidos.'))return;
+ }
+ if(isInvoice){
+  if(switchContext)fillForm(existing||null);
+  setMonthPicker(month);
+  for(const field of ocrReviewFields())if(field.id&&Object.hasOwn(selected,field.key))document.getElementById(field.id).value=selected[field.key];
+  updatePreview();
+ }else document.getElementById(target==='03'?'meterImported':'meterInjected').value=selected.reading;
+ const message=isInvoice?(editingMonth===month?'Dados transferidos para '+monthLabel(month)+'. Confira e toque em Salvar alterações.':'Dados transferidos para '+monthLabel(month)+'. Confira e toque em Salvar mês.'):'Dados transferidos. Confira e toque em Salvar leitura.';
+ closeOcr();toast(message);
 }
 async function startOcrLive(){
  const token=ocrToken;try{if(!navigator.mediaDevices?.getUserMedia)throw new Error('Câmera ao vivo indisponível aqui. Use Fotografar ou Selecionar foto.');if(window.Android&&typeof Android.cameraSupport!=='function')throw new Error('Para usar a câmera ao vivo no app, instale o Android 2.10.0 por cima da versão atual.');
@@ -145,7 +162,7 @@ async function scanOcrLive(token){
  if(!ocrStream||token!==ocrToken)return;if(ocrBusy){ocrTimer=setTimeout(()=>scanOcrLive(token),1000);return;}const video=document.getElementById('ocrVideo');if(!video.videoWidth){ocrTimer=setTimeout(()=>scanOcrLive(token),1000);return;}
  const c=document.createElement('canvas');const scale=Math.min(1,2000/Math.max(video.videoWidth,video.videoHeight));c.width=Math.round(video.videoWidth*scale);c.height=Math.round(video.videoHeight*scale);c.getContext('2d').drawImage(video,0,0,c.width,c.height);
  const result=await recognizeOcrImage(c,token,true);if(!ocrStream||token!==ocrToken)return;
- if(result){const v=result.values;const complete=ocrTarget==='invoice'?v.startDate&&v.endDate&&v.startReading!=null&&v.endReading!=null: v.reading!=null&&result.codes?.length===1&&result.codes[0]===ocrTarget;const key=complete&&result.confidence>=60?JSON.stringify(ocrTarget==='invoice'?[v.startDate,v.endDate,v.startReading,v.endReading]:[ocrTarget,v.reading]):'';ocrStableCount=key&&key===ocrStableKey?ocrStableCount+1:key?1:0;ocrStableKey=key;
+ if(result){const v=result.values;const complete=ocrInvoiceTarget()?v.startDate&&v.endDate&&v.startReading!=null&&v.endReading!=null: v.reading!=null&&result.codes?.length===1&&result.codes[0]===ocrTarget;const key=complete&&result.confidence>=60?JSON.stringify(ocrInvoiceTarget()?[v.startDate,v.endDate,v.startReading,v.endReading]:[ocrTarget,v.reading]):'';ocrStableCount=key&&key===ocrStableKey?ocrStableCount+1:key?1:0;ocrStableKey=key;
   if(ocrStableCount>=2){ocrOriginal=c;ocrImage=ocrCopyCanvas(c);ocrStopStream();drawOcrPhoto();for(const id of ['ocrCrop','ocrRotate','ocrReset','ocrRetry'])document.getElementById(id).hidden=false;renderOcrReview(result);return;}
  }ocrTimer=setTimeout(()=>scanOcrLive(token),3000);
 }
