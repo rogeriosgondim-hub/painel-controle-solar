@@ -122,7 +122,7 @@ async function readOcrPdf(file){
   if(file.size>20*1024*1024)throw new Error('Selecione um PDF de até 20 MB.');
   const bytes=new Uint8Array(await file.arrayBuffer());if(new TextDecoder().decode(bytes.slice(0,1024)).indexOf('%PDF-')<0)throw new Error('O arquivo não é um PDF válido.');
   ocrSetStatus('Abrindo PDF neste aparelho…');
-  const pdf=await import('./vendor/ocr/pdf.min.mjs');if(token!==ocrToken)return;
+  const pdf=await import(new URL('vendor/ocr/pdf.min.mjs',location.href).href);if(token!==ocrToken)return;
   pdf.GlobalWorkerOptions.workerSrc=new URL('vendor/ocr/pdf.worker.min.mjs',location.href).href;
   task=pdf.getDocument({data:bytes,isEvalSupported:false,useSystemFonts:true,disableFontFace:true,stopAtErrors:true});doc=await task.promise;if(token!==ocrToken)return;
   if(doc.numPages>10)throw new Error('Use um PDF com até 10 páginas, contendo apenas uma fatura.');
