@@ -51,10 +51,14 @@ billing_fix=r'''(()=>{
 })();'''
 
 html=Path('index.html').read_text(encoding='utf-8')
-if 'billing-month-release-21104' not in html:
+if 'billing-month-release-21105' not in html:
  script_hash=base64.b64encode(hashlib.sha256(billing_fix.encode('utf-8')).digest()).decode()
  html=html.replace("script-src 'self'",f"script-src 'self' 'sha256-{script_hash}'",1)
- html=html.replace('</body>',"<script data-fix=\"billing-month-release-21104\">"+billing_fix+"</script>\n</body>",1)
+ body_close=html.rfind('</body>')
+ if body_close<0:
+  raise RuntimeError('Fechamento </body> não encontrado no index.html')
+ injected="<script data-fix=\"billing-month-release-21105\">"+billing_fix+"</script>\n"
+ html=html[:body_close]+injected+html[body_close:]
 (public/'index.html').write_text(html,encoding='utf-8')
 shutil.copytree('vendor',public/'vendor',dirs_exist_ok=True)
 
