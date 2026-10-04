@@ -2,10 +2,10 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-edhnfHfxZe0aXUdvRw/ijbBjGV9sJzP0UazVhktTPS0=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://api.github.com; worker-src 'self'; media-src 'self' blob:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Djd5/L0GG+4RTLMiiFACJh8jQzmnii8zh93CeyxBiaY=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://api.github.com; worker-src 'self'; media-src 'self' blob:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0F5F8C">
-<title>Controle Solar v2.10.0</title>
+<title>Controle Solar v2.10.1</title>
 <style>
 :root{
   --navy:#153955; --navy2:#1f5876; --blue:#dcecf7; --blue2:#c8dfef;
@@ -596,7 +596,7 @@ table{font-size:12px}
       <button data-view="example">✓ &nbsp; Exemplo preenchido</button>
       <button data-view="about">ℹ &nbsp; Sobre</button>
     </div>
-    <div class="side-foot">Dados armazenados localmente neste dispositivo.<br><br><b>App v2.10.0 • Cloud Sync</b></div>
+    <div class="side-foot">Dados armazenados localmente neste dispositivo.<br><br><b>App v2.10.1 • Cloud Sync</b></div>
   </aside>
 
   <main class="main">
@@ -704,6 +704,7 @@ table{font-size:12px}
               <h4>Ciclo de leitura e cobrança</h4>
               <div class="ocr-entry"><p>Preencher pela fatura</p><div class="cycle-actions"><button class="btn" type="button" data-ocr="invoice" data-ocr-mode="photo">Fotografar fatura</button><button class="btn" type="button" data-ocr="invoice" data-ocr-mode="live">Câmera ao vivo</button><button class="btn" type="button" data-ocr="invoice" data-ocr-mode="file">Selecionar foto</button></div><small>Reconhecimento neste aparelho. Confira os dados antes de usar e salvar.</small></div>
               <section class="cycle-task" aria-labelledby="cycleInvoiceTitle"><h5 id="cycleInvoiceTitle">📄 Fechar o ciclo pela fatura</h5><p class="cycle-help">Informe as datas e leituras anterior e atual da fatura. Confira o consumo calculado abaixo. O vencimento é a data de pagamento.</p>
+              <div class="ocr-entry"><p>Capturar datas e leituras da fatura</p><div class="cycle-actions"><button class="btn" type="button" data-ocr="cycle" data-ocr-mode="photo">Fotografar fatura</button><button class="btn" type="button" data-ocr="cycle" data-ocr-mode="live">Ler com a câmera</button><button class="btn" type="button" data-ocr="cycle" data-ocr-mode="file">Selecionar foto</button></div><small>Capture a área de datas e leituras da fatura. Confira os dados e a referência do mês antes de aplicar. Campos não reconhecidos serão mantidos.</small></div>
               <div class="cycle-actions"><button class="btn" type="button" data-action="prefillPreviousCycle">Usar fechamento anterior</button><button class="btn" type="button" data-action="clearCycleForm">Limpar campos do ciclo</button></div>
               <div class="form-grid">
                 <div class="field"><label for="fCycleStart">Início do ciclo — data anterior</label><input type="date" id="fCycleStart"></div>
@@ -1115,8 +1116,8 @@ table{font-size:12px}
 <section class="view" id="about">
  <div class="premium-head"><div><div class="eyebrow">SOBRE O PROJETO</div><h3>Painel de Controle Solar da Residência</h3><p>Controle de geração, consumo e leituras do relógio Enel.</p></div></div>
  <div class="grid about-grid"><div class="card"><h3>Criador do projeto</h3><p class="about-name">Rogerio Sampaio</p><p>Projeto pessoal para acompanhar a energia solar da residência.</p></div>
- <div class="card"><h3>Versões e atualização</h3><dl class="about-details"><dt>Painel</dt><dd>2.10.0</dd><dt>Data desta versão</dt><dd>03/10/2026</dd><dt>Aplicativo Android</dt><dd id="aboutNativeVersion">Acesso pelo navegador</dd></dl><p id="panelUpdateStatus" role="status">No navegador, recarregue a página para buscar as novidades.</p><div class="backup-box"><button class="btn primary" data-click="h24">Buscar atualização</button><button class="btn" id="applyPanelUpdate" hidden data-click="h25">Aplicar atualização</button></div></div></div>
- <div class="card" style="margin-top:16px"><h3>Novidades da versão 2.10.0</h3><ul class="about-news"><li>Fotografia, seleção de foto e reconhecimento com a câmera ao vivo para faturas e relógio Enel.</li><li>Conferência, correção e recorte antes de transferir dados; códigos 03 e 103 tratados separadamente.</li><li>Reconhecimento local, incluído no Android para uso sem internet.</li><li>Ciclo de leitura e cobrança: início, fechamento efetivo, vencimento e próxima leitura prevista.</li><li>Cálculo de dias, diferença das leituras e consumo com multiplicador da fatura.</li><li>Histórico editável dos ciclos e preenchimento a partir do fechamento anterior.</li><li>Acompanhamento do ciclo no Painel, consumo parcial e projeção identificada como estimativa.</li><li>Produção solar diária no período, com indicação dos dias disponíveis.</li><li>Ciclos incluídos no backup, na sincronização e nas exportações Excel, CSV e PDF.</li></ul><p id="aboutOffline">Os lançamentos ficam salvos neste aparelho. A sincronização na nuvem precisa de internet.</p><a class="btn" href="https://rogeriosgondim-hub.github.io/painel-controle-solar/" target="_blank" rel="noopener">Abrir painel web</a></div>
+ <div class="card"><h3>Versões e atualização</h3><dl class="about-details"><dt>Painel</dt><dd>2.10.1</dd><dt>Data desta versão</dt><dd>03/10/2026</dd><dt>Aplicativo Android</dt><dd id="aboutNativeVersion">Acesso pelo navegador</dd></dl><p id="panelUpdateStatus" role="status">No navegador, recarregue a página para buscar as novidades.</p><div class="backup-box"><button class="btn primary" data-click="h24">Buscar atualização</button><button class="btn" id="applyPanelUpdate" hidden data-click="h25">Aplicar atualização</button></div></div></div>
+ <div class="card" style="margin-top:16px"><h3>Novidades da versão 2.10.1</h3><ul class="about-news"><li>Captura de datas e leituras dentro de Fechar o ciclo pela fatura.</li><li>Reconhecimento abre o mês correto para edição, preservando os campos não selecionados e evitando conflito com outro mês.</li><li>Fotografia, seleção de foto e reconhecimento com a câmera ao vivo para faturas e relógio Enel.</li><li>Conferência, correção e recorte antes de transferir dados; códigos 03 e 103 tratados separadamente.</li><li>Reconhecimento local, incluído no Android para uso sem internet.</li><li>Ciclo de leitura e cobrança: início, fechamento efetivo, vencimento e próxima leitura prevista.</li><li>Cálculo de dias, diferença das leituras e consumo com multiplicador da fatura.</li><li>Histórico editável dos ciclos e preenchimento a partir do fechamento anterior.</li><li>Acompanhamento do ciclo no Painel, consumo parcial e projeção identificada como estimativa.</li><li>Produção solar diária no período, com indicação dos dias disponíveis.</li><li>Ciclos incluídos no backup, na sincronização e nas exportações Excel, CSV e PDF.</li></ul><p id="aboutOffline">Os lançamentos ficam salvos neste aparelho. A sincronização na nuvem precisa de internet.</p><a class="btn" href="https://rogeriosgondim-hub.github.io/painel-controle-solar/" target="_blank" rel="noopener">Abrir painel web</a></div>
  </section>
       <section class="view" id="example">
         <div class="notice"><b>Exemplo simulado.</b> Os números abaixo servem apenas para explicar o preenchimento e não representam geração real nem futura fatura.</div>
@@ -1254,7 +1255,7 @@ function lockCloud(){cloudSecrets=null;clearTimeout(cloudTimer);renderCloud();to
 let state = loadState();
 let editingMonth = null;
 
-const PANEL_VERSION="2.10.0";
+const PANEL_VERSION="2.10.1";
 const PANEL_BUILD_DATE="2026-10-03";
 const titles = {
  about:["Sobre","Autoria, versões e novidades"],
@@ -1798,7 +1799,7 @@ async function cloudFetchFile(cfg){
 }
 async function cloudWriteFile(cfg,envelope,sha){
   const bytes=new TextEncoder().encode(JSON.stringify(envelope,null,2));
-  const body={message:"Sincroniza dados do Controle Solar v2.10.0",content:bytesToB64(bytes),branch:cfg.branch};
+  const body={message:"Sincroniza dados do Controle Solar v2.10.1",content:bytesToB64(bytes),branch:cfg.branch};
   if(sha)body.sha=sha;
   const r=await fetch(cloudApiUrl(cfg),{method:"PUT",headers:cloudHeaders(cfg),body:JSON.stringify(body)});
   if(r.status===401)throw new Error("Token GitHub inválido ou expirado.");
@@ -2048,7 +2049,7 @@ document.getElementById("entryForm").addEventListener("submit",ev=>{
   let target=state.entries.find(x=>x.month===e.month);
   if(original&&editingMonth!==e.month){if(target){alert("Já existe um lançamento nesse mês. Escolha outro mês ou edite o registro existente.");return;}Object.assign(original,e);target=original;state.entries.sort((a,b)=>a.month.localeCompare(b.month));}
   if(target)Object.assign(target,e);else{state.entries.push(e);state.entries.sort((a,b)=>a.month.localeCompare(b.month))}
-  saveState();editingMonth=e.month;renderAll();toast("Lançamento salvo.");
+  saveState();fillForm(target||e);renderAll();toast("Lançamento salvo.");
 });
 
 
@@ -2681,6 +2682,8 @@ const ocrFields=[
  {key:'nextReadingDate',label:'Próximo fechamento previsto',type:'date',id:'fCycleNext'},
  {key:'totalBill',label:'Conta total (R$)',type:'number',id:'fBill'}
 ];
+function ocrInvoiceTarget(){return ocrTarget==='invoice'||ocrTarget==='cycle';}
+function ocrReviewFields(){return ocrTarget==='cycle'?ocrFields.filter(field=>field.key!=='totalBill'):ocrFields;}
 function ocrNormalize(text){return String(text||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();}
 function ocrNumber(text){
  const s=String(text||'').trim().replace(/\s/g,'');if(!/^\d+(?:[.,]\d+)*$/.test(s))return null;
@@ -2745,14 +2748,14 @@ function ocrStopStream(){clearTimeout(ocrTimer);ocrTimer=null;if(ocrStream){ocrS
 function closeOcr(){ocrToken++;ocrStopStream();if(ocrWorkerPromise){ocrWorkerPromise.then(w=>w.terminate()).catch(()=>{});ocrWorkerPromise=null;}ocrBusy=false;ocrLastResult=null;ocrLastFrame=null;ocrOriginal=null;ocrImage=null;ocrSelection=null;ocrDrag=null;document.getElementById('ocrCanvas').getContext('2d').clearRect(0,0,document.getElementById('ocrCanvas').width,document.getElementById('ocrCanvas').height);document.getElementById('ocrReview').replaceChildren();document.getElementById('ocrText').textContent='';document.getElementById('ocrDialog').close();}
 function prepareOcr(target,mode){
  closeOcr();ocrTarget=target;ocrMode=mode;ocrStableKey='';ocrStableCount=0;const dialog=document.getElementById('ocrDialog');
- document.getElementById('ocrTitle').textContent=target==='invoice'?'Reconhecer fatura':'Reconhecer código '+target;
- document.getElementById('ocrHint').textContent=target==='invoice'?'Mantenha a fatura iluminada e sem reflexos. Para datas e leituras, aproxime o quadro Anterior/Atual. Você pode usar mais de uma foto da mesma fatura, sem substituir os campos não reconhecidos.':'Enquadre apenas o visor com o código '+target+' e o total acumulado. Aguarde a alternância do visor e confira as casas decimais.';
+ document.getElementById('ocrTitle').textContent=target==='cycle'?'Reconhecer fechamento do ciclo':target==='invoice'?'Reconhecer fatura':'Reconhecer código '+target;
+ document.getElementById('ocrHint').textContent=ocrInvoiceTarget()?'Mantenha a fatura iluminada e sem reflexos. Para datas e leituras, aproxime o quadro Anterior/Atual. Você pode usar mais de uma foto da mesma fatura, sem substituir os campos não reconhecidos.':'Enquadre apenas o visor com o código '+target+' e o total acumulado. Aguarde a alternância do visor e confira as casas decimais.';
  document.getElementById('ocrWarnings').textContent='';document.getElementById('ocrConfirm').checked=false;document.getElementById('ocrConfirmationLabel').hidden=true;document.getElementById('ocrTextDetails').hidden=true;document.getElementById('ocrApply').disabled=true;
  for(const id of ['ocrCanvas','ocrVideo','ocrReadFrame','ocrFinishLive','ocrCrop','ocrRotate','ocrReset','ocrRetry'])document.getElementById(id).hidden=true;
  ocrSetStatus(mode==='live'?'Solicitando acesso à câmera…':'Selecione ou capture uma imagem.');dialog.showModal();return ocrToken;
 }
 function openOcr(target,mode){
- if(!['invoice','03','103'].includes(target))return;prepareOcr(target,mode);
+ if(!['invoice','cycle','03','103'].includes(target))return;prepareOcr(target,mode);
  if(mode==='live')startOcrLive();else document.getElementById(mode==='photo'?'ocrCameraInput':'ocrFileInput').click();
 }
 function loadOcrLibrary(){
@@ -2782,29 +2785,44 @@ async function readOcrPhoto(file){
 }
 async function recognizeOcrImage(image,token,live){
  if(ocrBusy||token!==ocrToken)return null;ocrBusy=true;document.getElementById('ocrApply').disabled=true;ocrSetStatus('Preparando reconhecimento…');
- try{const worker=await getOcrWorker();if(token!==ocrToken)return null;await worker.setParameters({tessedit_pageseg_mode:live&&ocrTarget!=='invoice'?'6':'11',preserve_interword_spaces:'1'});const {data}=await worker.recognize(image,{}, {text:true,blocks:true});if(token!==ocrToken)return null;const result=ocrTarget==='invoice'?parseInvoiceOcr(data):parseMeterOcr(data,ocrTarget);ocrLastResult=result;ocrLastFrame=ocrCopyCanvas(image);
-  if(!live)renderOcrReview(result);else{const value=ocrTarget==='invoice'?Object.keys(result.values).length+' campo(s) identificado(s)':result.values.reading==null?'Enquadre somente o visor':String(result.values.reading);ocrSetStatus('Câmera ao vivo: '+value+'. Mantenha a imagem estável.');}
+ try{const worker=await getOcrWorker();if(token!==ocrToken)return null;await worker.setParameters({tessedit_pageseg_mode:live&&!ocrInvoiceTarget()?'6':'11',preserve_interword_spaces:'1'});const {data}=await worker.recognize(image,{}, {text:true,blocks:true});if(token!==ocrToken)return null;const result=ocrInvoiceTarget()?parseInvoiceOcr(data):parseMeterOcr(data,ocrTarget);ocrLastResult=result;ocrLastFrame=ocrCopyCanvas(image);
+  if(!live)renderOcrReview(result);else{const value=ocrInvoiceTarget()?Object.keys(result.values).length+' campo(s) identificado(s)':result.values.reading==null?'Enquadre somente o visor':String(result.values.reading);ocrSetStatus('Câmera ao vivo: '+value+'. Mantenha a imagem estável.');}
   return result;
  }catch(error){if(token===ocrToken){ocrStopStream();ocrSetStatus(error.message||'Não foi possível reconhecer a imagem. Tente novamente com melhor iluminação.');}return null;}
  finally{if(token===ocrToken){ocrBusy=false;refreshOcrApply();}}
 }
 function renderOcrReview(result){
  const box=document.getElementById('ocrReview');box.replaceChildren();document.getElementById('ocrWarnings').textContent=result.warnings.join(' ');document.getElementById('ocrText').textContent=result.text;document.getElementById('ocrTextDetails').hidden=false;
- const fields=ocrTarget==='invoice'?ocrFields:[{key:'reading',label:'Total acumulado do código '+ocrTarget+' (kWh)',type:'number'}];
+ const fields=ocrInvoiceTarget()?ocrReviewFields():[{key:'reading',label:'Total acumulado do código '+ocrTarget+' (kWh)',type:'number'}];
  for(const field of fields){const row=document.createElement('div');row.className='ocr-review-row';const checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.dataset.ocrField=field.key;checkbox.id='ocrCheck-'+field.key;checkbox.checked=result.values[field.key]!=null;checkbox.setAttribute('aria-label','Usar '+field.label);const label=document.createElement('label');label.htmlFor='ocrValue-'+field.key;label.textContent=field.label;const input=document.createElement('input');input.id='ocrValue-'+field.key;input.type=field.type;input.value=result.values[field.key]??'';if(field.type==='number'){input.min=field.key==='multiplier'?'0.001':'0';input.step='0.001';input.max=field.key==='multiplier'?'1000000':'1000000000';}input.addEventListener('input',()=>{checkbox.checked=input.value!=='';refreshOcrApply();});checkbox.addEventListener('change',refreshOcrApply);row.append(checkbox,label,input);box.appendChild(row);}
- if(ocrTarget!=='invoice'&&result.candidates?.length>1){const p=document.createElement('p');p.className='cycle-help';p.textContent='Números encontrados: '+result.candidates.map(x=>x.text).join(' · ')+'. Confira qual é o total acumulado do visor.';box.appendChild(p);}
- document.getElementById('ocrConfirmationText').textContent=ocrTarget==='invoice'?'Conferi os campos marcados na fatura, incluindo as leituras, casas decimais e o multiplicador.':'Conferi na foto o código '+ocrTarget+' e o total acumulado, incluindo as casas decimais.';
+ if(!ocrInvoiceTarget()&&result.candidates?.length>1){const p=document.createElement('p');p.className='cycle-help';p.textContent='Números encontrados: '+result.candidates.map(x=>x.text).join(' · ')+'. Confira qual é o total acumulado do visor.';box.appendChild(p);}
+ document.getElementById('ocrConfirmationText').textContent=ocrInvoiceTarget()?'Conferi os campos marcados na fatura, incluindo as leituras, casas decimais e o multiplicador.':'Conferi na foto o código '+ocrTarget+' e o total acumulado, incluindo as casas decimais.';
  document.getElementById('ocrConfirmationLabel').hidden=false;document.getElementById('ocrConfirm').checked=false;ocrSetStatus(Object.keys(result.values).some(k=>result.values[k]!=null)?'Confira os campos marcados. Você pode corrigir qualquer valor antes de usar.':'Não foi possível identificar os campos com segurança. Recorte a área desejada ou preencha após conferir a imagem.');refreshOcrApply();
 }
 function refreshOcrApply(){const selected=[...document.querySelectorAll('[data-ocr-field]')].some(x=>x.checked);document.getElementById('ocrApply').disabled=ocrBusy||Boolean(ocrStream)||!selected||!document.getElementById('ocrConfirm').checked;}
 function applyOcrReview(){
  if(!document.getElementById('ocrConfirm').checked||ocrBusy||ocrStream)return;const selected={};for(const check of document.querySelectorAll('[data-ocr-field]')){if(!check.checked)continue;const input=document.getElementById('ocrValue-'+check.dataset.ocrField);if(!input.value||!input.checkValidity()){input.reportValidity();return;}selected[check.dataset.ocrField]=input.type==='number'?Number(input.value):input.value;if(selected[check.dataset.ocrField]==null){ocrSetStatus('Confira os valores marcados.');return;}}
- if(!Object.keys(selected).length)return;const target=ocrTarget;let changesExisting=false;
- for(const [key,value] of Object.entries(selected)){const field=ocrFields.find(x=>x.key===key),id=target==='invoice'?field?.id:target==='03'?'meterImported':'meterInjected';const old=key==='month'?document.getElementById('fMonth').value:id?document.getElementById(id).value:'';if(old!==''&&String(old)!==String(value))changesExisting=true;}
- if(changesExisting&&!confirm('Substituir somente os campos marcados pelos valores conferidos? Os demais campos serão mantidos.'))return;
- if(target==='invoice'){if(selected.month)setMonthPicker(selected.month);for(const field of ocrFields)if(field.id&&Object.hasOwn(selected,field.key))document.getElementById(field.id).value=selected[field.key];updatePreview();}
- else document.getElementById(target==='03'?'meterImported':'meterInjected').value=selected.reading;
- closeOcr();toast('Dados transferidos. Confira o formulário e toque em Salvar para registrar.');
+ if(!Object.keys(selected).length)return;
+ const target=ocrTarget,isInvoice=ocrInvoiceTarget();
+ const month=isInvoice?(selected.month||document.getElementById('fMonth').value):null;
+ const existing=isInvoice?state.entries.find(entry=>entry.month===month):null;
+ const switchContext=isInvoice&&(month!==document.getElementById('fMonth').value||(existing&&editingMonth!==month)||(editingMonth&&editingMonth!==month));
+ if(switchContext){
+  const message=existing?'Já existe um lançamento de '+monthLabel(month)+'. Carregar esse mês e aplicar somente os campos marcados? Os demais dados salvos desse mês serão preservados.':'A fatura é de '+monthLabel(month)+'. Abrir um novo lançamento para esse mês e aplicar os campos marcados? O mês anterior não será alterado.';
+  if(!confirm(message+' Alterações ainda não salvas no formulário atual serão descartadas.'))return;
+ }else{
+  let changesExisting=false;
+  for(const [key,value] of Object.entries(selected)){const field=ocrFields.find(x=>x.key===key),id=isInvoice?field?.id:target==='03'?'meterImported':'meterInjected';const old=key==='month'?document.getElementById('fMonth').value:id?document.getElementById(id).value:'';if(old!==''&&String(old)!==String(value))changesExisting=true;}
+  if(changesExisting&&!confirm('Substituir somente os campos marcados pelos valores conferidos? Os demais campos serão mantidos.'))return;
+ }
+ if(isInvoice){
+  if(switchContext)fillForm(existing||null);
+  setMonthPicker(month);
+  for(const field of ocrReviewFields())if(field.id&&Object.hasOwn(selected,field.key))document.getElementById(field.id).value=selected[field.key];
+  updatePreview();
+ }else document.getElementById(target==='03'?'meterImported':'meterInjected').value=selected.reading;
+ const message=isInvoice?(editingMonth===month?'Dados transferidos para '+monthLabel(month)+'. Confira e toque em Salvar alterações.':'Dados transferidos para '+monthLabel(month)+'. Confira e toque em Salvar mês.'):'Dados transferidos. Confira e toque em Salvar leitura.';
+ closeOcr();toast(message);
 }
 async function startOcrLive(){
  const token=ocrToken;try{if(!navigator.mediaDevices?.getUserMedia)throw new Error('Câmera ao vivo indisponível aqui. Use Fotografar ou Selecionar foto.');if(window.Android&&typeof Android.cameraSupport!=='function')throw new Error('Para usar a câmera ao vivo no app, instale o Android 2.10.0 por cima da versão atual.');
@@ -2815,7 +2833,7 @@ async function scanOcrLive(token){
  if(!ocrStream||token!==ocrToken)return;if(ocrBusy){ocrTimer=setTimeout(()=>scanOcrLive(token),1000);return;}const video=document.getElementById('ocrVideo');if(!video.videoWidth){ocrTimer=setTimeout(()=>scanOcrLive(token),1000);return;}
  const c=document.createElement('canvas');const scale=Math.min(1,2000/Math.max(video.videoWidth,video.videoHeight));c.width=Math.round(video.videoWidth*scale);c.height=Math.round(video.videoHeight*scale);c.getContext('2d').drawImage(video,0,0,c.width,c.height);
  const result=await recognizeOcrImage(c,token,true);if(!ocrStream||token!==ocrToken)return;
- if(result){const v=result.values;const complete=ocrTarget==='invoice'?v.startDate&&v.endDate&&v.startReading!=null&&v.endReading!=null: v.reading!=null&&result.codes?.length===1&&result.codes[0]===ocrTarget;const key=complete&&result.confidence>=60?JSON.stringify(ocrTarget==='invoice'?[v.startDate,v.endDate,v.startReading,v.endReading]:[ocrTarget,v.reading]):'';ocrStableCount=key&&key===ocrStableKey?ocrStableCount+1:key?1:0;ocrStableKey=key;
+ if(result){const v=result.values;const complete=ocrInvoiceTarget()?v.startDate&&v.endDate&&v.startReading!=null&&v.endReading!=null: v.reading!=null&&result.codes?.length===1&&result.codes[0]===ocrTarget;const key=complete&&result.confidence>=60?JSON.stringify(ocrInvoiceTarget()?[v.startDate,v.endDate,v.startReading,v.endReading]:[ocrTarget,v.reading]):'';ocrStableCount=key&&key===ocrStableKey?ocrStableCount+1:key?1:0;ocrStableKey=key;
   if(ocrStableCount>=2){ocrOriginal=c;ocrImage=ocrCopyCanvas(c);ocrStopStream();drawOcrPhoto();for(const id of ['ocrCrop','ocrRotate','ocrReset','ocrRetry'])document.getElementById(id).hidden=false;renderOcrReview(result);return;}
  }ocrTimer=setTimeout(()=>scanOcrLive(token),3000);
 }

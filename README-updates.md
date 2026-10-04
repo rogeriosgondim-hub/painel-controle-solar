@@ -1,3 +1,13 @@
+# Painel 2.10.1 — captura no fechamento e edição do mês correto
+
+Fotografia, seleção de imagem e câmera ao vivo no bloco Fechar o ciclo pela fatura. A revisão desse bloco mostra somente referência, datas, leituras e multiplicador.
+
+Ao aplicar uma referência diferente, o reconhecimento pede confirmação e carrega o lançamento desse mês antes de aplicar somente os campos selecionados. Assim preserva geração, créditos e demais valores do mês de destino, sem renomear o mês anteriormente aberto. Uma referência nova abre um lançamento separado. Cancelar mantém o formulário e os dados salvos. O registro continua exigindo Salvar mês/Salvar alterações.
+
+Painel 2.10.1, revisão 21002, compatível com Android 2.10.0/código 14: Sobre → Buscar atualização → Aplicar atualização. Nenhuma mudança de armazenamento, permissões ou assinatura.
+
+Validação: `node test-ocr.cjs` e `node test-ocr-flow.cjs` (Playwright com Chromium). Testados transferência para mês existente, criação de referência nova, salvamento e reabertura, preservação dos valores não marcados, cancelamento, captura parcial e casas decimais do medidor. A câmera física continua dependendo do teste no aparelho.
+
 # Refinamento visual do ciclo — painel 2.10.0, revisão 21001
 
 Separa Fechar o ciclo pela fatura de Acompanhar o ciclo em andamento (opcional). Consumo calculado em destaque, botão com o valor exato a transferir, orientação conforme o campo ausente e lembrete de Salvar mês. Fórmula, compatibilidade das leituras 03 e detalhes completos ficam em expansões. O acompanhamento mostra consumo parcial e projeção como estimativa quando houver dados válidos. Mantém cálculo, confirmação de substituição, registros, OCR e sincronização.
