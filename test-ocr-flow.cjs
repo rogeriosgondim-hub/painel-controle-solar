@@ -9,7 +9,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),path
    state.entries=[{month:'2026-09',generation:300,gridImported:220,injected:100,creditsUsed:10,creditBalance:30,totalBill:90,cip:20,extras:0,billingCycle:null},{month:'2026-10',generation:400,gridImported:200,injected:120,creditsUsed:12,creditBalance:45,totalBill:110,cip:25,extras:5,billingCycle:null}];
    saveState();fillForm(state.entries[0]);goTo('entries');
   });
-  assert.equal(await page.locator('#cycleInvoiceTitle').locator('..').locator('[data-ocr="cycle"]').count(),3);
+  assert.equal(await page.locator('#cycleInvoiceTitle').locator('..').locator('[data-ocr="cycle"]').count(),4);
   const review=async(target,values)=>{await page.evaluate(({target,values})=>{prepareOcr(target,'file');renderOcrReview({values,warnings:[],text:'Teste controlado de reconhecimento'});},{target,values});await page.locator('#ocrConfirm').check();await page.locator('#ocrApply').click();};
   await review('cycle',{month:'2026-10',startDate:'2026-09-15',endDate:'2026-10-15',startReading:5444,endReading:5466,multiplier:10,dueDate:'2026-10-25',nextReadingDate:'2026-11-16'});
   assert.equal(await page.inputValue('#fMonth'),'2026-10');assert.equal(await page.inputValue('#fGeneration'),'400');assert.equal(await page.inputValue('#fBill'),'110');

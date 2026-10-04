@@ -57,8 +57,8 @@ public class MainActivity extends Activity {
     private static final String PANEL_URL="https://appassets.androidplatform.net/assets/index.html";
     private static final String HOST="rogeriosgondim-hub.github.io";
     private static final String SITE="https://"+HOST+"/painel-controle-solar/";
-    private static final int NATIVE_CODE=14, BUNDLED_REVISION=21002;
-    private static final String BUNDLED_VERSION="2.10.1";
+    private static final int NATIVE_CODE=15, BUNDLED_REVISION=21100;
+    private static final String BUNDLED_VERSION="2.11.0";
     private WebView webView, printView;
     private ValueCallback<Uri[]> filePathCallback;
     private byte[] pendingBytes;
@@ -67,7 +67,7 @@ public class MainActivity extends Activity {
     private File capturedPhoto;
     private Uri capturedPhotoUri;
     private static final java.util.Set<String> OCR_ASSETS=new java.util.HashSet<>(java.util.Arrays.asList(
-        "tesseract.min.js","worker.min.js","tesseract-core.wasm.js","tesseract-core-simd.wasm.js",
+        "pdf.min.mjs","pdf.worker.min.mjs","tesseract.min.js","worker.min.js","tesseract-core.wasm.js","tesseract-core-simd.wasm.js",
         "tesseract-core-lstm.wasm.js","tesseract-core-simd-lstm.wasm.js","eng.traineddata","por.traineddata"));
     private final ExecutorService worker=Executors.newSingleThreadExecutor();
     private final Handler handler=new Handler(Looper.getMainLooper());
@@ -115,7 +115,7 @@ public class MainActivity extends Activity {
                         InputStream in;String mime;
                         if(PANEL_URL.equals(url)){in=activeHtml!=null?new ByteArrayInputStream(activeHtml):getAssets().open("panel.html");mime="text/html";}
                         else if(("https://appassets.androidplatform.net/assets/vendor/xlsx.full.min.js").equals(url)){in=getAssets().open("vendor/xlsx.full.min.js");mime="application/javascript";}
-                        else if(url.startsWith("https://appassets.androidplatform.net/assets/vendor/ocr/")&&OCR_ASSETS.contains(request.getUrl().getLastPathSegment())&&request.getUrl().getQuery()==null&&request.getUrl().getFragment()==null){in=getAssets().open("vendor/ocr/"+request.getUrl().getLastPathSegment());mime=url.endsWith(".js")?"application/javascript":"application/octet-stream";}
+                        else if(url.startsWith("https://appassets.androidplatform.net/assets/vendor/ocr/")&&OCR_ASSETS.contains(request.getUrl().getLastPathSegment())&&request.getUrl().getQuery()==null&&request.getUrl().getFragment()==null){in=getAssets().open("vendor/ocr/"+request.getUrl().getLastPathSegment());mime=(url.endsWith(".js")||url.endsWith(".mjs"))?"application/javascript":"application/octet-stream";}
                         else return new WebResourceResponse("text/plain","UTF-8",404,"Not Found",java.util.Collections.emptyMap(),new ByteArrayInputStream(new byte[0]));
                         return new WebResourceResponse(mime,mime.equals("application/octet-stream")?null:"UTF-8",200,"OK",java.util.Collections.singletonMap("Cache-Control","no-store"),in);
                     }catch(Exception e){Log.e("SolarPanel","Local asset unavailable: "+request.getUrl().getLastPathSegment()+" "+e.getClass().getSimpleName());return new WebResourceResponse("text/plain","UTF-8",500,"Unavailable",java.util.Collections.emptyMap(),new ByteArrayInputStream(new byte[0]));}
