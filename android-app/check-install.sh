@@ -25,9 +25,11 @@ cat solar-ui.xml
 cat panel-runtime.log
 python3 - <<'PY'
 from pathlib import Path
+import json
 s=Path('solar-ui.xml').read_text()
 logs=Path('panel-runtime.log').read_text()
-assert 'Painel pronto: 2.10.0' in logs, 'O painel offline não concluiu sua inicialização'
+version=json.loads(Path('panel-update.json').read_text())['version']
+assert 'Painel pronto: '+version in logs, 'O painel offline não concluiu sua inicialização'
 assert 'android.webkit.WebView' in s, 'A tela WebView não está visível'
 print('PASS: atualização do APK anterior com mesma assinatura e painel offline visível')
 PY
