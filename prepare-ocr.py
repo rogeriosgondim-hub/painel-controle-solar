@@ -15,7 +15,10 @@ for name, paths in files.items():
     with tarfile.open(fileobj=io.BytesIO(data),mode='r:gz') as archive:
         for path in paths:
             dest='LICENSE-'+name+'.txt' if path in ('LICENSE','LICENSE.md') else Path(path).name
-            (out/dest).write_bytes(archive.extractfile('package/'+path).read())
+            asset=archive.extractfile('package/'+path).read()
+            if name=='pdfjs-dist' and path.endswith('.mjs'):
+                asset=(ROOT/'pdf-compat.js').read_bytes()+b'\n'+asset
+            (out/dest).write_bytes(asset)
 for lang,item in lock['models'].items():
     with urllib.request.urlopen(item['url'],timeout=120) as response:data=response.read()
     assert hashlib.sha256(data).hexdigest()==item['sha256'], 'Model integrity failed: '+lang

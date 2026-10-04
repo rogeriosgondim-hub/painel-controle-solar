@@ -4,7 +4,7 @@ Botão Importar PDF em Preencher pela fatura e Fechar o ciclo pela fatura. Mant�
 
 Conferência individual antes de aplicar, com aviso de divergência entre datas do cabeçalho e da tabela de medição. Leitura da tabela Enel permite consumo e multiplicador; referência numérica, total e CIP também podem ser preenchidos. Campos ausentes, como geração, injeção ou créditos, não são presumidos. Continua necessário Salvar mês/Salvar alterações após aplicar.
 
-PDF.js 6.4.299 local com integridade SHA-512 verificada. Android 2.11.0/código 15 inclui biblioteca e worker offline, mantendo a assinatura e pacote. Instalar por cima do anterior, sem desinstalar. Painel revisão 21101 exige código 15 pelos novos arquivos locais.
+PDF.js 6.4.299 local, com helpers Promise compatíveis com WebView antigo na página e no worker, e integridade SHA-512 verificada. Android 2.11.0/código 15 inclui biblioteca e worker offline, mantendo a assinatura e pacote. Instalar por cima do anterior, sem desinstalar. Painel revisão 21102 exige código 15 pelos novos arquivos locais.
 
 Validação: parser sintético, fatura Enel real em teste local, salvar/reabrir, OCR de PDF digitalizado e regressão do fluxo de captura. Teste Android de PDF offline somado aos testes existentes de OCR, persistência, migração e assinatura.
 
