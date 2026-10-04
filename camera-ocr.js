@@ -9,10 +9,12 @@ const ocrFields=[
  {key:'multiplier',label:'Multiplicador da fatura',type:'number',id:'fCycleMultiplier'},
  {key:'dueDate',label:'Vencimento',type:'date',id:'fCycleDue'},
  {key:'nextReadingDate',label:'Próximo fechamento previsto',type:'date',id:'fCycleNext'},
- {key:'totalBill',label:'Conta total (R$)',type:'number',id:'fBill'}
+ {key:'totalBill',label:'Conta total (R$)',type:'number',id:'fBill'},
+ {key:'gridImported',label:'Consumo da rede (kWh)',type:'number',id:'fGrid'},
+ {key:'cip',label:'Iluminação pública — CIP (R$)',type:'number',id:'fCip'}
 ];
 function ocrInvoiceTarget(){return ocrTarget==='invoice'||ocrTarget==='cycle';}
-function ocrReviewFields(){return ocrTarget==='cycle'?ocrFields.filter(field=>field.key!=='totalBill'):ocrFields;}
+function ocrReviewFields(){return ocrTarget==='cycle'?ocrFields.filter(field=>!['totalBill','gridImported','cip'].includes(field.key)):ocrFields;}
 function ocrNormalize(text){return String(text||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();}
 function ocrNumber(text){
  const s=String(text||'').trim().replace(/\s/g,'');if(!/^\d+(?:[.,]\d+)*$/.test(s))return null;
@@ -85,7 +87,60 @@ function prepareOcr(target,mode){
 }
 function openOcr(target,mode){
  if(!['invoice','cycle','03','103'].includes(target))return;prepareOcr(target,mode);
- if(mode==='live')startOcrLive();else document.getElementById(mode==='photo'?'ocrCameraInput':'ocrFileInput').click();
+ if(mode==='live')startOcrLive();else document.getElementById(mode==='pdf'?'ocrPdfInput':mode==='photo'?'ocrCameraInput':'ocrFileInput').click();
+}
+// PDF text is grouped by page coordinates, avoiding column-order errors in invoices.
+function invoicePdfLines(items){
+ const rows=[];for(const item of items){if(!item.str?.trim())continue;const y=item.transform[5];let row=rows.find(r=>Math.abs(r.y-y)<2.5);if(!row){row={y,items:[]};rows.push(row);}row.items.push(item);}
+ return rows.sort((a,b)=>b.y-a.y).map(row=>row.items.sort((a,b)=>a.transform[4]-b.transform[4]).map(i=>i.str).join(' ')).join('\n');
+}
+function parseInvoicePdf(text,blocks=[]){
+ text=text.replace(/\b\d{1,2}\s*[\/.-]\s*\d{1,2}\s*[\/.-]\s*\d{2}\b(?!\d)/g,'');
+ const result=parseInvoiceOcr({text,blocks,confidence:100}),v=result.values,n=ocrNormalize(text),lines=n.split('\n');
+ // The current reference is taken only beside MÊS/ANO, never from invoice due dates.
+ for(let i=0;i<lines.length;i++)if(/MES\s*\/\s*ANO/.test(lines[i])){const m=lines.slice(i,i+4).join(' ').match(/\b(0[1-9]|1[0-2])\s*\/\s*(20\d{2})\b/);if(m){v.month=m[2]+'-'+m[1];break;}}
+ for(let i=0;i<lines.length;i++)if(/EQUIPAMENTOS DE MEDICAO/.test(lines[i])){
+  for(const line of lines.slice(i+1,i+6)){const dates=ocrDates(line);if(dates.length<2)continue;
+   const first=line.slice(dates[0].index+dates[0].text.length,dates[1].index).match(/\b\d+(?:[.,]\d+)?\b/),tail=line.slice(dates[1].index+dates[1].text.length).match(/\b\d+(?:[.,]\d+)?\b/g)||[];
+   if(first&&tail.length>=3){v.startReading=ocrNumber(first[0]);v.endReading=ocrNumber(tail[0]);v.multiplier=ocrNumber(tail[1]);v.gridImported=ocrNumber(tail[2]);
+    if(v.startDate&&v.startDate!==dates[0].value)result.warnings.push('A data anterior do cabeçalho ('+v.startDate.split('-').reverse().join('/')+') difere da tabela de medição ('+dates[0].text+'). Confira qual usar antes de salvar.');
+    v.startDate??=dates[0].value;v.endDate??=dates[1].value;
+    if(v.endReading<v.startReading||v.multiplier<=0){delete v.startReading;delete v.endReading;delete v.multiplier;delete v.gridImported;result.warnings.push('A tabela de medição precisa ser conferida.');}
+    else if(Math.abs((v.endReading-v.startReading)*v.multiplier-v.gridImported)>.1)result.warnings.push('O consumo informado difere do cálculo das leituras e do multiplicador. Confira na fatura.');
+    break;
+   }
+  }break;
+ }
+ const cip=n.match(/\bCIP\b[^\n]*?\s(\d{1,3}(?:\.\d{3})*,\d{2})\b/);if(cip)v.cip=ocrNumber(cip[1]);
+ for(let i=0;i<lines.length;i++)if(/TOTAL\s+A\s+PAGAR/.test(lines[i])){const amount=lines.slice(i,i+4).join(' ').match(/R\$\s*(\d{1,3}(?:\.\d{3})*,\d{2})\b/);if(amount){v.totalBill=ocrNumber(amount[1]);break;}}
+ if(v.multiplier!=null)result.warnings=result.warnings.filter(w=>!w.startsWith('Multiplicador não identificado.'));
+ return result;
+}
+async function readOcrPdf(file){
+ const token=ocrToken;let doc=null,task=null;ocrBusy=true;refreshOcrApply();
+ try{
+  if(file.size>20*1024*1024)throw new Error('Selecione um PDF de até 20 MB.');
+  const bytes=new Uint8Array(await file.arrayBuffer());if(new TextDecoder().decode(bytes.slice(0,1024)).indexOf('%PDF-')<0)throw new Error('O arquivo não é um PDF válido.');
+  ocrSetStatus('Abrindo PDF neste aparelho…');
+  const pdf=await import('./vendor/ocr/pdf.min.mjs');if(token!==ocrToken)return;
+  pdf.GlobalWorkerOptions.workerSrc=new URL('vendor/ocr/pdf.worker.min.mjs',location.href).href;
+  task=pdf.getDocument({data:bytes,isEvalSupported:false,useSystemFonts:true,disableFontFace:true,stopAtErrors:true});doc=await task.promise;if(token!==ocrToken)return;
+  if(doc.numPages>10)throw new Error('Use um PDF com até 10 páginas, contendo apenas uma fatura.');
+  let text='',scanned=false,blocks=[];
+  for(let pageNumber=1;pageNumber<=doc.numPages;pageNumber++){
+   if(token!==ocrToken)return;ocrSetStatus('Lendo página '+pageNumber+' de '+doc.numPages+'…');const page=await doc.getPage(pageNumber),content=await page.getTextContent();let pageText=invoicePdfLines(content.items);
+   if(pageNumber===1){const height=page.getViewport({scale:1}).height;blocks=[{paragraphs:[{lines:content.items.filter(i=>i.str?.trim()).map(i=>{const tokens=i.str.trim().split(/\s+/),width=i.width/tokens.length;return {text:i.str,words:tokens.map((word,k)=>({text:word,bbox:{x0:(i.transform[4]+k*width)*4,x1:(i.transform[4]+(k+1)*width)*4,y0:(height-i.transform[5]-Math.abs(i.transform[3]))*4,y1:(height-i.transform[5])*4}}))};})}]}];}
+   if(pageText.replace(/\s/g,'').length<80){
+    scanned=true;const original=page.getViewport({scale:1}),scale=Math.min(2.5,2200/Math.max(original.width,original.height)),viewport=page.getViewport({scale});const canvas=document.createElement('canvas');canvas.width=Math.ceil(viewport.width);canvas.height=Math.ceil(viewport.height);
+    await page.render({canvasContext:canvas.getContext('2d'),viewport}).promise;if(token!==ocrToken)return;
+    const worker=await getOcrWorker();if(token!==ocrToken)return;await worker.setParameters({tessedit_pageseg_mode:'11',preserve_interword_spaces:'1'});const recognized=await worker.recognize(canvas,{}, {text:true});pageText=recognized.data.text;canvas.width=canvas.height=0;
+   }
+   text+=pageText+'\n';page.cleanup();
+  }
+  if(token!==ocrToken)return;const result=parseInvoicePdf(text,blocks);if(scanned)result.warnings.push('Este PDF contém páginas digitalizadas: confira os valores reconhecidos na imagem.');
+  ocrLastResult=result;ocrBusy=false;renderOcrReview(result);ocrSetStatus('PDF lido. Confira os campos, aplique e depois salve o mês.');
+ }catch(error){if(token===ocrToken){ocrBusy=false;ocrSetStatus(error?.name==='PasswordException'?'O PDF está protegido por senha. Use uma cópia sem proteção.':'Não foi possível ler o PDF. '+(error.message||'Tente novamente.'));}}
+ finally{if(task)await task.destroy().catch(()=>{});if(token===ocrToken){ocrBusy=false;refreshOcrApply();}}
 }
 function loadOcrLibrary(){
  if(window.Tesseract)return Promise.resolve(window.Tesseract);
@@ -170,6 +225,7 @@ function finishOcrLive(){if(ocrBusy){ocrSetStatus('Aguarde o reconhecimento atua
 function ocrPoint(event){const c=document.getElementById('ocrCanvas'),r=c.getBoundingClientRect();return {x:Math.max(0,Math.min(c.width,(event.clientX-r.left)*c.width/r.width)),y:Math.max(0,Math.min(c.height,(event.clientY-r.top)*c.height/r.height))};}
 document.addEventListener('click',event=>{const button=event.target.closest('[data-ocr]');if(button)openOcr(button.dataset.ocr,button.dataset.ocrMode);});
 for(const id of ['ocrCameraInput','ocrFileInput'])document.getElementById(id).addEventListener('change',event=>{const file=event.target.files?.[0];event.target.value='';if(file)readOcrPhoto(file);else closeOcr();});
+document.getElementById('ocrPdfInput').addEventListener('change',event=>{const file=event.target.files?.[0];event.target.value='';if(file)readOcrPdf(file);else closeOcr();});
 document.getElementById('ocrClose').addEventListener('click',closeOcr);document.getElementById('ocrDialog').addEventListener('cancel',event=>{event.preventDefault();closeOcr();});document.getElementById('ocrConfirm').addEventListener('change',refreshOcrApply);document.getElementById('ocrApply').addEventListener('click',applyOcrReview);
 document.getElementById('ocrRetry').addEventListener('click',()=>{if(ocrImage&&!ocrBusy)recognizeOcrImage(ocrImage,ocrToken,false);});
 document.getElementById('ocrReadFrame').addEventListener('click',()=>{clearTimeout(ocrTimer);scanOcrLive(ocrToken);});document.getElementById('ocrFinishLive').addEventListener('click',finishOcrLive);

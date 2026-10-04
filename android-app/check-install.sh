@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-apk=android-app/Controle-Solar-v2.10.0.apk
+apk=android-app/Controle-Solar-v2.11.0.apk
 adb shell input keyevent KEYCODE_WAKEUP
 adb shell wm dismiss-keyguard
 adb shell input keyevent 82

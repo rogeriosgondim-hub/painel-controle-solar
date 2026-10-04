@@ -5,6 +5,7 @@ ROOT=Path(__file__).resolve().parent
 lock=json.loads((ROOT/'ocr-packages.json').read_text())
 out=ROOT/'vendor/ocr';out.mkdir(parents=True,exist_ok=True)
 files={'tesseract.js':['dist/tesseract.min.js','dist/worker.min.js','LICENSE.md'],
+       'pdfjs-dist':['legacy/build/pdf.min.mjs','legacy/build/pdf.worker.min.mjs','LICENSE'],
        'tesseract.js-core':['tesseract-core.wasm.js','tesseract-core-simd.wasm.js','tesseract-core-lstm.wasm.js','tesseract-core-simd-lstm.wasm.js','LICENSE']}
 for name, paths in files.items():
     item=lock['packages'][name]

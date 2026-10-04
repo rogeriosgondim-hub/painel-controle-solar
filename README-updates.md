@@ -1,3 +1,13 @@
+# Painel e Android 2.11.0 — importação de fatura PDF
+
+Botão Importar PDF em Preencher pela fatura e Fechar o ciclo pela fatura. Mantém fotografia, seleção de imagem e câmera ao vivo. PDF com texto é lido diretamente; páginas digitalizadas passam por OCR local. Limites: 20 MB, 10 páginas e uma fatura por arquivo. Arquivos protegidos ou inválidos recebem orientação. Conteúdo permanece em memória, sem envio a servidores.
+
+Conferência individual antes de aplicar, com aviso de divergência entre datas do cabeçalho e da tabela de medição. Leitura da tabela Enel permite consumo e multiplicador; referência numérica, total e CIP também podem ser preenchidos. Campos ausentes, como geração, injeção ou créditos, não são presumidos. Continua necessário Salvar mês/Salvar alterações após aplicar.
+
+PDF.js 6.4.299 local com integridade SHA-512 verificada. Android 2.11.0/código 15 inclui biblioteca e worker offline, mantendo a assinatura e pacote. Instalar por cima do anterior, sem desinstalar. Painel revisão 21100 exige código 15 pelos novos arquivos locais.
+
+Validação: parser sintético, fatura Enel real em teste local, salvar/reabrir, OCR de PDF digitalizado e regressão do fluxo de captura. Teste Android de PDF offline somado aos testes existentes de OCR, persistência, migração e assinatura.
+
 # Painel 2.10.1 — captura no fechamento e edição do mês correto
 
 Fotografia, seleção de imagem e câmera ao vivo no bloco Fechar o ciclo pela fatura. A revisão desse bloco mostra somente referência, datas, leituras e multiplicador.
