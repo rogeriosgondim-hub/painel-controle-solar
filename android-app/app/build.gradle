@@ -33,7 +33,7 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix ""
+            applicationIdSuffix ".teste"
             versionNameSuffix ""
         }
         release {
