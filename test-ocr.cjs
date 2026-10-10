@@ -14,7 +14,7 @@ assert.equal(context.parseMeterOcr({text:'158.123'},'03').values.reading,null);
 // Numeric review inputs are already normalized by HTML; decimals must remain decimals.
 vm.runInContext("ocrTarget='invoice'",context);el('ocrConfirm').checked=true;selections=[{checked:true,dataset:{ocrField:'startReading'}}];el('ocrValue-startReading').type='number';el('ocrValue-startReading').value='1.234';context.applyOcrReview();assert.equal(el('fCycleStartReading').value,1.234);assert.equal(saved,0);
 // CSP covers the entire embedded signed script and permits local WASM.
-const inline=html.split('<script>')[1].split('</script>')[0],hash=crypto.createHash('sha256').update(inline).digest('base64');assert(html.includes("'sha256-"+hash+"'"));assert(html.includes("'wasm-unsafe-eval'"));assert(inline.includes(source));
+const inline=html.split('<script>')[1].split('</script>')[0],hash=crypto.createHash('sha256').update(inline).digest('base64');assert(html.includes("'sha256-"+hash+"'"));assert(html.includes("'wasm-unsafe-eval'"));assert(inline.includes(source.trimEnd()));
 const libHash=crypto.createHash('sha256').update(fs.readFileSync('vendor/ocr/tesseract.min.js')).digest('base64');assert(source.includes('sha256-'+libHash));new vm.Script(inline);
 console.log('PASS: invoice dates/readings, multiplier, meter ambiguity/code, decimal review, no automatic persistence, signed script and pinned OCR');
 
