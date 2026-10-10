@@ -6,7 +6,7 @@
     <application
         android:allowBackup="false"
         android:icon="@drawable/ic_solar"
-        android:label="Controle Solar"
+        android:label="Controle Solar TESTE"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="false">
