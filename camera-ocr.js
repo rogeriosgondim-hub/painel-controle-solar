@@ -160,12 +160,44 @@ async function getOcrWorker(){
 }
 function ocrCopyCanvas(source){const c=document.createElement('canvas');const scale=Math.min(1,2200/Math.max(source.width,source.height));c.width=Math.round(source.width*scale);c.height=Math.round(source.height*scale);c.getContext('2d').drawImage(source,0,0,c.width,c.height);return c;}
 function drawOcrPhoto(){const canvas=document.getElementById('ocrCanvas');if(!ocrImage)return;canvas.width=ocrImage.width;canvas.height=ocrImage.height;const ctx=canvas.getContext('2d');ctx.drawImage(ocrImage,0,0);if(ocrSelection){const r=ocrSelection;ctx.strokeStyle='#1684d6';ctx.lineWidth=Math.max(3,canvas.width/300);ctx.strokeRect(r.x,r.y,r.w,r.h);}canvas.hidden=false;}
+async function decodeOcrPhoto(file){
+ let bitmap=null;
+ if(typeof createImageBitmap==='function'){
+  try{bitmap=await createImageBitmap(file,{imageOrientation:'from-image'});}
+  catch(_orientationError){try{bitmap=await createImageBitmap(file);}catch(_bitmapError){/* Tentar decodificador do navegador/WebView abaixo. */}}
+ }
+ if(bitmap){
+  try{
+   if(!bitmap.width||!bitmap.height||bitmap.width*bitmap.height>50000000)throw new Error('A foto tem resolução excessiva ou inválida. Use uma imagem menor.');
+   const c=document.createElement('canvas'),scale=Math.min(1,2200/Math.max(bitmap.width,bitmap.height));c.width=Math.max(1,Math.round(bitmap.width*scale));c.height=Math.max(1,Math.round(bitmap.height*scale));c.getContext('2d').drawImage(bitmap,0,0,c.width,c.height);return c;
+  }finally{bitmap.close();}
+ }
+ // Compatibilidade com WebView Android que não aceita as opções de createImageBitmap.
+ const url=URL.createObjectURL(file);
+ try{
+  const photo=await new Promise((resolve,reject)=>{
+   const img=new Image();
+   img.onload=()=>resolve(img);
+   img.onerror=()=>reject(new Error('Não foi possível abrir esta foto. No celular, salve uma cópia em JPG ou PNG e selecione-a novamente.'));
+   img.src=url;
+  });
+  const width=photo.naturalWidth,height=photo.naturalHeight;
+  if(!width||!height||width*height>50000000)throw new Error('A foto tem resolução excessiva ou inválida. Use uma imagem menor.');
+  const c=document.createElement('canvas'),scale=Math.min(1,2200/Math.max(width,height));c.width=Math.max(1,Math.round(width*scale));c.height=Math.max(1,Math.round(height*scale));c.getContext('2d').drawImage(photo,0,0,c.width,c.height);return c;
+ }finally{URL.revokeObjectURL(url);}
+}
 async function readOcrPhoto(file){
  const token=ocrToken;if(!file)return;if(file.size>20*1024*1024){ocrSetStatus('A imagem é muito grande. Escolha uma foto de até 20 MB.');return;}
- try{if(file.type&&!/^image\//.test(file.type)){throw new Error('Selecione uma foto JPEG, PNG ou outra imagem compatível.');}
-  const bitmap=await createImageBitmap(file,{imageOrientation:'from-image'});if(token!==ocrToken){bitmap.close();return;}if(bitmap.width*bitmap.height>50000000){bitmap.close();throw new Error('A foto tem resolução excessiva. Use uma imagem menor.');}
-  const c=document.createElement('canvas');const scale=Math.min(1,2200/Math.max(bitmap.width,bitmap.height));c.width=Math.round(bitmap.width*scale);c.height=Math.round(bitmap.height*scale);c.getContext('2d').drawImage(bitmap,0,0,c.width,c.height);bitmap.close();ocrOriginal=c;ocrImage=ocrCopyCanvas(c);drawOcrPhoto();for(const id of ['ocrCrop','ocrRotate','ocrReset','ocrRetry'])document.getElementById(id).hidden=false;if(window.Android?.clearCapturedPhoto)Android.clearCapturedPhoto();await recognizeOcrImage(ocrImage,token,false);
- }catch(error){if(token===ocrToken)ocrSetStatus(error.message||'Não foi possível abrir a imagem. Tente uma foto JPEG bem iluminada.');}
+ try{
+  if(file.type&&!/^image\//.test(file.type))throw new Error('Selecione uma foto JPEG ou PNG.');
+  ocrSetStatus('Abrindo fotografia…');
+  const c=await decodeOcrPhoto(file);
+  if(token!==ocrToken)return;
+  ocrOriginal=c;ocrImage=ocrCopyCanvas(c);drawOcrPhoto();
+  for(const id of ['ocrCrop','ocrRotate','ocrReset','ocrRetry'])document.getElementById(id).hidden=false;
+  if(window.Android?.clearCapturedPhoto)Android.clearCapturedPhoto();
+  await recognizeOcrImage(ocrImage,token,false);
+ }catch(error){if(token===ocrToken)ocrSetStatus(error?.message||'Não foi possível abrir a imagem. Salve uma cópia JPG ou PNG e tente novamente.');}
 }
 async function recognizeOcrImage(image,token,live){
  if(ocrBusy||token!==ocrToken)return null;ocrBusy=true;document.getElementById('ocrApply').disabled=true;ocrSetStatus('Preparando reconhecimento…');
