@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: ["main"]
   push:
-    branches: ["main"]
+    branches: ["main", "test/isolated-meter-android-20261010"]
     paths:
       - "index.html"
       - "camera-ocr.js"
