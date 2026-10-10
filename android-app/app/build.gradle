@@ -16,7 +16,7 @@ android {
         minSdk 24
         targetSdk 35
         versionCode 15
-        versionName "2.11.0"
+        versionName "2.11.0-teste"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -33,10 +33,11 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix ""
+            applicationIdSuffix ".teste"
             versionNameSuffix ""
         }
         release {
+            applicationIdSuffix ".teste"
             minifyEnabled false
             signingConfig signingConfigs.release
         }

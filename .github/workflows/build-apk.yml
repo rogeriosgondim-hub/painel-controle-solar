@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: ["main"]
   push:
-    branches: ["main"]
+    branches: ["main", "test/isolated-meter-android-20261010"]
     paths:
       - "index.html"
       - "camera-ocr.js"
@@ -142,7 +142,7 @@ jobs:
           script: |
             bash android-app/check-install.sh
             adb install -r android-app/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
-            adb shell am instrument -w br.com.controlesolar.residencia.test/androidx.test.runner.AndroidJUnitRunner | tee security-instrumentation.log
+            adb shell am instrument -w br.com.controlesolar.residencia.teste.test/androidx.test.runner.AndroidJUnitRunner | tee security-instrumentation.log
             adb logcat -d -s SolarPanel:I chromium:E AndroidRuntime:E > instrumentation-runtime.log
             grep -q "OK (6 tests)" security-instrumentation.log
 

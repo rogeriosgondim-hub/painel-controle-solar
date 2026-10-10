@@ -211,6 +211,45 @@ async function readOcrPhoto(file){
   await recognizeOcrImage(ocrImage,token,false);
  }catch(error){if(token===ocrToken)ocrSetStatus(error?.message||'Não foi possível abrir a imagem. Salve uma cópia JPG ou PNG e tente novamente.');}
 }
+// Vector 4 LCD: assess the left register and right seven-segment reading separately.
+// Results remain suggestions until the user checks the actual photo and confirms.
+async function recognizeVector4Display(worker,image,target,token){
+ const variants=[],observations=[];
+ // Relative LCD positions for a close-up or full meter portrait (not a generic invoice).
+ const crops=image.height>image.width*1.25?
+  [[.12,.30,.76,.19],[.17,.33,.69,.13]]:
+  [[.13,.20,.76,.48],[.16,.24,.70,.40]];
+ for(const [x,y,w,h] of crops){
+  const display=document.createElement('canvas');
+  display.width=Math.max(1,Math.round(image.width*w));display.height=Math.max(1,Math.round(image.height*h));
+  const ctx=display.getContext('2d',{willReadFrequently:true});
+  ctx.drawImage(image,image.width*x,image.height*y,image.width*w,image.height*h,0,0,display.width,display.height);
+  for(const enhanced of [false,true]){
+   const part=document.createElement('canvas');part.width=display.width;part.height=display.height;
+   const pc=part.getContext('2d');pc.filter=enhanced?'grayscale(1) contrast(1.9) brightness(1.15)':'none';pc.drawImage(display,0,0);
+   // Read register and reading separately to avoid serial numbers and nameplate text.
+   const regions=[[.04,.32],[.44,.54]],texts=[];
+   for(const [offset,width] of regions){
+    const cut=document.createElement('canvas');cut.width=Math.max(1,Math.round(part.width*width));cut.height=part.height;
+    cut.getContext('2d').drawImage(part,part.width*offset,part.height*.19,part.width*width,part.height*.61,0,0,cut.width,cut.height);
+    await worker.setParameters({tessedit_pageseg_mode:'7',tessedit_char_whitelist:'0123456789',preserve_interword_spaces:'0'});
+    const answer=await worker.recognize(cut,{}, {text:true});
+    if(token!==ocrToken)return null;
+    texts.push(String(answer.data.text||'').replace(/\D/g,''));
+   }
+   // Reject partial code matches and unexpected lengths; never infer a decimal separator.
+   observations.push({code:texts[0],digits:texts[1],enhanced,area:[x,y,w,h]});
+   if(texts[0]===target&&/^\d{4,6}$/.test(texts[1])){
+    variants.push({reading:Number(texts[1]),raw:texts[1]});
+   }
+  }
+ }
+ const counts=new Map();
+ for(const v of variants)counts.set(v.reading,(counts.get(v.reading)||0)+1);
+ const agreed=[...counts.entries()].filter(([_,n])=>n>=2);
+ if(agreed.length!==1)return {reading:null,diagnostic:observations.map(o=>'código='+ (o.code||'?')+' leitura='+ (o.digits||'?')).join(' | ').slice(0,260)};
+ return {reading:agreed[0][0],raw:variants.find(v=>v.reading===agreed[0][0]).raw,diagnostic:'Confirmação por múltiplas leituras'};
+}
 async function recognizeOcrImage(image,token,live){
  if(ocrBusy||token!==ocrToken)return null;ocrBusy=true;document.getElementById('ocrApply').disabled=true;ocrSetStatus('Preparando reconhecimento…');
  try{const worker=await getOcrWorker();if(token!==ocrToken)return null;await worker.setParameters({tessedit_pageseg_mode:live&&!ocrInvoiceTarget()?'6':'11',preserve_interword_spaces:'1'});const {data}=await worker.recognize(image,{}, {text:true,blocks:true});if(token!==ocrToken)return null;let result=ocrInvoiceTarget()?parseInvoiceOcr(data):parseMeterOcr(data,ocrTarget);
@@ -236,6 +275,19 @@ async function recognizeOcrImage(image,token,live){
     result.candidates=[...result.candidates,...guesses.flatMap(g=>g.candidates)].slice(0,6);
    }
    await worker.setParameters({tessedit_char_whitelist:''});
+  }
+  if(!ocrInvoiceTarget()&&!live&&result.values.reading==null){
+   try{
+    const vector=await recognizeVector4Display(worker,image,ocrTarget,token);
+    if(token!==ocrToken)return null;
+    if(vector&&vector.reading!=null){
+     result.values.reading=vector.reading;
+     result.warnings.push('Sugestão obtida do visor digital ('+vector.raw+'). Confira o código e cada dígito antes de transferir.');
+     result.codes=[ocrTarget];
+    }else if(vector&&vector.diagnostic){result.warnings.push('Diagnóstico experimental do LCD (sem confirmação): '+vector.diagnostic+'.');}
+   }catch(_vectorError){
+    result.warnings.push('Leitura especializada indisponível. Confira o visor e preencha manualmente.');
+   }finally{await worker.setParameters({tessedit_char_whitelist:''});}
   }
   ocrLastResult=result;ocrLastFrame=ocrCopyCanvas(image);
   if(!live)renderOcrReview(result);else{const value=ocrInvoiceTarget()?Object.keys(result.values).length+' campo(s) identificado(s)':result.values.reading==null?'Enquadre somente o visor':String(result.values.reading);ocrSetStatus('Câmera ao vivo: '+value+'. Mantenha a imagem estável.');}
