@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-NcfIxZ6JGJh2+2Qe4ziROzho8MUN+2GE4Z3g9hxQLK0=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://api.github.com; worker-src 'self'; media-src 'self' blob:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-jwiR+MybWVwCk3OcRzAL8A1B3/VT9A522ohuegs/JR8=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://api.github.com; worker-src 'self'; media-src 'self' blob:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0F5F8C">
 <title>Controle Solar v2.10.1</title>
@@ -2883,6 +2883,44 @@ async function readOcrPhoto(file){
   await recognizeOcrImage(ocrImage,token,false);
  }catch(error){if(token===ocrToken)ocrSetStatus(error?.message||'Não foi possível abrir a imagem. Salve uma cópia JPG ou PNG e tente novamente.');}
 }
+// Vector 4 LCD: assess the left register and right seven-segment reading separately.
+// Results remain suggestions until the user checks the actual photo and confirms.
+async function recognizeVector4Display(worker,image,target,token){
+ const variants=[];
+ // Relative LCD positions for a close-up or full meter portrait (not a generic invoice).
+ const crops=image.height>image.width*1.25?
+  [[.17,.25,.66,.13],[.16,.26,.68,.15]]:
+  [[.13,.20,.76,.48],[.16,.24,.70,.40]];
+ for(const [x,y,w,h] of crops){
+  const display=document.createElement('canvas');
+  display.width=Math.max(1,Math.round(image.width*w));display.height=Math.max(1,Math.round(image.height*h));
+  const ctx=display.getContext('2d',{willReadFrequently:true});
+  ctx.drawImage(image,image.width*x,image.height*y,image.width*w,image.height*h,0,0,display.width,display.height);
+  for(const enhanced of [false,true]){
+   const part=document.createElement('canvas');part.width=display.width;part.height=display.height;
+   const pc=part.getContext('2d');pc.filter=enhanced?'grayscale(1) contrast(1.9) brightness(1.15)':'none';pc.drawImage(display,0,0);
+   // Read register and reading separately to avoid serial numbers and nameplate text.
+   const regions=[[0,.34],[.38,.62]],texts=[];
+   for(const [offset,width] of regions){
+    const cut=document.createElement('canvas');cut.width=Math.max(1,Math.round(part.width*width));cut.height=part.height;
+    cut.getContext('2d').drawImage(part,part.width*offset,0,part.width*width,part.height,0,0,cut.width,cut.height);
+    await worker.setParameters({tessedit_pageseg_mode:'7',tessedit_char_whitelist:'0123456789'});
+    const answer=await worker.recognize(cut,{}, {text:true});
+    if(token!==ocrToken)return null;
+    texts.push(String(answer.data.text||'').replace(/\D/g,''));
+   }
+   // Reject partial code matches and unexpected lengths; never infer a decimal separator.
+   if(texts[0]===target&&/^\d{4,6}$/.test(texts[1])){
+    variants.push({reading:Number(texts[1]),raw:texts[1]});
+   }
+  }
+ }
+ const counts=new Map();
+ for(const v of variants)counts.set(v.reading,(counts.get(v.reading)||0)+1);
+ const agreed=[...counts.entries()].filter(([_,n])=>n>=2);
+ if(agreed.length!==1)return null;
+ return {reading:agreed[0][0],raw:variants.find(v=>v.reading===agreed[0][0]).raw};
+}
 async function recognizeOcrImage(image,token,live){
  if(ocrBusy||token!==ocrToken)return null;ocrBusy=true;document.getElementById('ocrApply').disabled=true;ocrSetStatus('Preparando reconhecimento…');
  try{const worker=await getOcrWorker();if(token!==ocrToken)return null;await worker.setParameters({tessedit_pageseg_mode:live&&!ocrInvoiceTarget()?'6':'11',preserve_interword_spaces:'1'});const {data}=await worker.recognize(image,{}, {text:true,blocks:true});if(token!==ocrToken)return null;let result=ocrInvoiceTarget()?parseInvoiceOcr(data):parseMeterOcr(data,ocrTarget);
@@ -2908,6 +2946,19 @@ async function recognizeOcrImage(image,token,live){
     result.candidates=[...result.candidates,...guesses.flatMap(g=>g.candidates)].slice(0,6);
    }
    await worker.setParameters({tessedit_char_whitelist:''});
+  }
+  if(!ocrInvoiceTarget()&&!live&&result.values.reading==null){
+   try{
+    const vector=await recognizeVector4Display(worker,image,ocrTarget,token);
+    if(token!==ocrToken)return null;
+    if(vector){
+     result.values.reading=vector.reading;
+     result.warnings.push('Sugestão obtida do visor digital ('+vector.raw+'). Confira o código e cada dígito antes de transferir.');
+     result.codes=[ocrTarget];
+    }
+   }catch(_vectorError){
+    result.warnings.push('Leitura especializada indisponível. Confira o visor e preencha manualmente.');
+   }finally{await worker.setParameters({tessedit_char_whitelist:''});}
   }
   ocrLastResult=result;ocrLastFrame=ocrCopyCanvas(image);
   if(!live)renderOcrReview(result);else{const value=ocrInvoiceTarget()?Object.keys(result.values).length+' campo(s) identificado(s)':result.values.reading==null?'Enquadre somente o visor':String(result.values.reading);ocrSetStatus('Câmera ao vivo: '+value+'. Mantenha a imagem estável.');}
