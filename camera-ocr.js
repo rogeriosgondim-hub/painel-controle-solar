@@ -214,7 +214,7 @@ async function readOcrPhoto(file){
 // Vector 4 LCD: assess the left register and right seven-segment reading separately.
 // Results remain suggestions until the user checks the actual photo and confirms.
 async function recognizeVector4Display(worker,image,target,token){
- const variants=[];
+ const variants=[],observations=[];
  // Relative LCD positions for a close-up or full meter portrait (not a generic invoice).
  const crops=image.height>image.width*1.25?
   [[.15,.30,.70,.17],[.19,.32,.65,.14]]:
@@ -238,6 +238,7 @@ async function recognizeVector4Display(worker,image,target,token){
     texts.push(String(answer.data.text||'').replace(/\D/g,''));
    }
    // Reject partial code matches and unexpected lengths; never infer a decimal separator.
+   observations.push({code:texts[0],digits:texts[1],enhanced,area:[x,y,w,h]});
    if(texts[0]===target&&/^\d{4,6}$/.test(texts[1])){
     variants.push({reading:Number(texts[1]),raw:texts[1]});
    }
@@ -246,8 +247,8 @@ async function recognizeVector4Display(worker,image,target,token){
  const counts=new Map();
  for(const v of variants)counts.set(v.reading,(counts.get(v.reading)||0)+1);
  const agreed=[...counts.entries()].filter(([_,n])=>n>=2);
- if(agreed.length!==1)return null;
- return {reading:agreed[0][0],raw:variants.find(v=>v.reading===agreed[0][0]).raw};
+ if(agreed.length!==1)return {reading:null,diagnostic:observations.map(o=>'código='+ (o.code||'?')+' leitura='+ (o.digits||'?')).join(' | ').slice(0,260)};
+ return {reading:agreed[0][0],raw:variants.find(v=>v.reading===agreed[0][0]).raw,diagnostic:'Confirmação por múltiplas leituras'};
 }
 async function recognizeOcrImage(image,token,live){
  if(ocrBusy||token!==ocrToken)return null;ocrBusy=true;document.getElementById('ocrApply').disabled=true;ocrSetStatus('Preparando reconhecimento…');
@@ -279,11 +280,11 @@ async function recognizeOcrImage(image,token,live){
    try{
     const vector=await recognizeVector4Display(worker,image,ocrTarget,token);
     if(token!==ocrToken)return null;
-    if(vector){
+    if(vector&&vector.reading!=null){
      result.values.reading=vector.reading;
      result.warnings.push('Sugestão obtida do visor digital ('+vector.raw+'). Confira o código e cada dígito antes de transferir.');
      result.codes=[ocrTarget];
-    }
+    }else if(vector&&vector.diagnostic){result.warnings.push('Diagnóstico experimental do LCD (sem confirmação): '+vector.diagnostic+'.');}
    }catch(_vectorError){
     result.warnings.push('Leitura especializada indisponível. Confira o visor e preencha manualmente.');
    }finally{await worker.setParameters({tessedit_char_whitelist:''});}
