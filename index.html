@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-NcfIxZ6JGJh2+2Qe4ziROzho8MUN+2GE4Z3g9hxQLK0=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://api.github.com; worker-src 'self'; media-src 'self' blob:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-1a9tqKJXUlkkI3gpym5c4b/bixQq+2LHp1taElSO9Wg=' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://api.github.com; worker-src 'self'; media-src 'self' blob:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0F5F8C">
 <title>Controle Solar v2.10.1</title>
@@ -825,7 +825,7 @@ table{font-size:12px}
 
       <section class="view" id="meter">
         <div class="premium-head"><div><h3>Relógio Enel</h3><p>Leituras acumuladas dos códigos 03 e 103, em kWh.</p></div></div>
-        <div class="meter-code-legend" aria-label="Legenda dos códigos do relógio">
+        <div class="card" id="meterCompatibility"><h3>Modelo do medidor</h3><p>Selecione o modelo indicado na etiqueta. O reconhecimento por fotografia ainda exige conferência.</p><div class="field"><label for="meterModelChoice">Modelo instalado</label><select id="meterModelChoice"><option value="unknown">Não sei identificar</option><option value="nansen-vector-4">Nansen Vector 4</option><option value="other">Outro modelo</option></select></div><p class="meter-help" id="meterCompatibilityNotice" role="status"></p><small>Os códigos 03 e 103 não são universais; confirme sua função no manual do equipamento ou com a concessionária. O lançamento manual continua disponível.</small></div><div class="meter-code-legend" aria-label="Legenda dos códigos do relógio">
           <article class="meter-code-card meter-code-03"><span class="meter-code-number">03</span><h4>Consumo da rede</h4><b>Enel → sua casa</b><p>Energia recebida da rede, de dia ou de noite.</p><small>Copie o total acumulado em kWh.</small></article>
           <article class="meter-code-card meter-code-103"><span class="meter-code-number">103</span><h4>Energia injetada</h4><b>Sua casa → Enel</b><p>Sobra solar enviada à rede após o uso da casa.</p><small>Copie o total acumulado em kWh.</small></article>
         </div>
@@ -1101,7 +1101,7 @@ table{font-size:12px}
 
       <section class="view" id="guide">
         <div class="section-head"><div><h3>Guia rápido de uso</h3><p>Fluxo recomendado para cada ciclo mensal.</p></div></div>
-        <div class="steps" id="guideSteps"></div>
+        <div class="steps" id="guideSteps"></div><div class="card"><h3>Compatibilidade do Relógio Enel</h3><p>Identifique o modelo do medidor na etiqueta e selecione-o na tela Relógio Enel. O reconhecimento especializado do Nansen Vector 4 está em validação; outros modelos ainda não foram validados.</p><p>Antes de lançar, confirme no manual ou com a concessionária o significado dos códigos. Não considere 03 e 103 universais. Registre os totais acumulados confirmados em kWh, sem subtrair a leitura anterior. Confira o valor antes de salvar.</p><p>Para residências diferentes, mantenha históricos e credenciais de sincronização separados.</p></div>
         <div class="section-head"><div><h3>Dados da conta analisada — Set/2026</h3></div></div>
         <div class="grid three">
           <div class="card"><b>Consumo faturado</b><div class="big">220 kWh</div></div>
@@ -2973,6 +2973,16 @@ document.getElementById('ocrRotate').addEventListener('click',()=>{if(!ocrImage|
 document.getElementById('ocrReset').addEventListener('click',()=>{if(ocrOriginal&&!ocrBusy){ocrImage=ocrCopyCanvas(ocrOriginal);ocrSelection=null;drawOcrPhoto();}});
 document.getElementById('ocrCrop').addEventListener('click',()=>{if(ocrBusy)return;if(!ocrSelection||ocrSelection.w<30||ocrSelection.h<30){ocrSetStatus('Arraste na foto para selecionar a área do visor ou do quadro de leituras.');return;}const r=ocrSelection,c=document.createElement('canvas');c.width=Math.round(r.w);c.height=Math.round(r.h);c.getContext('2d').drawImage(ocrImage,r.x,r.y,r.w,r.h,0,0,c.width,c.height);ocrImage=c;ocrSelection=null;drawOcrPhoto();recognizeOcrImage(c,ocrToken,false);});
 const ocrCanvas=document.getElementById('ocrCanvas');ocrCanvas.addEventListener('pointerdown',event=>{if(ocrBusy||!ocrImage)return;ocrDrag=ocrPoint(event);ocrSelection=null;ocrCanvas.setPointerCapture(event.pointerId);});ocrCanvas.addEventListener('pointermove',event=>{if(!ocrDrag)return;const p=ocrPoint(event);ocrSelection={x:Math.min(p.x,ocrDrag.x),y:Math.min(p.y,ocrDrag.y),w:Math.abs(p.x-ocrDrag.x),h:Math.abs(p.y-ocrDrag.y)};drawOcrPhoto();});ocrCanvas.addEventListener('pointerup',()=>{ocrDrag=null;});ocrCanvas.addEventListener('pointercancel',()=>{ocrDrag=null;});
-document.addEventListener('visibilitychange',()=>{if(document.hidden&&ocrStream){ocrStopStream();ocrSetStatus('Câmera encerrada ao sair da tela. Abra novamente para continuar.');}});window.addEventListener('pagehide',()=>{ocrStopStream();});</script>
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&ocrStream){ocrStopStream();ocrSetStatus('Câmera encerrada ao sair da tela. Abra novamente para continuar.');}});window.addEventListener('pagehide',()=>{ocrStopStream();});
+(function(){
+ const selector=document.getElementById('meterModelChoice'),status=document.getElementById('meterCompatibilityNotice');
+ if(!selector||!status)return;
+ const key='painelSolar.meterModel.local.v1';
+ try{const v=localStorage.getItem(key);if(['unknown','nansen-vector-4','other'].includes(v))selector.value=v;}catch(_){}
+ function update(){status.textContent=selector.value==='nansen-vector-4'?'Nansen Vector 4: reconhecimento especializado em validação. Confira cada leitura.':selector.value==='other'?'Outro modelo: OCR não validado. Confira no manual o significado dos códigos e faça o registro manual.':'Modelo não identificado: confirme modelo e códigos antes de registrar leituras.';}
+ selector.addEventListener('change',()=>{try{localStorage.setItem(key,selector.value);}catch(_){}update();});
+ update();
+})();
+</script>
 </body>
 </html>
