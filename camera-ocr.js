@@ -217,7 +217,7 @@ async function recognizeVector4Display(worker,image,target,token){
  const variants=[];
  // Relative LCD positions for a close-up or full meter portrait (not a generic invoice).
  const crops=image.height>image.width*1.25?
-  [[.17,.25,.66,.13],[.16,.26,.68,.15]]:
+  [[.15,.30,.70,.17],[.19,.32,.65,.14]]:
   [[.13,.20,.76,.48],[.16,.24,.70,.40]];
  for(const [x,y,w,h] of crops){
   const display=document.createElement('canvas');
