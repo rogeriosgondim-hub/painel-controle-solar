@@ -330,7 +330,41 @@ public class MainActivity extends Activity {
             if(filePathCallback!=null){filePathCallback.onReceiveValue(success?new Uri[]{capturedPhotoUri}:null);filePathCallback=null;}
             if(!success)clearCapturedPhoto();return;
         }
-        if(requestCode==REQUEST_FILE_CHOOSER){if(filePathCallback!=null){filePathCallback.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(resultCode,data));filePathCallback=null;}return;}
+        if(requestCode==REQUEST_FILE_CHOOSER){
+            if(filePathCallback!=null){
+                Uri[] selected=WebChromeClient.FileChooserParams.parseResult(resultCode,data);
+                if(resultCode==RESULT_OK&&selected!=null&&selected.length>0){
+                    java.util.ArrayList<Uri> safe=new java.util.ArrayList<>();
+                    for(Uri uri:selected){
+                        if(uri==null)continue;
+                        try{
+                            // Some gallery providers expose short-lived content URIs.
+                            // Copy image bytes to our own FileProvider URI before returning to WebView.
+                            String mime=getContentResolver().getType(uri);
+                            if(mime==null||!mime.startsWith("image/"))throw new Exception("unsupported MIME");
+                            File dir=new File(getCacheDir(),"gallery-ocr");if(!dir.exists()&&!dir.mkdirs())throw new Exception("cache unavailable");
+                            File copy=File.createTempFile("selected-", ".img",dir);
+                            long size=0;try(InputStream in=getContentResolver().openInputStream(uri);OutputStream out=new FileOutputStream(copy)){
+                                if(in==null)throw new Exception("empty image stream");
+                                byte[] buf=new byte[8192];int count;
+                                while((count=in.read(buf))!=-1){size+=count;if(size>20L*1024*1024)throw new Exception("image too large");out.write(buf,0,count);}
+                            }
+                            if(size<8)throw new Exception("empty image");
+                            Uri stable=FileProvider.getUriForFile(MainActivity.this,getPackageName()+".camera",copy);
+                            grantUriPermission(getPackageName(),stable,Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                            safe.add(stable);
+                            Log.i("SolarPanel","Galeria: arquivo copiado para leitura, bytes="+size);
+                        }catch(Exception e){
+                            Log.e("SolarPanel","Galeria: falha ao preparar imagem: "+e.getClass().getSimpleName());
+                            Toast.makeText(MainActivity.this,"Não foi possível importar a imagem. Escolha JPG/PNG local.",Toast.LENGTH_LONG).show();
+                        }
+                    }
+                    selected=safe.isEmpty()?null:safe.toArray(new Uri[0]);
+                }
+                filePathCallback.onReceiveValue(selected);filePathCallback=null;
+            }
+            return;
+        }
         if(requestCode==REQUEST_SAVE_FILE){
             if(resultCode==RESULT_OK&&data!=null&&data.getData()!=null&&pendingBytes!=null){
                 try(OutputStream out=getContentResolver().openOutputStream(data.getData())){
