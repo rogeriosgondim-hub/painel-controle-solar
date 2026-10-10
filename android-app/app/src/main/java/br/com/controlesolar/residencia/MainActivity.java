@@ -57,7 +57,7 @@ public class MainActivity extends Activity {
     private static final String PANEL_URL="https://appassets.androidplatform.net/assets/index.html";
     private static final String HOST="rogeriosgondim-hub.github.io";
     private static final String SITE="https://"+HOST+"/painel-controle-solar/";
-    private static final int NATIVE_CODE=15, BUNDLED_REVISION=21103;
+    private static final int NATIVE_CODE=15, BUNDLED_REVISION=21108;
     private static final String BUNDLED_VERSION="2.11.0";
     private WebView webView, printView;
     private ValueCallback<Uri[]> filePathCallback;
