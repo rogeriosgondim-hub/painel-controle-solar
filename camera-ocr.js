@@ -161,30 +161,42 @@ async function getOcrWorker(){
 function ocrCopyCanvas(source){const c=document.createElement('canvas');const scale=Math.min(1,2200/Math.max(source.width,source.height));c.width=Math.round(source.width*scale);c.height=Math.round(source.height*scale);c.getContext('2d').drawImage(source,0,0,c.width,c.height);return c;}
 function drawOcrPhoto(){const canvas=document.getElementById('ocrCanvas');if(!ocrImage)return;canvas.width=ocrImage.width;canvas.height=ocrImage.height;const ctx=canvas.getContext('2d');ctx.drawImage(ocrImage,0,0);if(ocrSelection){const r=ocrSelection;ctx.strokeStyle='#1684d6';ctx.lineWidth=Math.max(3,canvas.width/300);ctx.strokeRect(r.x,r.y,r.w,r.h);}canvas.hidden=false;}
 async function decodeOcrPhoto(file){
+ // Some Android document pickers provide valid JPEG bytes but unusable blob URLs.
+ // Try browser decoders independently; preserve orientation when supported.
  let bitmap=null;
  if(typeof createImageBitmap==='function'){
   try{bitmap=await createImageBitmap(file,{imageOrientation:'from-image'});}
-  catch(_orientationError){try{bitmap=await createImageBitmap(file);}catch(_bitmapError){/* Tentar decodificador do navegador/WebView abaixo. */}}
+  catch(_){try{bitmap=await createImageBitmap(file);}catch(__){}}
  }
  if(bitmap){
   try{
-   if(!bitmap.width||!bitmap.height||bitmap.width*bitmap.height>50000000)throw new Error('A foto tem resolução excessiva ou inválida. Use uma imagem menor.');
-   const c=document.createElement('canvas'),scale=Math.min(1,2200/Math.max(bitmap.width,bitmap.height));c.width=Math.max(1,Math.round(bitmap.width*scale));c.height=Math.max(1,Math.round(bitmap.height*scale));c.getContext('2d').drawImage(bitmap,0,0,c.width,c.height);return c;
+   if(!bitmap.width||!bitmap.height||bitmap.width*bitmap.height>50000000)throw new Error('A foto tem resolução excessiva ou inválida.');
+   const c=document.createElement('canvas'),s=Math.min(1,2200/Math.max(bitmap.width,bitmap.height));
+   c.width=Math.max(1,Math.round(bitmap.width*s));c.height=Math.max(1,Math.round(bitmap.height*s));
+   c.getContext('2d').drawImage(bitmap,0,0,c.width,c.height);return c;
   }finally{bitmap.close();}
  }
- // Compatibilidade com WebView Android que não aceita as opções de createImageBitmap.
- const url=URL.createObjectURL(file);
+ const loadImage=src=>new Promise((resolve,reject)=>{
+  const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>reject(new Error('Falha na decodificação da imagem.'));img.src=src;
+ });
+ let photo=null,objectUrl=null;
  try{
-  const photo=await new Promise((resolve,reject)=>{
-   const img=new Image();
-   img.onload=()=>resolve(img);
-   img.onerror=()=>reject(new Error('Não foi possível abrir esta foto. No celular, salve uma cópia em JPG ou PNG e selecione-a novamente.'));
-   img.src=url;
+  objectUrl=URL.createObjectURL(file);
+  try{photo=await loadImage(objectUrl);}catch(_){}
+ }finally{if(objectUrl)URL.revokeObjectURL(objectUrl);}
+ if(!photo){
+  // Data URL fallback also supports content-provider blobs rejected by WebView.
+  if(typeof FileReader==='undefined')throw new Error('Não foi possível acessar a foto selecionada.');
+  const src=await new Promise((resolve,reject)=>{
+   const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error('Não foi possível ler os dados da foto.'));reader.readAsDataURL(file);
   });
-  const width=photo.naturalWidth,height=photo.naturalHeight;
-  if(!width||!height||width*height>50000000)throw new Error('A foto tem resolução excessiva ou inválida. Use uma imagem menor.');
-  const c=document.createElement('canvas'),scale=Math.min(1,2200/Math.max(width,height));c.width=Math.max(1,Math.round(width*scale));c.height=Math.max(1,Math.round(height*scale));c.getContext('2d').drawImage(photo,0,0,c.width,c.height);return c;
- }finally{URL.revokeObjectURL(url);}
+  try{photo=await loadImage(src);}catch(_){throw new Error('Não foi possível decodificar a foto selecionada. Abra-a na Galeria e salve uma cópia JPG antes de tentar novamente.');}
+ }
+ const width=photo.naturalWidth,height=photo.naturalHeight;
+ if(!width||!height||width*height>50000000)throw new Error('A foto tem resolução excessiva ou inválida.');
+ const c=document.createElement('canvas'),s=Math.min(1,2200/Math.max(width,height));
+ c.width=Math.max(1,Math.round(width*s));c.height=Math.max(1,Math.round(height*s));
+ c.getContext('2d').drawImage(photo,0,0,c.width,c.height);return c;
 }
 async function readOcrPhoto(file){
  const token=ocrToken;if(!file)return;if(file.size>20*1024*1024){ocrSetStatus('A imagem é muito grande. Escolha uma foto de até 20 MB.');return;}
@@ -201,7 +213,31 @@ async function readOcrPhoto(file){
 }
 async function recognizeOcrImage(image,token,live){
  if(ocrBusy||token!==ocrToken)return null;ocrBusy=true;document.getElementById('ocrApply').disabled=true;ocrSetStatus('Preparando reconhecimento…');
- try{const worker=await getOcrWorker();if(token!==ocrToken)return null;await worker.setParameters({tessedit_pageseg_mode:live&&!ocrInvoiceTarget()?'6':'11',preserve_interword_spaces:'1'});const {data}=await worker.recognize(image,{}, {text:true,blocks:true});if(token!==ocrToken)return null;const result=ocrInvoiceTarget()?parseInvoiceOcr(data):parseMeterOcr(data,ocrTarget);ocrLastResult=result;ocrLastFrame=ocrCopyCanvas(image);
+ try{const worker=await getOcrWorker();if(token!==ocrToken)return null;await worker.setParameters({tessedit_pageseg_mode:live&&!ocrInvoiceTarget()?'6':'11',preserve_interword_spaces:'1'});const {data}=await worker.recognize(image,{}, {text:true,blocks:true});if(token!==ocrToken)return null;let result=ocrInvoiceTarget()?parseInvoiceOcr(data):parseMeterOcr(data,ocrTarget);
+  // On meter photos, retry using the display area rather than labels and serials.
+  // Never silently accept a reading without the correct 03/103 code.
+  if(!ocrInvoiceTarget()&&result.values.reading==null&&!live){
+   const areas=[[.08,.18,.84,.32],[.06,.12,.88,.43]];
+   const guesses=[];
+   for(const [x,y,w,h] of areas){
+    const part=document.createElement('canvas');part.width=Math.round(image.width*w);part.height=Math.round(image.height*h);
+    if(!part.width||!part.height)continue;
+    const context=part.getContext('2d');context.drawImage(image,image.width*x,image.height*y,image.width*w,image.height*h,0,0,part.width,part.height);
+    await worker.setParameters({tessedit_pageseg_mode:'6',preserve_interword_spaces:'1',tessedit_char_whitelist:'0123456789.,KkWwHh '});
+    const attempt=await worker.recognize(part,{}, {text:true,blocks:true});
+    if(token!==ocrToken)return null;
+    const parsed=parseMeterOcr(attempt.data,ocrTarget);
+    if(parsed.values.reading!=null)guesses.push(parsed);
+   }
+   if(guesses.length===2&&guesses[0].values.reading===guesses[1].values.reading){
+    result=guesses[0];result.warnings.push('Leitura sugerida pelo recorte automático. Confirme os números no visor original.');
+   }else if(guesses.length){
+    result.warnings.push('Foram encontrados números no visor, mas a leitura não foi consistente entre as regiões. Recorte o visor e confira manualmente.');
+    result.candidates=[...result.candidates,...guesses.flatMap(g=>g.candidates)].slice(0,6);
+   }
+   await worker.setParameters({tessedit_char_whitelist:''});
+  }
+  ocrLastResult=result;ocrLastFrame=ocrCopyCanvas(image);
   if(!live)renderOcrReview(result);else{const value=ocrInvoiceTarget()?Object.keys(result.values).length+' campo(s) identificado(s)':result.values.reading==null?'Enquadre somente o visor':String(result.values.reading);ocrSetStatus('Câmera ao vivo: '+value+'. Mantenha a imagem estável.');}
   return result;
  }catch(error){if(token===ocrToken){ocrStopStream();ocrSetStatus(error.message||'Não foi possível reconhecer a imagem. Tente novamente com melhor iluminação.');}return null;}
